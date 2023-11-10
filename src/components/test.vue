@@ -36,81 +36,39 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
 
-// Scoring configuration constants
-const autonscoring = {
-    time: [5],
-    points: [2],
-    limit: [999999],
+//orderby score, ranking points
+//graph function needs data points
+//make objects of the scenerios
+//calc auton, endgame, and then teleop, note the teleop time isn't const
 
-    // For parking, use [seconds, points] arrays
-    // l=Leave [0, 0] option open for not parking
-    parking: [
-        [0, 0],
-        [3, 3],
-    ],
-};
+let rnkpntcounter=[0,30];//need to score 30 balancing points to get ranking point
+const autondock={points:5,time:[2,5],rankingpointcounter:true}
+const autonengage={points:10,time:[3,7],rankingpointcounter:true}
+const parknone={points:0,time:[0,0]}
+const gamepiece={cone:false,cube:true}
+const scoringmethod1={points:1,time:[2,5]}//cube low
+const scoringmethod2={points:2,time:[2,5]}//cube mid
+const scoringmethod3={points:3,time:[3,7]}//cube high
+const scoringmethod4={points:1,time:[2,5]}//cone low
+const scoringmethod5={points:2,time:[2,5]}//cone mid
+const scoringmethod6={points:3,time:[3,7]}//cone high
+const autonscenarios={}//to add a scenario, set scenario1:[[extra time durning auton,points,ranking points,ranking point counters],[methods and their order]]
+const auton={
+    park:[autondock,autonengage,parknone],
+    scoring:[scoringmethod1,scoringmethod2,scoringmethod3,scoringmethod4,scoringmethod5,scoringmethod6]
+}
+const endgamedock1={}//endgame park
+//teleop scoring methods go here
 
-const teleopscoring = {
-    time: [1],
-    points: [1],
-    limit: [999999]
-};
+//loop through the different parking options
+for(let i=0; i<auton.parking.length;i++){
+autonscenarios['scenerio' + `${i}`][1][i]=;
+autonscenarios['scenerio' + `${i}`][0][0]=15;
+let stall=false;//stall:true means there's no time for another method
+while (autontime>0||stall===false){}
+}
 
-const endgamescoring = {
-    time: [1, 10],
-    points: [1, 20],
-    limit: [999999]
-};
-
-// Reactivity enabled variables
-// Variables from here on won't be changed on year by year basis
-// Auton might be (15 + 3) seconds long
-let auton = ref(15);
-let teleop = ref(105);
-let endgame = ref(30);
-let score = ref(0);
-let testscores = ref([0, 0, 0]);
-let scoreCalculated = ref(false);
-
-// Calculate Scores function
-const calculateScores = () => {
-    // Reset scores
-    score.value = 0;
-    testscores.value.fill(0);
-
-    // Auton calculations
-    let autonRemainingTime = auton.value;
-    for (let [parkTime, parkPoints] of autonscoring.parking) {
-        if (parkTime <= autonRemainingTime) {
-            autonRemainingTime -= parkTime;
-            testscores.value[0] += parkPoints;
-            break; // Assuming only one parking action can be taken
-        }
-    }
-
-    // Assuming a simple scoring model where each action takes a set amount of time and scores points
-    // Additional logic would be needed for more complex scoring mechanisms
-    let autonPointsPerSecond = autonscoring.points[0] / autonscoring.time[0];
-    testscores.value[0] += autonRemainingTime * autonPointsPerSecond;
-
-    // Teleop calculations
-    let teleopPointsPerSecond = teleopscoring.points[0] / teleopscoring.time[0];
-    testscores.value[1] = teleop.value * teleopPointsPerSecond;
-
-    // Endgame calculations
-    let endgamePointsPerSecond = endgamescoring.points.reduce((acc, points, index) => {
-        return acc + (points / endgamescoring.time[index]);
-    }, 0);
-    testscores.value[2] = endgame.value * endgamePointsPerSecond;
-
-    // Calculate total score
-    score.value = testscores.value.reduce((acc, current) => acc + current, 0);
-
-    // Update the calculated flag
-    scoreCalculated.value = true;
-};
 
 </script>
 

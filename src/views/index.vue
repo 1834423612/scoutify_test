@@ -5,21 +5,27 @@
 
     <!-- Import the components -->
     <Test />
+
+    <span>Chart Begin</span>
+    <!-- Test chart -->
+    <BarChart />
   </div>
 </template>
 
 <script>
 import Test from '../components/test.vue';
+import BarChart from '../components/chart.vue';
 
 export default {
   components: {
-    Test // Register 'Test' component
+    Test, // Register 'Test' component
+    BarChart
   }
 };
 </script>
 
 <style scoped>
-@import '../assets/css/scrollbar.css';
+@import '../assets/static/css/scrollbar.css';
 
 #app {
   position: fixed;
