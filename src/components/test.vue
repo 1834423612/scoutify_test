@@ -47,28 +47,52 @@
 // graph function needs data points
 // make objects of the scenerios
 // calc auton, endgame, and then teleop, note the teleop time isn't const
-
-let parkcounter = [0, 30];// need to score 30 balancing points to get ranking point
-let linkcounter = [[0, 3],[0,3],[0,3]];//each link is plus 5 points. 3 arrays b/c low mid and high can't be combined into a link.
-let linkscounter = [0, 4];//need only 4 assuming coop for ranking point -add coop in much later
-const autondock = { points: 5, time: [2, 5], rankingpointcounter: true }
-const autonengage = { points: 10, time: [3, 7], rankingpointcounter: true }
-const parknone = { points: 0, time: [0, 0] }
-const gamepiece = { cone: false, cube: true }
-const scoringmethod1 = { points: 1, time: [2, 5] }// cube low
-const scoringmethod2 = { points: 2, time: [2, 5] }// cube mid
-const scoringmethod3 = { points: 3, time: [3, 7] }// cube high
-const scoringmethod4 = { points: 1, time: [2, 5] }// cone low
-const scoringmethod5 = { points: 2, time: [2, 5] }// cone mid
-const scoringmethod6 = { points: 3, time: [3, 7] }// cone high
-const autonscenarios = {}// to add a scenario, set scenario1:[[time left,points,ranking points,park counters],[methods and their order]]
-const auton = {
-    park: [autondock, autonengage, parknone],
-    scoring: [scoringmethod1, scoringmethod2, scoringmethod3, scoringmethod4, scoringmethod5, scoringmethod6]
+    
+class Scoringmethods{
+    constructor(mintime,maxtime,points,parkcounter,numberparked,linkcounter,gamepiece){
+    this.mintime=mintime;
+    this.maxtime=maxtime;
+    this.points=points;
+    this.parkcounter=parkcounter;//0 for none,1 for docked,2for engaged
+    this.numberparked=numberparked;
+    this.linkcounter=linkcounter;//0 for none, 1 for low,2 for mid, 3 for high
+    this.gamepiece=gamepiece;//cube or cone
+    }
+    function play(arr1,arr2){
+        if(this.parkcounter){arr1[0]+=this.points;}
+        if(this.linkcounter){arr2[this.linkcounter-1][0]+=1;}
+    }
 }
-const endgamedock1 = {}// endgame park
-const teleop={scoring: [scoringmethod1, scoringmethod2, scoringmethod3, scoringmethod4, scoringmethod5, scoringmethod6]}
+let _parkcounter = [0, 30];// need to score 30 balancing points to get ranking point. array is formatted: [current,threshold]
+let _linkcounter = [[0, 3],[0,3],[0,3]];//each link is plus 5 points. 3 arrays b/c low mid and high can't be combined into a link.
+let _linkscounter = [0, 5];//need only 4 assuming coop for ranking point -add coop in much later
+let gamepiecestart ='cube';//not sure what were going to do to change this during the code to see the different possibilities
+const parknone    = new Scoringmethods(0,0,0,0,0,0,0);
+const autondock   = new Scoringmethods(2,5,5,1,1,0,0);
+const autonengage = new Scoringmethods(3,7,10,1,1,0,0);
+const cubelow     = new Scoringmethods(2,5,1,0,0,1,'cube');
+const cubemid     = new Scoringmethods(2,5,2,0,0,2,'cube');
+const cubehigh    = new Scoringmethods(3,7,3,0,0,3,'cube');
+const conelow     = new Scoringmethods(2,5,1,0,0,1,'cone');
+const conemid     = new Scoringmethods(2,5,2,0,0,2,'cone');
+const conehigh    = new Scoringmethods(3,7,3,0,0,3,'cone');
+const endparknone= new Scoringmethods(0,0,0,0,0,0,0);
+const enddock1   = new Scoringmethods(2,5,5,1,1,0,0);
+const endengage1 = new Scoringmethods(3,7,10,1,1,0,0);
+const enddock2   = new Scoringmethods(2,5,5,1,2,0,0);
+const endengage2 = new Scoringmethods(3,7,10,1,2,0,0);
+const enddock3   = new Scoringmethods(2,5,5,1,3,0,0);
+const endengage3 = new Scoringmethods(3,7,10,1,3,0,0);
 
+const auton = {
+ park: [parknone,autondock, autonengage],
+ scoring: [cubelow, cubemid, cubehigh, conelow, conemid, conehigh]
+}
+const endgame = {park: [endparknone,enddock1,enddock2,endengage2,enddock3]}
+const teleop={scoring:[cubelow, cubemid, cubehigh, conelow, conemid, conehigh]}
+
+const autonscenarios = {}// to add a scenario, set scenario1:[[time left,points,ranking points,park counters],[methods and their order]]
+/*
 // loop through the different parking options
 //the first version of this will only take into account the max times, then we'll expand the code
 for (let i = 0; i < auton.park.length; i++) {
@@ -76,7 +100,7 @@ for (let i = 0; i < auton.park.length; i++) {
     autonscenarios['scenerio' + `${i}`][1].push(auton.park[i]);//add the parking scenerio to the scenario
     
     let stall = false; // [stall=true] means there's no time for another method
-    while (autontime > 0 || stall === false) { }
+    while (autontime > 0 || stall === false) { }*/
 }
 </script>
 
