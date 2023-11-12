@@ -48,7 +48,9 @@
 // make objects of the scenerios
 // calc auton, endgame, and then teleop, note the teleop time isn't const
 
-let rnkpntcounter = [0, 30];// need to score 30 balancing points to get ranking point
+let parkcounter = [0, 30];// need to score 30 balancing points to get ranking point
+let linkcounter = [[0, 3],[0,3],[0,3]];//each link is plus 5 points. 3 arrays b/c low mid and high can't be combined into a link.
+let linkscounter = [0, 4];//need only 4 assuming coop for ranking point -add coop in much later
 const autondock = { points: 5, time: [2, 5], rankingpointcounter: true }
 const autonengage = { points: 10, time: [3, 7], rankingpointcounter: true }
 const parknone = { points: 0, time: [0, 0] }
@@ -59,18 +61,20 @@ const scoringmethod3 = { points: 3, time: [3, 7] }// cube high
 const scoringmethod4 = { points: 1, time: [2, 5] }// cone low
 const scoringmethod5 = { points: 2, time: [2, 5] }// cone mid
 const scoringmethod6 = { points: 3, time: [3, 7] }// cone high
-const autonscenarios = {}// to add a scenario, set scenario1:[[extra time durning auton,points,ranking points,ranking point counters],[methods and their order]]
+const autonscenarios = {}// to add a scenario, set scenario1:[[time left,points,ranking points,park counters],[methods and their order]]
 const auton = {
     park: [autondock, autonengage, parknone],
     scoring: [scoringmethod1, scoringmethod2, scoringmethod3, scoringmethod4, scoringmethod5, scoringmethod6]
 }
 const endgamedock1 = {}// endgame park
-// teleop scoring methods go here
+const teleop={scoring: [scoringmethod1, scoringmethod2, scoringmethod3, scoringmethod4, scoringmethod5, scoringmethod6]}
 
 // loop through the different parking options
-for (let i = 0; i < auton.parking.length; i++) {
-    autonscenarios['scenerio' + `${i}`][1][i] = 20; // TEST VALUE, Change the number HERE!!!!
-    autonscenarios['scenerio' + `${i}`][0][0] = 15;
+//the first version of this will only take into account the max times, then we'll expand the code
+for (let i = 0; i < auton.park.length; i++) {
+    autonscenarios['scenerio' + `${i}`][0][0] = 15-auton.park[i].time[1];//set time to 15 seconds minus the time to park
+    autonscenarios['scenerio' + `${i}`][1].push(auton.park[i]);//add the parking scenerio to the scenario
+    
     let stall = false; // [stall=true] means there's no time for another method
     while (autontime > 0 || stall === false) { }
 }
