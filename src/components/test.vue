@@ -58,18 +58,22 @@ class Scoringmethods{
     this.linkcounter=linkcounter;//0 for none, 1 for low,2 for mid, 3 for high
     this.gamepiece=gamepiece;//cube or cone
     }
-    function play(arr1,arr2){
+    function place(arr0,arr1,arr2,arr3){//time,points,linkcounter,gamepiece
         if(this.parkcounter){arr1[0]+=this.points;}
         if(this.linkcounter){arr2[this.linkcounter-1][0]+=1;}
+        if(this.gamepiece){}/probalby nothing to do w/ game piece
+    }
+    function park(arr0,arr1,arr2,arr3){//time,points,parkcounter,numberparked
     }
 }
+    
 let _parkcounter = [0, 30];// need to score 30 balancing points to get ranking point. array is formatted: [current,threshold]
 let _linkcounter = [[0, 3],[0,3],[0,3]];//each link is plus 5 points. 3 arrays b/c low mid and high can't be combined into a link.
 let _linkscounter = [0, 5];//need only 4 assuming coop for ranking point -add coop in much later
 let gamepiecestart ='cube';//not sure what were going to do to change this during the code to see the different possibilities
 const parknone    = new Scoringmethods(0,0,0,0,0,0,0);
 const autondock   = new Scoringmethods(2,5,5,1,1,0,0);
-const autonengage = new Scoringmethods(3,7,10,1,1,0,0);
+const autonengage = new Scoringmethods(3,7,10,2,1,0,0);
 const cubelow     = new Scoringmethods(2,5,1,0,0,1,'cube');
 const cubemid     = new Scoringmethods(2,5,2,0,0,2,'cube');
 const cubehigh    = new Scoringmethods(3,7,3,0,0,3,'cube');
@@ -78,29 +82,29 @@ const conemid     = new Scoringmethods(2,5,2,0,0,2,'cone');
 const conehigh    = new Scoringmethods(3,7,3,0,0,3,'cone');
 const endparknone= new Scoringmethods(0,0,0,0,0,0,0);
 const enddock1   = new Scoringmethods(2,5,5,1,1,0,0);
-const endengage1 = new Scoringmethods(3,7,10,1,1,0,0);
+const endengage1 = new Scoringmethods(3,7,10,2,1,0,0);
 const enddock2   = new Scoringmethods(2,5,5,1,2,0,0);
-const endengage2 = new Scoringmethods(3,7,10,1,2,0,0);
+const endengage2 = new Scoringmethods(3,7,10,2,2,0,0);
 const enddock3   = new Scoringmethods(2,5,5,1,3,0,0);
-const endengage3 = new Scoringmethods(3,7,10,1,3,0,0);
+const endengage3 = new Scoringmethods(3,7,10,2,3,0,0);
 
 const auton = {
  park: [parknone,autondock, autonengage],
  scoring: [cubelow, cubemid, cubehigh, conelow, conemid, conehigh]
 }
-const endgame = {park: [endparknone,enddock1,enddock2,endengage2,enddock3]}
+const endgame = {park: [endparknone,enddock1,enddock2,endengage2,enddock3,endengage3]}
 const teleop={scoring:[cubelow, cubemid, cubehigh, conelow, conemid, conehigh]}
 
 const autonscenarios = {}// to add a scenario, set scenario1:[[time left,points,ranking points,park counters],[methods and their order]]
-/*
+const endgamescenarios = {}
+const teleopcenarios ={}
+
 // loop through the different parking options
 //the first version of this will only take into account the max times, then we'll expand the code
 for (let i = 0; i < auton.park.length; i++) {
-    autonscenarios['scenerio' + `${i}`][0][0] = 15-auton.park[i].time[1];//set time to 15 seconds minus the time to park
-    autonscenarios['scenerio' + `${i}`][1].push(auton.park[i]);//add the parking scenerio to the scenario
-    
+    //play the park
     let stall = false; // [stall=true] means there's no time for another method
-    while (autontime > 0 || stall === false) { }*/
+    while (autontime > 0 || stall === false) { }
 }
 </script>
 
