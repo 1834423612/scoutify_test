@@ -58,12 +58,12 @@ class Scoringmethods{
     this.linkcounter=linkcounter;//0 for none, 1 for low,2 for mid, 3 for high
     this.gamepiece=gamepiece;//cube or cone
     }
-    function place(arr0,arr1,arr2){//time,points,linkcounter
+    place(arr0,arr1,arr2){//time,points,linkcounter
         arr0-=this.maxtime;//change this evetually from max time to a range
         arr1+=this.points;
         if(this.linkcounter){arr2[this.linkcounter-1][0]+=1;}
     }
-    function park(arr0,arr1,arr2){//time,points,parkcounter
+    park(arr0,arr1,arr2){//time,points,parkcounter
         arr0-=this.maxtime;
         arr1+=this.points*this.numberparked;
         arr2+=this.points*this.numberparked;
