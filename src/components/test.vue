@@ -103,13 +103,17 @@ const teleopcenarios ={}
 
 // loop through the different parking options
 //the first version of this will only take into account the max times, then we'll expand the code
-for (let i = 0; i < auton.park.length; i++) {
+for (let i in auton.park) {
     //park
-    autonscenarios['scenario'+`${i}`][1].push(auton.park[i].keys);//don't know how keys work, will this work to store the name of the method of scoring?
-    auton.park[i].park(autonscenarios['scenario'+`${i}`][0][0],autonscenarios['scenario'+`${i}`][0][1],autonscenarios['scenario'+`${i}`][0][2]);//time,points,parkcounter
+    let as=autonscenario[auton.park[i].keys];
+    as[1].push(auton.park[i].keys);//don't know how keys work, will this work to store the name of the method of scoring?
+    auton.park[i].park(as[0][0],as[0][1],as[0][2]);//time,points,parkcounter
     let stall = false; // [stall=true] means there's no time for another method
-    while (autonscenarios['scenario'+`${i}`][0][0] > 0 && stall === false) {
-        
+    while (aas[0][0] > 0 && stall === false) {
+     for (let j in auton.scoring){
+         //check time
+         if (auton.scoring[j][1]<=as[0][0]){}//this is getting complicated w/ the teleop potentioally having 100 sub sub scenarios, we have to change something.
+     }
     }
 }
 </script>
