@@ -47,73 +47,73 @@
 // graph function needs data points
 // make objects of the scenerios
 // calc auton, endgame, and then teleop, note the teleop time isn't const
-    
-class Scoringmethods{
-    constructor(mintime,maxtime,points,parkcounter,numberparked,linkcounter,gamepiece){
-    this.mintime=mintime;
-    this.maxtime=maxtime;
-    this.points=points;
-    this.parkcounter=parkcounter;//0 for none,1 for docked,2for engaged
-    this.numberparked=numberparked;
-    this.linkcounter=linkcounter;//0 for none, 1 for low,2 for mid, 3 for high
-    this.gamepiece=gamepiece;//cube or cone
+
+class Scoringmethods {
+    constructor(mintime, maxtime, points, parkcounter, numberparked, linkcounter, gamepiece) {
+        this.mintime = mintime;
+        this.maxtime = maxtime;
+        this.points = points;
+        this.parkcounter = parkcounter;//0 for none,1 for docked,2for engaged
+        this.numberparked = numberparked;
+        this.linkcounter = linkcounter;//0 for none, 1 for low,2 for mid, 3 for high
+        this.gamepiece = gamepiece;//cube or cone
     }
-    place(arr0,arr1,arr2){//time,points,linkcounter
-        arr0-=this.maxtime;//change this evetually from max time to a range
-        arr1+=this.points;
-        if(this.linkcounter){arr2[this.linkcounter-1][0]+=1;}
+    place(arr0, arr1, arr2) {//time,points,linkcounter
+        arr0 -= this.maxtime;//change this evetually from max time to a range
+        arr1 += this.points;
+        if (this.linkcounter) { arr2[this.linkcounter - 1][0] += 1; }
     }
-    park(arr0,arr1,arr2){//time,points,parkcounter
-        arr0-=this.maxtime;
-        arr1+=this.points*this.numberparked;
-        arr2+=this.points*this.numberparked;
+    park(arr0, arr1, arr2) {//time,points,parkcounter
+        arr0 -= this.maxtime;
+        arr1 += this.points * this.numberparked;
+        arr2 += this.points * this.numberparked;
     }
 }
-    
+
 //let _parkcounter = [0, 30];// need to score 30 balancing points to get ranking point. array is formatted: [current,threshold]
 //let _linkcounter = [[0, 3],[0,3],[0,3]];//each link is plus 5 points. 3 arrays b/c low mid and high can't be combined into a link.
 //let _linkscounter = [0, 5];//need only 4 assuming coop for ranking point -add coop in much later
-const parknone    = new Scoringmethods(0,0,0,0,0,0,0);
-const autondock   = new Scoringmethods(2,5,5,1,1,0,0);
-const autonengage = new Scoringmethods(3,7,10,2,1,0,0);
-const cubelow     = new Scoringmethods(2,5,1,0,0,1,'cube');
-const cubemid     = new Scoringmethods(2,5,2,0,0,2,'cube');
-const cubehigh    = new Scoringmethods(3,7,3,0,0,3,'cube');
-const conelow     = new Scoringmethods(2,5,1,0,0,1,'cone');
-const conemid     = new Scoringmethods(2,5,2,0,0,2,'cone');
-const conehigh    = new Scoringmethods(3,7,3,0,0,3,'cone');
-const endparknone= new Scoringmethods(0,0,0,0,0,0,0);
-const enddock1   = new Scoringmethods(2,5,5,1,1,0,0);
-const endengage1 = new Scoringmethods(3,7,10,2,1,0,0);
-const enddock2   = new Scoringmethods(2,5,5,1,2,0,0);
-const endengage2 = new Scoringmethods(3,7,10,2,2,0,0);
-const enddock3   = new Scoringmethods(2,5,5,1,3,0,0);
-const endengage3 = new Scoringmethods(3,7,10,2,3,0,0);
+const parknone = new Scoringmethods(0, 0, 0, 0, 0, 0, 0);
+const autondock = new Scoringmethods(2, 5, 5, 1, 1, 0, 0);
+const autonengage = new Scoringmethods(3, 7, 10, 2, 1, 0, 0);
+const cubelow = new Scoringmethods(2, 5, 1, 0, 0, 1, 'cube');
+const cubemid = new Scoringmethods(2, 5, 2, 0, 0, 2, 'cube');
+const cubehigh = new Scoringmethods(3, 7, 3, 0, 0, 3, 'cube');
+const conelow = new Scoringmethods(2, 5, 1, 0, 0, 1, 'cone');
+const conemid = new Scoringmethods(2, 5, 2, 0, 0, 2, 'cone');
+const conehigh = new Scoringmethods(3, 7, 3, 0, 0, 3, 'cone');
+const endparknone = new Scoringmethods(0, 0, 0, 0, 0, 0, 0);
+const enddock1 = new Scoringmethods(2, 5, 5, 1, 1, 0, 0);
+const endengage1 = new Scoringmethods(3, 7, 10, 2, 1, 0, 0);
+const enddock2 = new Scoringmethods(2, 5, 5, 1, 2, 0, 0);
+const endengage2 = new Scoringmethods(3, 7, 10, 2, 2, 0, 0);
+const enddock3 = new Scoringmethods(2, 5, 5, 1, 3, 0, 0);
+const endengage3 = new Scoringmethods(3, 7, 10, 2, 3, 0, 0);
 
 const auton = {
- park: [parknone,autondock, autonengage],
- scoring: [cubelow, cubemid, cubehigh, conelow, conemid, conehigh]
+    park: [parknone, autondock, autonengage],
+    scoring: [cubelow, cubemid, cubehigh, conelow, conemid, conehigh]
 }
-const endgame = {park: [endparknone,enddock1,enddock2,endengage2,enddock3,endengage3]}
-const teleop={scoring:[cubelow, cubemid, cubehigh, conelow, conemid, conehigh]}
+const endgame = { park: [endparknone, enddock1, enddock2, endengage2, enddock3, endengage3] }
+const teleop = { scoring: [cubelow, cubemid, cubehigh, conelow, conemid, conehigh] }
 
 const autonscenarios = {}// to add a scenario, set scenario1:[[time left,points,park counters,linkcounter,linkcounters],[methods and their order]]
 const endgamescenarios = {}
-const teleopcenarios ={}
+const teleopcenarios = {}
 
 // loop through the different parking options
 //the first version of this will only take into account the max times, then we'll expand the code
 for (let i in auton.park) {
     //park
-    let as=autonscenario[auton.park[i].keys];
+    let as = autonscenarios[auton.park[i].keys];
     as[1].push(auton.park[i].keys);//don't know how keys work, will this work to store the name of the method of scoring?
-    auton.park[i].park(as[0][0],as[0][1],as[0][2]);//time,points,parkcounter
+    auton.park[i].park(as[0][0], as[0][1], as[0][2]);//time,points,parkcounter
     let stall = false; // [stall=true] means there's no time for another method
     while (aas[0][0] > 0 && stall === false) {
-     for (let j in auton.scoring){
-         //check time
-         if (auton.scoring[j][1]<=as[0][0]){}//this is getting complicated w/ the teleop potentioally having 100 sub sub scenarios, we have to change something.
-     }
+        for (let j in auton.scoring) {
+            //check time
+            if (auton.scoring[j][1] <= as[0][0]) { }//this is getting complicated w/ the teleop potentioally having 100 sub sub scenarios, we have to change something.
+        }
     }
 }
 </script>
