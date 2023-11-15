@@ -49,21 +49,20 @@
 // calc auton, endgame, and then teleop, note the teleop time isn't const
 
 class Scoringmethods {
-    constructor(mintime, maxtime, points, parkcounter, numberparked, linkcounter, gamepiece) {
+    constructor(mintime, maxtime, points, parkcounter, numberparked, linkcounter) {
         this.mintime = mintime;
         this.maxtime = maxtime;
         this.points = points;
         this.parkcounter = parkcounter;//0 for none,1 for docked,2for engaged
         this.numberparked = numberparked;
         this.linkcounter = linkcounter;//0 for none, 1 for low,2 for mid, 3 for high
-        this.gamepiece = gamepiece;//cube or cone
     }
-    place(arr0, arr1, arr2) {//time,points,linkcounter
+    place(arr0, arr1, arr2) {//time,points,linkcounter. These are the return arrays
         arr0 -= this.maxtime;//change this evetually from max time to a range
         arr1 += this.points;
         if (this.linkcounter) { arr2[this.linkcounter - 1][0] += 1; }
     }
-    park(arr0, arr1, arr2) {//time,points,parkcounter
+    park(arr0, arr1, arr2) {//time,points,parkcounter. These are the return arrays
         arr0 -= this.maxtime;
         arr1 += this.points * this.numberparked;
         arr2 += this.points * this.numberparked;
@@ -71,85 +70,110 @@ class Scoringmethods {
 }
 //might use these counters below
 //when to use a counter: counters are to be used during complex rules of the game e.g. if you score 3 game pieces in a row, you get 5 additiional points. this will be calculated in an array like this: [value (in this case how many game pieces in a row you scored),threshold value (in this case three)]. Note that (counter[0] % counter[1]) is the number of links scored and each link is 5 points
-//let _parkcounter = [0, 30];// need to score 30 balancing points to get ranking point
+//let _parkcounter = [0, 26];// need to score 30 balancing points to get ranking point
 //let _linkcounter = [[0, 3],[0,3],[0,3]];//each link is plus 5 points. 3 arrays b/c low mid and high can't be combined into a link.
 //let _linkscounter = [0, 5];//need only 4 assuming coop for ranking point -add coop in much later probably w/ another counter
 
-//i commented out certain ways to score, to put them back in (don't), add the name in the scoring property of the game objects (around line 100)
-//const parknone = new Scoringmethods(0, 0, 0, 0, 0, 0, 0);
-const autondock = new Scoringmethods(2, 5, 5, 1, 1, 0, 0);
-const autonengage = new Scoringmethods(3, 7, 10, 2, 1, 0, 0);
-const auton1conemid = new Scoringmethods(2, 8, 2, 0, 0, 2, 'cone');//auton1 is the preloaded, and therefore the time is different than normal cone 
-const auton1conehigh = new Scoringmethods(3, 10, 3, 0, 0, 3, 'cone');
-const auton2conemid = new Scoringmethods(2, 8, 2, 0, 0, 2, 'cone');//auton2 isn't preloaded, but is closer and therefore the time is different than normal cone
-const auton2conehigh = new Scoringmethods(3, 10, 3, 0, 0, 3, 'cone');
-const conemid = new Scoringmethods(2, 8, 2, 0, 0, 2, 'cone');
-const conehigh = new Scoringmethods(3, 10, 3, 0, 0, 3, 'cone');
-//const cubelow = new Scoringmethods(2, 7, 1, 0, 0, 1, 'cube');
-//const cubemid = new Scoringmethods(2, 8, 2, 0, 0, 2, 'cube');
-//const cubehigh = new Scoringmethods(3, 10, 3, 0, 0, 3, 'cube');
-//const conelow = new Scoringmethods(2, 7, 1, 0, 0, 1, 'cone');
-//const endparknone = new Scoringmethods(0, 0, 0, 0, 0, 0, 0);
-const enddock1 = new Scoringmethods(2, 5, 5, 1, 1, 0, 0);
-const endengage1 = new Scoringmethods(3, 7, 10, 2, 1, 0, 0);
-const enddock2 = new Scoringmethods(2, 5, 5, 1, 2, 0, 0);
-const endengage2 = new Scoringmethods(3, 7, 10, 2, 2, 0, 0);
-const enddock3 = new Scoringmethods(2, 5, 5, 1, 3, 0, 0);
-const endengage3 = new Scoringmethods(3, 7, 10, 2, 3, 0, 0);
-
+// I commented out certain ways to score, to put them back in (don't), add the name in the scoring property of the game objects (around line 92)
+//a stands for auton, e stands for endgame, t standsfor teleop. l,m,h stand for low, mid, high
+const ae = new Scoringmethods(3, 7, 12, 2, 1, 0);
+const am0 = new Scoringmethods(2, 8, 2, 0, 0, 2);//auton0 is the preloaded, and therefore the time is different than normal cone 
+const ah0 = new Scoringmethods(3, 10, 3, 0, 0, 3);
+const am2 = new Scoringmethods(2, 8, 2, 0, 0, 2);//auton2 isn't preloaded, but is closer and therefore the time is different than normal cone
+const ah2 = new Scoringmethods(3, 10, 3, 0, 0, 3);
+const m = new Scoringmethods(2, 8, 2, 0, 0, 2);
+const h = new Scoringmethods(3, 10, 3, 0, 0, 3);
+//const conelow = new Scoringmethods(2, 7, 1, 0, 0, 1);
+//we will only engage
+const e1 = new Scoringmethods(3, 7, 10, 2, 1, 0);
+const e2 = new Scoringmethods(3, 7, 10, 2, 2, 0);//2 stands for 2 bots engaging
+const e3 = new Scoringmethods(3, 7, 10, 2, 3, 0);//3 stands for 3 bots engaging
+    
 //define the game objects
 const auton = {
-    park: [autondock, autonengage],
-    scoring: [auton1conemid, auton1conehigh, auton2conemid, auton2conehigh]
+    park: [ae],
+    scoring: [[am1, ah1], [am2, ah2]]
 }
-const endgame = { park: [enddock1, enddock2, endengage2, enddock3, endengage3] }
-const teleop = { scoring: [conemid, conehigh] }
+const endgame = { park: [e1, e2,e3] }
+const teleop = { scoring: [m, h] }
 
 //scenario objects
-const autonscenarios = {}// to add a scenario, set scenario1:[[time left,points,park counters,linkcounter,linkcounters],[methods and their order]]
-const endgamescenarios = {}
-const teleopcenarios = {}
+const as = []// to add a scenario, set scenario1:[[time left,points,park counters,linkcounter,linkcounters],[methods and their order]]
+const es = []//endgame scenarios
+const ts = []//teleopscenarios
 
 //the first version of this will only take into account the max times, then we'll expand the code
-// loop through the different parking options (dock vs engage)
+// loop through the different parking options (only one for now)
 for (let i in auton.park) {
+//loop through the different preloaded scoring options
+  for(let j in auton.scoring[0]){
+//loop through the differnt scoring options
+   for(let k in auton.scoring[1]){
     //park
+    let methodname=auton.park[i];
+    as.push([15,0,0,[methodname]]); //create a place holder array
+    let index=as.length-1;//index of the array holder
+    methodname.park(as[index][0],as[index][1],as[index][2]);
+    //place piece holding at the start of the game
+    methodname=auton.scoring[0][j];
+    as[index][3].push(methodname);
+    methodname.play();
+    //place another piece if time left
+    methodname=auton.scoring[1][k];
+    if(as[index][0]+methodname[0]>=0){
+        as[index][3].push(methodname);
+        as.play(as[index][0],as[index][1],as[index][2]);
+    }
+   } 
+  }   
+ }
    //then go through two scenarios (auton1conemid, auton1conehigh)
    //then check time left, if there's time, do the scenarios (auton2conemid, auton2conehigh)
-    //repeat line above
+   //repeat line above
+    
 
-    //we should try to make more efficient arrays ==> instead of describing teleop scenario A as "conemid,conehigh,conemid" and Teleop scenario B like "conemid,conalemid, conehigh", we could try describing it as one array [["conemid",2],["conehigh",1]];
-    //there still will be too many scenarios, so I also removed all the cube objects. note this isn't equal to a cone only robot b/c a cone only robot can't score links
-    //Still, I had to remove the option of not parking durin auton or endgame to reduce the number of scenarios. This seemed safe b/c it's smarter to dock/park than to not park/dock
-    //I also removed the low scoring option b/c there were still too many scenarios
-    //note that an array's maximum length is 2^32
-    //acordingly, we have 15 auton scenarios, and 5 endgame scenarios
-    
-    
-    //my failed attempt
-    /* let as = autonscenarios[auton.park[i].keys];
-    as[1].push(auton.park[i].keys);//don't know how keys work, will this work to store the name of the method of scoring?
-    auton.park[i].park(as[0][0], as[0][1], as[0][2]);//arguments are (time,points,parkcounter)
-    let stall = false; // [stall=true] means there's no time for another method
-    while (as[0][0] > 0 && stall === false) {
-        for (let j in auton.scoring) {
-            //check time
-            if (auton.scoring[j][1] <= as[0][0]) { }//this is getting complicated w/ the teleop potentioally having 100 sub sub scenarios, we have to change something.
-        }
-    }
-    */
-
-    
-}
 //endgame
-// loop through the different parking options (dock vs engage and 1 player vs 2 players vs 3 players)
-let teleop=135;
+// loop through the different parking options (1 player or 2 players or 3 players)
 for (let i in endgame.park) {
-    //park w/ the function: endgame.park(teleop,access points property of endgame.park[i],access park counter property of endgame.park[i])
+    //park
+    let methodname=endgame.park[i];
+    es.push([135,0,0,[methodname]]); //create a place holder array
+    let index=es.length-1;//index of the array holder
+    methodname.park(es[index][0],es[index][1],es[index][2]);
 }
 //teleop
+//number of loops is 14
 for (let i in teleop.scoring) {
-    //do scoring scenarios
+ for (let j in teleop.scoring) {
+  for (let k in teleop.scoring) {
+   for (let l in teleop.scoring) {
+    for (let m in teleop.scoring) {
+     for (let n in teleop.scoring) {
+      for (let o in teleop.scoring) {
+       for (let p in teleop.scoring) {
+        for (let q in teleop.scoring) {
+         for (let r in teleop.scoring) {
+          for (let s in teleop.scoring) {
+           for (let t in teleop.scoring) {
+            for (let u in teleop.scoring) {
+             for (let v in teleop.scoring) {
+              for (let w in teleop.scoring) {
+    
+       
+              }
+             }
+            }  
+           }
+          }
+         }  
+        }   
+       }
+      }       
+     }
+    }
+   }  
+  }   
+ }
 }
 </script>
 
