@@ -74,7 +74,7 @@ for(let i in time0){
      highnodesscored[i][j][k][l]++;
      time1[i][j][k][l]-=placetime[j];
      holdingpiece[i][j][k][l]=false;
-     if(time1[i][j][k][l]-autonpickup[k]>=135&&holdingpiece===false){
+     if(time1[i][j][k][l]-autonpickup[k]>=135&&holdingpiece[i][j][k][l]===false){
       time1[i][j][k][l]-=placetime[j];
       holdingpiece[i][j][k][l]=true;
      }
