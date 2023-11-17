@@ -60,7 +60,7 @@ let movepartofcycle=[7,9,11];
 let linkcounter    =[[[[]]]];
 //calculate auton and endgame engage in one step
 for(let i in balancingtime){
- let time0[i]=150-(balancingtime[i]*2);
+ time0[i]=150-(balancingtime[i]*2);
 }
 //calculate auton scoring
 for(let i in time0){
