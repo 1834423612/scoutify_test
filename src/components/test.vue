@@ -46,13 +46,15 @@ let tick=0;//have yet to use this, probably won't need it
 //new code: Mr. Shaw informed us were allowed to make certain assumtions: We will at least engage one bot every time. We will score for high, then mid, then low
 let balancingtime=[3,5,7];//not min max times, but either 3 seconds, 5 seconds, or seven seconds.
 let pointsforbalancing=[12,10];//auton and teleop
-let points=[[[]]];
+let points=[[[[]]]];
 let placetime=[2,4];
-let highnodesscored=[[]];
+let highnodesscored=[[[[]]]];
+let midnodesscored =[[[[]]]];
 let pointsforhigh=[6,5];//auton and teleop
-let holdingpiece=[[[]]];
+let pointsformid=[4,3];
+let holdingpiece=   [[[[]]]];
 let time0=[];//multiple time arrays for different levels of calculation
-let time1=[[[]]];
+let time1          =[[[[]]]];
 let autonpickup=[2,4];
 let movepartofcycle=[7,9,11];
 //calculate auton and endgame engage in one step
@@ -63,34 +65,45 @@ for(let i in balancingtime){
 for(let i in time0){
  for(let j in hightime){
   for(let k in hightime){
-  holdingpiece[i][j][k]=true;
-   time1[i][j][k]=time0[i];
-   while((time1[i][j][k]+balancingtime[i]-placetime[j])>=135){
-    points[i][j][k]=pointsforbalancing[0]+pointsforbalancing[1]+3+pointsforhigh[0];//three for mobility
-    highnodesscored[i][j][k]++;
-    time1[i][j][k]-=placetime[j];
-    holdingpiece[i][j][k]=false;
-    if(time1[i][j][k]-autonpickup[k]>=135&&holdingpiece===false){
-     time1[i][j][k]-=placetime[j];
-     holdingpiece[i][j][k]=true;
+   for(let l in hightime){
+    holdingpiece[i][j][k][l]=true;
+    time1[i][j][k][l]=time0[i];
+    while((time1[i][j][k][l]+balancingtime[i]-placetime[j])>=135){
+     points[i][j][k][l]=pointsforbalancing[0]+pointsforbalancing[1]+3+pointsforhigh[0];//three for mobility
+     highnodesscored[i][j][k][l]++;
+     time1[i][j][k][l]-=placetime[j];
+     holdingpiece[i][j][k][l]=false;
+     if(time1[i][j][k][l]-autonpickup[k]>=135&&holdingpiece===false){
+      time1[i][j][k][l]-=placetime[j];
+      holdingpiece[i][j][k][l]=true;
+     }
     }
-   }
 //calculate teleop (start w/ the scenario where the robot has something already in it and then do the general scenarios (this was the sole purpose of the holdingpiece variable))
-   time1[i][j][k]=135;
-   if(holdingpiece[i][j][k]===true){
-       holdingpiece[i][j][k]=false;
-       highnodesscored[i][j][k]++;
-       time1[i][j][k]-=placetime[j];
-   }
-
-      
+    time1[i][j][k][l]=135;
+    if(holdingpiece[i][j][k][l]===true){
+     holdingpiece[i][j][k][l]=false;
+     highnodesscored[i][j][k][l]++;
+     time1[i][j][k][l]-=placetime[j];
+    }
+//general scenario
+    while(time1[i][j][k][l]-placetime[j]>=0&&highnodesscored[i][j][k][l]!==9){
+    //do high score
+     highnodesscored[i][j][k][l]++;
+     time1[i][j][k][l]-=placetime[j];
+     points[i][j][k][l]+=pointsforhigh[1];
+    }
+    while(time1[i][j][k][l]-placetime[j]>=0){
+     midnodesscored[i][j][k][l]++;
+     time1[i][j][k][l]-=placetime[j];
+     points[i][j][k][l]+=pointsformid[1];
+   }  
   }
  }     
 }
 
 
     
-/*
+/*extra old code
 // orderby score, ranking points
 // graph function needs data points
 // make objects of the scenerios
