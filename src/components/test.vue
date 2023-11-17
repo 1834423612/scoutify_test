@@ -100,12 +100,14 @@ for(let i in time0){
    }
     points[i][j][k][l]+=((highnodesscored[i][j][k][l] % 3)*5);
     points[i][j][k][l]+=((midnodesscored[i][j][k][l] % 3)*5);
-    if((highnodesscored[i][j][k][l] % 3)+(highnodesscored[i][j][k][l] % 3)>4){linkcounter[i][j][k][l]++;}
+    if((highnodesscored[i][j][k][l] % 3)+(highnodesscored[i][j][k][l] % 3)>3){linkcounter[i][j][k][l]++;}
+    
   }
  }     
 }
-
-
+let word=" at least one rankpoint from links ";
+if(!linkcounter.includes(1)){word=" no rankpoints from links";}
+console.log("hello, these scenarios includes"+word);
     
 /*extra old code
 // orderby score, ranking points
