@@ -43,7 +43,7 @@
 
 <script setup>
 let tick=0;//have yet to use this, probably won't need it
-//new code: Mr. Shaw informed us were allowed to make certain assumtions: We will at least engage one bot every time. We will score for high, then mid, then low
+//new code: Mr. Shaw informed us were allowed to make certain assumtions: We will at least engage one bot every time. We will score for high, then mid, then low, but because we never will get to the low grid, we don't have to account for this
 let balancingtime=[3,5,7];//not min max times, but either 3 seconds, 5 seconds, or seven seconds.
 let pointsforbalancing=[12,10];//auton and teleop
 let points=[[[[]]]];
@@ -57,15 +57,16 @@ let time0=[];//multiple time arrays for different levels of calculation
 let time1          =[[[[]]]];
 let autonpickup=[2,4];
 let movepartofcycle=[7,9,11];
+let linkcounter    =[[[[]]]];
 //calculate auton and endgame engage in one step
 for(let i in balancingtime){
  let time0[i]=150-(balancingtime[i]*2);
 }
 //calculate auton scoring
 for(let i in time0){
- for(let j in hightime){
-  for(let k in hightime){
-   for(let l in hightime){
+ for(let j in placetime){
+  for(let k in autonpickup){
+   for(let l in movepartofcycle){
     holdingpiece[i][j][k][l]=true;
     time1[i][j][k][l]=time0[i];
     while((time1[i][j][k][l]+balancingtime[i]-placetime[j])>=135){
@@ -79,7 +80,7 @@ for(let i in time0){
      }
     }
 //calculate teleop (start w/ the scenario where the robot has something already in it and then do the general scenarios (this was the sole purpose of the holdingpiece variable))
-    time1[i][j][k][l]=135;
+    time1[i][j][k][l]=135-balancingtime[i];
     if(holdingpiece[i][j][k][l]===true){
      holdingpiece[i][j][k][l]=false;
      highnodesscored[i][j][k][l]++;
@@ -96,7 +97,10 @@ for(let i in time0){
      midnodesscored[i][j][k][l]++;
      time1[i][j][k][l]-=placetime[j];
      points[i][j][k][l]+=pointsformid[1];
-   }  
+   }
+    points[i][j][k][l]+=((highnodesscored[i][j][k][l] % 3)*5);
+    points[i][j][k][l]+=((midnodesscored[i][j][k][l] % 3)*5);
+    if((highnodesscored[i][j][k][l] % 3)+(highnodesscored[i][j][k][l] % 3)>4){linkcounter[i][j][k][l]++;}
   }
  }     
 }
