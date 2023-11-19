@@ -45,7 +45,7 @@
 import { Scatter } from 'vue-chartjs'
 import { Chart as ChartJS, Title, Tooltip, Legend, CategoryScale, LinearScale, BarElement } from 'chart.js'
 ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale)
-//need to import the correct things (the things above obviosly aren't the rigt) from chartjs make sure that its a scatter graph
+
 //new code: Mr. Shaw informed us were allowed to make certain assumtions: We will at least engage one bot every time. We will score for high, then mid, then low, but because we never will get to the low grid, we don't have to account for this
 let balancingtime = [3, 5, 7];//not min max times, but either 3 seconds, 5 seconds, or seven seconds.
 let pointsforbalancing = [12, 10];//auton and teleop
@@ -120,8 +120,8 @@ for (let i in balancingtime) {
         }
     }
 }
-console.log(points[0][0][0][0][0]);//most possible points
-console.log(points[2][0][0][2][0]);//least possible points
+//console.log(points[0][0][0][0][0]);//most possible points
+//console.log(points[2][0][0][2][0]);//least possible points
 /*let word = "these scenarios include a rankpoint from links";
 if (!(linkcounter.includes(1))) { word = "these scenarios don't include a rankpoint from links"; }
 console.log.println(word);*/
