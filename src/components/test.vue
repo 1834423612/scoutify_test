@@ -56,7 +56,8 @@ let holdingpiece         = new Array(balancingtime.length).fill(new Array(placet
 let time                 = new Array(balancingtime.length).fill(new Array(placetime.length).fill(new Array(autonpickup.length).fill(new Array(autonmovepartofcycle.length).fill(new Array(movepartofcycle.length)))));
 let points               = new Array(balancingtime.length).fill(new Array(placetime.length).fill(new Array(autonpickup.length).fill(new Array(autonmovepartofcycle.length).fill(new Array(movepartofcycle.length)))));
 let linkcounter          = new Array(balancingtime.length).fill(new Array(placetime.length).fill(new Array(autonpickup.length).fill(new Array(autonmovepartofcycle.length).fill(new Array(movepartofcycle.length)))));//5 arrays
-const autonPieceLimit    = 5
+const autonPieceLimit    = 5;
+const xyValues = [{x:0,y:0}];//for chart
 //calculate auton and endgame engage in one step
 for (let i in balancingtime) {
     for (let j in placetime) {
@@ -115,10 +116,31 @@ for (let i in balancingtime) {
         }
     }
 }
-//console.log(points)
+/*console.log(points)
 let word = "these scenarios include a rankpoint from links";
 if (!(linkcounter.includes(1))) { word = "these scenarios don't include a rankpoint from links"; }
-//console.log.println(word);
+console.log.println(word);*/
+
+//chart
+//{x:150, y:15}
+//for(let i=0;i<10;i++){xyValues.push({x:150,y:15});}
+new Chart("myChart", {
+  type: "scatter",
+  data: {
+    datasets: [{
+      pointRadius: 4,
+      pointBackgroundColor: "rgb(0,0,255)",
+      data: xyValues
+    }]
+  },
+  options: {
+    legend: {display: false},
+    scales: {
+      xAxes: [{ticks: {min: 0, max:150}}],
+      yAxes: [{ticks: {min: 30, max:120}}],
+    }
+  }
+});
 </script>
 
 <style>
