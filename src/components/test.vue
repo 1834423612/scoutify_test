@@ -120,6 +120,7 @@ for (let i in balancingtime) {
         }
     }
 }
+console.log(time);
 //console.log(points[0][0][0][0][0]);//most possible points
 //console.log(points[2][0][0][2][0]);//least possible points
 /*let word = "these scenarios include a rankpoint from links";
