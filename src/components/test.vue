@@ -45,18 +45,18 @@
 //new code: Mr. Shaw informed us were allowed to make certain assumtions: We will at least engage one bot every time. We will score for high, then mid, then low, but because we never will get to the low grid, we don't have to account for this
 let balancingtime = [3, 5, 7];//not min max times, but either 3 seconds, 5 seconds, or seven seconds.
 let pointsforbalancing = [12, 10];//auton and teleop
-let points               = [[[[[]]]]];
 let placetime            = [2, 4];
-let nodesscored      = [[[[[]]]]];
 let pointsforhigh        = [6, 5];//auton and teleop
 let pointsformid         = [4, 3];
-let holdingpiece         = [[[[[]]]]];
-let time                 = [[[[[]]]]];
 let autonpickup          = [2, 4];
 let autonmovepartofcycle = [4,6];
 let movepartofcycle      = [7, 9, 11];
-let linkcounter          = [[[[[]]]]];//5 arrays
-const autonPieceLimit = 5
+let nodesscored          = new Array(balancingtime.length).fill(new Array(placetime.length).fill(new Array(autonpickup.length).fill(new Array(autonmovepartofcycle.length).fill(new Array(movepartofcycle.length)))));
+let holdingpiece         = new Array(balancingtime.length).fill(new Array(placetime.length).fill(new Array(autonpickup.length).fill(new Array(autonmovepartofcycle.length).fill(new Array(movepartofcycle.length)))));
+let time                 = new Array(balancingtime.length).fill(new Array(placetime.length).fill(new Array(autonpickup.length).fill(new Array(autonmovepartofcycle.length).fill(new Array(movepartofcycle.length)))));
+let points               = new Array(balancingtime.length).fill(new Array(placetime.length).fill(new Array(autonpickup.length).fill(new Array(autonmovepartofcycle.length).fill(new Array(movepartofcycle.length)))));
+let linkcounter          = new Array(balancingtime.length).fill(new Array(placetime.length).fill(new Array(autonpickup.length).fill(new Array(autonmovepartofcycle.length).fill(new Array(movepartofcycle.length)))));//5 arrays
+const autonPieceLimit    = 5
 //calculate auton and endgame engage in one step
 for (let i in balancingtime) {
     for (let j in placetime) {
@@ -115,9 +115,10 @@ for (let i in balancingtime) {
         }
     }
 }
+//console.log(points)
 let word = "these scenarios include a rankpoint from links";
 if (!(linkcounter.includes(1))) { word = "these scenarios don't include a rankpoint from links"; }
-console.log.println(word);
+//console.log.println(word);
 </script>
 
 <style>
