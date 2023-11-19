@@ -42,6 +42,10 @@
 </template>
 
 <script setup>
+import { Scatter } from 'vue-chartjs'
+import { Chart as ChartJS, Title, Tooltip, Legend, CategoryScale, LinearScale } from 'chart.js'
+ChartJS.register(Title, Tooltip, Legend, CategoryScale, LinearScale)
+
 //new code: Mr. Shaw informed us were allowed to make certain assumtions: We will at least engage one bot every time. We will score for high, then mid, then low, but because we never will get to the low grid, we don't have to account for this
 let balancingtime = [3, 5, 7];//not min max times, but either 3 seconds, 5 seconds, or seven seconds.
 let pointsforbalancing = [12, 10];//auton and teleop
