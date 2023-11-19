@@ -121,7 +121,7 @@ for (let i in balancingtime) {
     }
 }
 console.log(points[0][0][0][0][0]);//most possible points
-console.log(points[2][1][0][2][1]);//least possible points
+console.log(points[2][0][0][2][0]);//least possible points
 /*let word = "these scenarios include a rankpoint from links";
 if (!(linkcounter.includes(1))) { word = "these scenarios don't include a rankpoint from links"; }
 console.log.println(word);*/
