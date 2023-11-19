@@ -45,18 +45,18 @@
 //new code: Mr. Shaw informed us were allowed to make certain assumtions: We will at least engage one bot every time. We will score for high, then mid, then low, but because we never will get to the low grid, we don't have to account for this
 let balancingtime = [3, 5, 7];//not min max times, but either 3 seconds, 5 seconds, or seven seconds.
 let pointsforbalancing = [12, 10];//auton and teleop
-let points = [[[[[]]]]];
-let placetime = [2, 4];
-let highnodesscored = [[[[[]]]]];
-let midnodesscored = [[[[[]]]]];
-let pointsforhigh = [6, 5];//auton and teleop
-let pointsformid = [4, 3];
-let holdingpiece = [[[[[]]]]];
-let time = [[[[[]]]]];
-let autonpickup = [2, 4];
+let points               = [[[[[]]]]];
+let placetime            = [2, 4];
+let nodesscored      = [[[[[]]]]];
+let pointsforhigh        = [6, 5];//auton and teleop
+let pointsformid         = [4, 3];
+let holdingpiece         = [[[[[]]]]];
+let time                 = [[[[[]]]]];
+let autonpickup          = [2, 4];
 let autonmovepartofcycle = [4,6];
-let movepartofcycle = [7, 9, 11];
-let linkcounter = [[[[[]]]]];
+let movepartofcycle      = [7, 9, 11];
+let linkcounter          = [[[[[]]]]];//5 arrays
+const autonPieceLimit = 5
 //calculate auton and endgame engage in one step
 for (let i in balancingtime) {
     for (let j in placetime) {
@@ -66,50 +66,57 @@ for (let i in balancingtime) {
             //auton
                 //set variable default values
                     holdingpiece[i][j][k][l][m] = true;
-                    highnodesscored[i][j][k][l][m]=0;
+                    nodesscored[i][j][k][l][m]=0;
+                    let autonPCCount = 0;
                 //balance
                     time[i][j][k][l][m] = 150 - balancingtime[i];
-                    points[i][j][k][l][m] = pointsforbalancing[0];
+                    points[i][j][k][l][m] = pointsforbalancing[0]; //auton
                 //place pieces on grid
-                    while ((time[i][j][k][l][m] - placetime[j]) >= 135) {
+                    while (time[i][j][k][l][m] - placetime[j] >= 135 && autonPCCount < autonPieceLimit) {
                         points[i][j][k][l][m]+=pointsforhigh[0];
-                        highnodesscored[i][j][k][l][m]++;
+                        ++nodesscored[i][j][k][l][m];
                         time[i][j][k][l][m] -= placetime[j];
                         holdingpiece[i][j][k][l][m] = false;
-                        if (time[i][j][k][l][m] - autonpickup[k]-(autonmovepartofcycle[l]/2)>= 135) {//the autonmovepartofcycle[l] is divided by two b/c the robot only travels to pick up the cones, not also back 
-                            time[i][j][k][l][m] -= (placetime[j]+autonmovepartofcycle[l]/2);
+                        if (time[i][j][k][l][m] - autonmovepartofcycle[l]/2 - autonpickup[k] >= 135) {//the autonmovepartofcycle[l] is divided by two b/c the robot only travels to pick up the cones, not also back 
+                            time[i][j][k][l][m] -= autonmovepartofcycle[l]/2 + autonpickup[k];
                             holdingpiece[i][j][k][l][m] = true;
+                            if(time[i][j][k][l][m]-autonmovepartofcycle[l]/2-placetime[j]<135){time[i][j][k][l][m]=135;}
+                            else{time[i][j][k][l][m]-=autonmovepartofcycle[l]/2;}
                         }
+                        ++autonPCCount;
                     }
-                //calculate teleop (start w/ the scenario where the robot has something already in it and then do the general scenarios (this was the sole purpose of the holdingpiece variable))
-                time[i][j][k][l][m] = 135 - balancingtime[i];
-                if (holdingpiece[i][j][k][l][m] === true) {
-                    holdingpiece[i][j][k][l][m] = false;
-                    highnodesscored[i][j][k][l][m]++;
-                    time[i][j][k][l][m] -= placetime[j];
+            //endgame
+                    time[i][j][k][l][m] = 135 - balancingtime[i];
+                    points[i][j][k][l][m] += pointsforbalancing[1];
+             //calculate teleop (start w/ the scenario where the robot has something already in it and then do the general scenarios (this was the sole purpose of the holdingpiece variable))
+                    if (holdingpiece[i][j][k][l][m] === true) {
+                        holdingpiece[i][j][k][l][m] = false;
+                        ++nodesscored[i][j][k][l][m];
+                        points[i][j][k][l][m]+=pointsforhigh[1];
+                        time[i][j][k][l][m] -= placetime[j];
+                    }
+            //general scenario
+                //do high score
+                    while (time[i][j][k][l][m]-movepartofcycle[l]-placetime[j]>=0 && nodesscored[i][j][k][l][m] !== 9) {
+                        ++nodesscored[i][j][k][l][m];
+                        time[i][j][k][l][m] -=placetime[j]+movepartofcycle[l]+autonpickup[k];
+                        points[i][j][k][l][m] += pointsforhigh[1];
+                    }
+                //do mid score
+                    while (time[i][j][k][l][m]-movepartofcycle[l]-placetime[j]>=0) {
+                        ++nodesscored[i][j][k][l][m];
+                        time[i][j][k][l][m] -= placetime[j]+movepartofcycle[l]+autonpickup[k];
+                        points[i][j][k][l][m] += pointsformid[1];
+                    }
+                    points[i][j][k][l][m] += (Math.floor(nodesscored[i][j][k][l][m] / 3) * 5);
+                    if (Math.floor(nodesscored[i][j][k][l][m] / 3) > 3) { linkcounter[i][j][k][l][m]=1; }
                 }
-                //general scenario
-                while (time[i][j][k][l][m] - placetime[j] >= 0 && highnodesscored[i][j][k][l][m] !== 9) {
-                    //do high score
-                    highnodesscored[i][j][k][l][m]++;
-                    time[i][j][k][l][m] -= placetime[j];
-                    points[i][j][k][l][m] += pointsforhigh[1];
-                }
-                while (time[i][j][k][l][m] - placetime[j] >= 0) {
-                    midnodesscored[i][j][k][l][m]++;
-                    time[i][j][k][l][m] -= placetime[j];
-                    points[i][j][k][l][m] += pointsformid[1];
-                }
-                points[i][j][k][l][m] += ((highnodesscored[i][j][k][l][m] % 3) * 5);
-                points[i][j][k][l][m] += ((midnodesscored[i][j][k][l][m] % 3) * 5);
-                if ((highnodesscored[i][j][k][l][m] % 3) + (highnodesscored[i][j][k][l][m] % 3) > 3) { linkcounter[i][j][k][l][m]++; }
-
             }
         }
     }
 }
 let word = "these scenarios include a rankpoint from links";
-if (!linkcounter.includes(1)) { word = "these scenarios don't include a rankpoint from links"; }
+if (!(linkcounter.includes(1))) { word = "these scenarios don't include a rankpoint from links"; }
 console.log.println(word);
 </script>
 
