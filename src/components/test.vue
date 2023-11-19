@@ -20,7 +20,6 @@
             <div v-if="scoreCalculated">
                 <!-- Output/Show Events At here -->
             </div>
-
             <!-- <div v-if="scoreCalculated">
             <h3>Scores:</h3>
             <p>Auton Score: {{ testscores[0] }}</p>
@@ -39,6 +38,7 @@
         <p>Endgame Score: {{ testscores[2] }}</p>
         <p>Total Score: {{ score }}</p>
     </div>
+    <canvas id="myChart" style="width:100%;max-width:700px"></canvas>
 </template>
 
 <script setup>
