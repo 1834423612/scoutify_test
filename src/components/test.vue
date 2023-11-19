@@ -120,15 +120,15 @@ for (let i in balancingtime) {
         }
     }
 }
-console.log(points[0,0,0,0,0]);//most possible points
-console.log(points[2,1,1,2,1]);//least possible points
+console.log(points[0][0][0][0][0]);//most possible points
+console.log(points[2][1][1][2][1]);//least possible points
 /*let word = "these scenarios include a rankpoint from links";
 if (!(linkcounter.includes(1))) { word = "these scenarios don't include a rankpoint from links"; }
 console.log.println(word);*/
 
 //chart
 //{x:150, y:15}
-//for(let i=0;i<10;i++){xyValues.push({x:150,y:15});}
+for(let i=0;i<3;i++){xyValues.push({x: i ,y:points[i][0][0][0][0]});}
 
 window.addEventListener("load", function(event) { //only initialize chart once window loads completely to avoid context issues
     new Chart("myChart", {
