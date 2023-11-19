@@ -63,18 +63,24 @@ for (let i in balancingtime) {
         for (let k in autonpickup) {
             for (let l in autonmovepartofcycle) {
                 for (let m in movepartofcycle) {
-                holdingpiece[i][j][k][l][m] = true;
-                time[i][j][k][l][m] = 150 - (balancingtime[i] * 2);
-                while ((time[i][j][k][l][m] + balancingtime[i] - placetime[j]) >= 135) {
-                    points[i][j][k][l][m] = pointsforbalancing[0] + pointsforbalancing[1] + 3 + pointsforhigh[0];//three for mobility
-                    highnodesscored[i][j][k][l][m]++;
-                    time[i][j][k][l][m] -= placetime[j];
-                    holdingpiece[i][j][k][l][m] = false;
-                    if (time[i][j][k][l][m] - autonpickup[k] >= 135 && holdingpiece[i][j][k][l][m] === false) {
+            //auton
+                //set variable default values
+                    holdingpiece[i][j][k][l][m] = true;
+                    highnodesscored[i][j][k][l][m]=0;
+                //balance
+                    time[i][j][k][l][m] = 150 - balancingtime[i];
+                    points[i][j][k][l][m] = pointsforbalancing[0];
+                //place pieces on grid
+                    while ((time[i][j][k][l][m] - placetime[j]) >= 135) {
+                        points[i][j][k][l][m]+=pointsforhigh[0];
+                        highnodesscored[i][j][k][l][m]++;
                         time[i][j][k][l][m] -= placetime[j];
-                        holdingpiece[i][j][k][l][m] = true;
+                        holdingpiece[i][j][k][l][m] = false;
+                        if (time[i][j][k][l][m] - autonpickup[k]-(autonmovepartofcycle[l]/2)>= 135) {//the autonmovepartofcycle[l] is divided by two b/c the robot only travels to pick up the cones, not also back 
+                            time[i][j][k][l][m] -= (placetime[j]+autonmovepartofcycle[l]/2);
+                            holdingpiece[i][j][k][l][m] = true;
+                        }
                     }
-                }
                 //calculate teleop (start w/ the scenario where the robot has something already in it and then do the general scenarios (this was the sole purpose of the holdingpiece variable))
                 time[i][j][k][l][m] = 135 - balancingtime[i];
                 if (holdingpiece[i][j][k][l][m] === true) {
