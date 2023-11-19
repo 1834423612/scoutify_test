@@ -43,9 +43,9 @@
 
 <script setup>
 import { Scatter } from 'vue-chartjs'
-import { Chart as ChartJS, Title, Tooltip, Legend, CategoryScale, LinearScale } from 'chart.js'
-ChartJS.register(Title, Tooltip, Legend, CategoryScale, LinearScale)
-
+import { Chart as ChartJS, Title, Tooltip, Legend, CategoryScale, LinearScale, BarElement } from 'chart.js'
+ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale)
+//need to import the correct things (the things above obviosly aren't the rigt) from chartjs make sure that its a scatter graph
 //new code: Mr. Shaw informed us were allowed to make certain assumtions: We will at least engage one bot every time. We will score for high, then mid, then low, but because we never will get to the low grid, we don't have to account for this
 let balancingtime = [3, 5, 7];//not min max times, but either 3 seconds, 5 seconds, or seven seconds.
 let pointsforbalancing = [12, 10];//auton and teleop
@@ -128,22 +128,25 @@ console.log.println(word);*/
 //chart
 //{x:150, y:15}
 //for(let i=0;i<10;i++){xyValues.push({x:150,y:15});}
-new Chart("myChart", {
-  type: "scatter",
-  data: {
-    datasets: [{
-      pointRadius: 4,
-      pointBackgroundColor: "rgb(0,0,255)",
-      data: xyValues
-    }]
-  },
-  options: {
-    legend: {display: false},
-    scales: {
-      xAxes: [{ticks: {min: 0, max:150}}],
-      yAxes: [{ticks: {min: 30, max:120}}],
+
+window.addEventListener("load", function(event) { //only initialize chart once window loads completely to avoid context issues
+    new Chart("myChart", {
+    type: "scatter",
+    data: {
+        datasets: [{
+        pointRadius: 4,
+        pointBackgroundColor: "rgb(0,0,255)",
+        data: xyValues
+        }]
+    },
+    options: {
+        legend: {display: false},
+        scales: {
+        xAxes: [{ticks: {min: 0, max:150}}],
+        yAxes: [{ticks: {min: 30, max:120}}],
+        }
     }
-  }
+    });
 });
 </script>
 
