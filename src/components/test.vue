@@ -43,7 +43,7 @@
 </template>
 
 <script setup>
-//don't know if this script can be inside the script
+//don't know if this script tag can be inside the script
 <script type="module" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
 
 //Assumptions: We will always engage. We will score for high, then mid, then low, but because we never will get to the low grid, we don't have to account for it
@@ -57,7 +57,7 @@ let autonmovepartofcycle = [4,6];
 let movepartofcycle =  [7, 9, 11];
 const autonPieceLimit = 5;
 const scenariospoints=new Array(balancingtime.length).fill(new Array(placetime.length).fill(new Array(autonpickup.length).fill(new Array(autonmovepartofcycle.length).fill(new Array(movepartofcycle.length).fill(new Array(0))))));//for chart
-const rnkValues=[{x:0,y:0}];
+const rnkValues=[];
 let decodescenario = (a) =>
 a.charAt(0)*placetime.length*autonpickup.length*autonmovepartofcycle.length*movepartofcycle.length+
 balancingtime.length*a.charAt(1)*autonpickup.length*autonmovepartofcycle.length*movepartofcycle.length+
