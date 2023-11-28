@@ -1,7 +1,5 @@
 <template>
-    <p> to do: fix the decodescenario function.
-	I want '00000' to return 0, '00001' to return 1, '00002' to return 2, '00010' to return 3 and so forth.
-	For some reason, '21000' doesn't work     
+    <p> to do:
     </p>
     <div class="card">
         <div class="card-inner">
@@ -60,17 +58,17 @@ const scenariospoints=new Array(balancingtime.length).fill(new Array(placetime.l
 const rnkValues=[];
 let decodescenario = (a) =>
 a.charAt(0)*placetime.length*autonpickup.length*autonmovepartofcycle.length*movepartofcycle.length+
-balancingtime.length*a.charAt(1)*autonpickup.length*autonmovepartofcycle.length*movepartofcycle.length+
-balancingtime.length*placetime.length*a.charAt(2)*autonmovepartofcycle.length*movepartofcycle.length+
-balancingtime.length*placetime.length*autonpickup.length*a.charAt(3)*movepartofcycle.length+
-balancingtime.length*placetime.length*autonpickup.length*autonmovepartofcycle.length*a.charAt(4);;
+a.charAt(1)*autonpickup.length*autonmovepartofcycle.length*movepartofcycle.length+
+a.charAt(2)*autonmovepartofcycle.length*movepartofcycle.length+
+a.charAt(3)*movepartofcycle.length+
+a.charAt(4);
 //create a scenario tree
 for (let i in balancingtime) {
     for (let j in placetime) {
         for (let k in autonpickup) {
             for (let l in autonmovepartofcycle) {
                 for (let m in movepartofcycle) {
-//initilize the variables
+//initialize the variables
 let nodesscored=0;
 let autonPCCount = 0;
 let holdingpiece=1;//start w/ holding one piece
@@ -141,7 +139,7 @@ endpoints.push(scenariospoints[0][0][0][0][0].length);
 const scenario='00000';
 
 const b=decodescenario(scenario);
-const startpoint=endpoints[b]+1;//an accesser
+const startpoint=endpoints[b]+1;//an accessor
 const endpoint=endpoints[b+1];
 //for each point in the given range, push a point to the xyValues array
 for(let i=startpoint;i<endpoint;i++){xyValues.push(scenariospoints[0][0][0][0][0][i]);}
