@@ -1,5 +1,7 @@
 <template>
     <p> to do:
+	    do the other years
+	    might want to be able to show more than one chart at once
     </p>
     <div class="card">
         <div class="card-inner">
@@ -35,14 +37,12 @@
         <p>Endgame Score: {{ testscores[2] }}</p>
         <p>Total Score: {{ score }}</p>
     </div>
-
+<script type="module" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
 <canvas id="myChart" style="width:100%;max-width:700px"></canvas>
 <canvas id="rnkpntChart" style="width:100%;max-width:700px"></canvas>
 </template>
 
 <script setup>
-//don't know if this script tag can be inside the script
-<script type="module" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
 
 //Assumptions: We will always engage. We will score for high, then mid, then low, but because we never will get to the low grid, we don't have to account for it
 let balancingtime = [3, 5, 7];//it can take either 3 seconds, 5 seconds, or 7 seconds
@@ -61,7 +61,7 @@ a.charAt(0)*placetime.length*autonpickup.length*autonmovepartofcycle.length*move
 a.charAt(1)*autonpickup.length*autonmovepartofcycle.length*movepartofcycle.length+
 a.charAt(2)*autonmovepartofcycle.length*movepartofcycle.length+
 a.charAt(3)*movepartofcycle.length+
-a.charAt(4);
+a.charAt(4)*1;//the multiplication by one switches the type from string to number so that the a.charAt(4) is added instead of concatenated
 //create a scenario tree
 for (let i in balancingtime) {
     for (let j in placetime) {
