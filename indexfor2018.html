@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Page Title</title>
+</head>
+<body>
+<script setup>
+//game was powerup
+//this game will require an additional chart: (seconds,nodesscored on the big plot)
+//ranking points dependent on alliance partners, this program only allows the capability for the alliance partners to easily work together
+//Assumptions: We will always engage. We will score for high, then mid, then low, but because we never will get to the low grid, we don't have to account for it
+let balancingtime = [3, 5, 7];//it can take either 3 seconds, 5 seconds, or 7 seconds
+let pointsforbalancing = [0, 30];//auton and teleop
+let placetime = [2, 4];
+let pointsforhigh = [2, 1];//auton and teleop
+let pointsformid = [2, 3];//this will be your own switch
+let autonpickup = [2, 4];
+let autonmovepartofcycle = [4,6];
+let movepartofcycle =  [4, 6];
+let scales=[[true,false],[false,false],[true,true]];//the first boolean is for our switch, the second boolean is for the middle switch
+const autonPieceLimit = 13;
+const pointsformobility = 5;
+const scenariospoints=new Array(balancingtime.length).fill(new Array(placetime.length).fill(new Array(autonpickup.length).fill(new Array(autonmovepartofcycle.length).fill(new Array(movepartofcycle.length).fill(new Array(0))))));//for chart
+
+//create a scenario tree
+for (let i in balancingtime) {
+    for (let j in placetime) {
+        for (let k in autonpickup) {
+            for (let l in autonmovepartofcycle) {
+                for (let m in movepartofcycle) {
+                    for (let n in movepartofcycle) {
+//initialize the variables
+let nodesscored=0;
+let points=0;
+if(scales[n][0]===true){++nodesscored; points+=15*pointsformid[0]}
+let autonPCCount = 0;
+let holdingpiece=1;//start w/ holding one piece
+
+//auton balance
+points+=pointsformobility;
+let time=150;
+scenariospoints[i][j][k][l][m][n].push({x: 150-time, y: points});
+
+//place pieces during auton
+while (time - placetime[j] >= 135 && autonPCCount < autonPieceLimit) {
+    if(nodescored===0){points+=(15-placetime[j])*pointsformid}
+    ++nodesscored;
+    time -= placetime[j];
+	autonPCCount+=holdingpiece;
+    holdingpiece = 0;
+	scenariospoints[i][j][k][l][m][n].push({x: 150-time, y: points});
+    if (time - autonmovepartofcycle[l]/2 - autonpickup[k] >= 135) {//the autonmovepartofcycle[l] is divided by two b/c the robot only travels to pick up the cones, not also back 
+        time -= autonmovepartofcycle[l]/2 + autonpickup[k];
+        ++holdingpiece;
+        if(time-autonmovepartofcycle[l]/2-placetime[j]>=135){time-=autonmovepartofcycle[l]/2;}
+        else{time=135;}
+    }
+}
+//endgame
+time = 135 - balancingtime[i];
+points += pointsforbalancing[1];
+scenariospoints[i][j][k][l][m][n].push({x: 150-time, y: points});
+//teleop
+// if holding pieces at beginning of teleop
+if (holdingpiece>0) {
+    ++nodesscored;
+    holdingpiece = 0;
+    time-= placetime[j];
+	scenariospoints[i][j][k][l][m][n].push({x: 150-time, y: points});
+}
+//score high and mid
+while (time-movepartofcycle[l]-placetime[j]>=0) {
+    ++nodesscored;
+    time-=placetime[j]+movepartofcycle[l]+autonpickup[k];
+    scenariospoints[i][j][k][l][m][n].push({x: 150-time, y: points});
+}
+                }
+            }
+        }
+    }
+}
+</script>
+
+</body>
+</html>
