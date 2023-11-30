@@ -40,7 +40,7 @@
         <br />
     </div>
     <!-- <script type="module" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script> -->
-    <canvas id="myChart" style="width:100%;max-width:700px"></canvas>
+    <canvas id="myChart" Kjstyle="width:100%;max-width:700px"></canvas>
     <canvas id="rnkpntChart" style="width:100%;max-width:700px"></canvas>
 </template>
 
