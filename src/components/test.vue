@@ -31,21 +31,24 @@
 
     <!-- Result Card -->
     <div v-if="scoreCalculated" class="result-card">
-        <h3>Calculated Scores:</h3>
+        <!--<h3>Calculated Scores:</h3>
         <p>Auton Score: {{ testscores[0] }}</p>
         <p>Teleop Score: {{ testscores[1] }}</p>
         <p>Endgame Score: {{ testscores[2] }}</p>
-        <p>Total Score: {{ score }}</p>
+        <p>Total Score: {{ score }}</p>-->
 
+        <canvas id="myChart" Kjstyle="width:100%;max-width:700px"></canvas>
+        <canvas id="rnkpntChart" style="width:100%;max-width:700px"></canvas>
         <br />
     </div>
     <!-- <script type="module" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script> -->
-    <canvas id="myChart" Kjstyle="width:100%;max-width:700px"></canvas>
-    <canvas id="rnkpntChart" style="width:100%;max-width:700px"></canvas>
+    
 </template>
 
 
 <script>
+// import { UseChartStore } from '../store';
+
 // Replace the Cloudflare Chart.js link to local NPM Packages.
 // import the Chart.js
 import {
@@ -57,8 +60,9 @@ import {
     Legend
 } from 'chart.js'
 import { Scatter } from 'vue-chartjs'
+import { ref, onMounted } from 'vue';
 // import * as chartConfig from './chartConfig.js'
-import * as ChartConfig from '../assets/static/js/ChartConfig.js'
+// import * as ChartConfig from '../assets/static/js/ChartConfig.js'
 
 ChartJS.register(LinearScale, PointElement, LineElement, Tooltip, Legend)
 
@@ -69,6 +73,58 @@ ChartJS.register(LinearScale, PointElement, LineElement, Tooltip, Legend)
 
     ##########################
 */
+
+// export default {
+//   setup() {
+//     const store = useStore();
+//     const myChartRef = ref(null);
+//     const rnkpntChartRef = ref(null);
+
+//     const initCharts = () => {
+//       new Chart(myChartRef.value, {
+//         type: "scatter",
+//         data: {
+//             datasets: [{
+//                 pointRadius: 4,
+//                 pointBackgroundColor: "rgb(0,0,255)",
+//                 data: store.xyValues
+//             }]
+//         },
+//         // ... 图表选项 ...
+//       });
+
+//       new Chart(rnkpntChartRef.value, {
+//         type: "scatter",
+//         data: {
+//             datasets: [{
+//                 pointRadius: 4,
+//                 pointBackgroundColor: "rgb(255,255,0)",
+//                 data: store.rnkValues
+//             }]
+//         },
+//         // ... 图表选项 ...
+//       });
+//     };
+
+//     onMounted(initCharts);
+
+//     return {
+//       myChartRef,
+//       rnkpntChartRef
+//     };
+//   },
+//   methods: {
+//     calculateScores() {
+//       // ... 计算逻辑 ...
+
+//       const store = useStore();
+//       store.setXyValues(xyValues); // 假设 xyValues 已经计算好
+//       store.setRnkValues(rnkValues); // 假设 rnkValues 已经计算好
+
+//       // 在此处根据需要更新图表
+//     }
+//   }
+// };
 
 
 // Export Chart components to facilitate calling between each components, NOT necessary for now.
