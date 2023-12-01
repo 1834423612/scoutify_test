@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Page Title</title>
+</head>
+<body>
+<script setup>
+//Assumptions: We will always engage. We will score for high, then mid, then low, but because we never will get to the low grid, we don't have to account for it
+const balancingtime = [3, 5, 7];//it can take either 3 seconds, 5 seconds, or 7 seconds
+const pointsforbalancing = [12, 10];//auton and teleop
+const placetime = [2, 4];
+const pointsforbestscorer = [6, 5];// high nodes: auton and teleop
+const pointsforokscorer = [4, 3];//mid nodes
+const pickuptime = [2, 4];
+const autonmovepartofcycle = [4,6];
+const movepartofcycle =  [7, 9, 11];
+const autonPieceLimit = 5;
+const pointsformobility = 3;
+const scenariospoints=new Array(balancingtime.length).fill(new Array(placetime.length).fill(new Array(pickuptime.length).fill(new Array(autonmovepartofcycle.length).fill(new Array(movepartofcycle.length).fill(new Array(0))))));//for chart
+const rnkValues=[];
+const grabamount0=[1];//for games where you can grab more than one piece, this might need to be turned into a range
+//create a scenario tree
+const grabamount1=1;
+for (let i in balancingtime) {
+    for (let j in placetime) {
+        for (let k in pickuptime) {
+            for (let l in autonmovepartofcycle) {
+                for (let m in movepartofcycle) {
+//initialize the variables
+let piecesscored=0;
+let holdingpiece0=1;//start w/ holding one piece
+let time=150;
+let points=pointsformobility+pointsforbalancing[0];//will always strive to make a robot that can get the mobility points
+    //auton
+//auton balance
+if(pointsforbalancing[0]!==0){time-=balancingtime[i];}//only subtract balancing time if auton-balance is allowed
+scenariospoints[i][j][k][l][m].push({x: 150-time, y: points});
+//place pieces during auton
+while (time - placetime[j] >= 135 && piecesscored < autonPieceLimit) {
+    points+=pointsforbestscorer[0]*holdingpiece0;
+    piecesscored+=holdingpiece0;
+	if (piecesscored % 3===0){points+=5;}
+    time -= placetime[j];
+    holdingpiece0 = 0;
+	scenariospoints[i][j][k][l][m].push({x: 150-time, y: points});
+    if (time - autonmovepartofcycle[l]/2 - pickuptime[k] >= 135) {//the autonmovepartofcycle[l] is divided by two b/c the bot only travels to pick up game pices, not also back 
+        time -= autonmovepartofcycle[l]/2 + pickuptime[k];
+        holdingpiece0+=grabamount0;
+        if(piecesscored+holdingpiece0>autonPieceLimit){holdingpiece0=autonPieceLimit-piecesscored}//prevents holding more pieces than allowed given the autonPieceLimit and the pieces already scored: this is needed in a game where you can pick up more than one piece at a time
+        if(time-autonmovepartofcycle[l]/2-placetime[j]>=135){time-=autonmovepartofcycle[l]/2;}
+        else{time=135;}
+    }
+}
+    //endgame
+time=135
+if(pointsforbalancing[1]!==0){
+    points+=pointsforbalancing[1];
+    time-=balancingtime[i];
+}
+scenariospoints[i][j][k][l][m].push({x: 150-time, y: points});
+    //teleop
+// if holding pieces at beginning of teleop
+if (holdingpiece0>0) {
+    piecesscored+=holdingpiece0;
+    points+=pointsforbestscorer[1]*holdingpiece0;
+    holdingpiece0 = 0;
+    time-= placetime[j];
+    if (piecesscored % 3===0){points+=5;}//test for links
+	scenariospoints[i][j][k][l][m].push({x: 150-time, y: points});
+}
+//score high and mid
+while (time-pickuptime[k]-movepartofcycle[l]-placetime[j]>=0) {
+    piecesscored+=grabamount0;
+    time-=placetime[j]+movepartofcycle[l]+pickuptime[k];
+    if(piecesscored<=9){points += pointsforbestscorer[1]*grabamount0;}
+    else{points+= pointsforokscorer[1]*grabamount0;}
+    if (piecesscored % 3===0){points +=5;}
+    scenariospoints[i][j][k][l][m].push({x: 150-time, y: points});
+}
+if (Math.floor(piecesscored / 3) > 3) {rnkValues.push({x:x,y:1})}
+else{rnkValues.push({x:x,y:0})}
+                }
+            }
+        }
+    }
+}
+</script>
+
+</body>
+</html>
