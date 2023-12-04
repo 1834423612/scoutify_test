@@ -36,7 +36,7 @@ a.charAt(2)*autonmovepartofcycle.length*movepartofcycle.length+a.charAt(3)*movep
 
 	
 //create a scenario tree
-const grabamount1=1;
+
 for (let i in balancingtime) {
     for (let j in placetime) {
         for (let k in pickuptime) {
@@ -61,7 +61,7 @@ while (time - placetime[j] >= 135 && piecesscored < autonPieceLimit) {
 	scenariospoints[i][j][k][l][m].push({x: 150-time, y: points});
     if (time - autonmovepartofcycle[l]/2 - pickuptime[k] >= 135) {//the autonmovepartofcycle[l] is divided by two b/c the bot only travels to pick up game pices, not also back 
         time -= autonmovepartofcycle[l]/2 + pickuptime[k];
-        holdingpiece0+=grabamount0;
+        holdingpiece0+=grabamount0[0];
         if(piecesscored+holdingpiece0>autonPieceLimit){holdingpiece0=autonPieceLimit-piecesscored}//prevents holding more pieces than allowed given the autonPieceLimit and the pieces already scored: this is needed in a game where you can pick up more than one piece at a time
         if(time-autonmovepartofcycle[l]/2-placetime[j]>=135){time-=autonmovepartofcycle[l]/2;}
         else{time=135;}
@@ -86,10 +86,10 @@ if (holdingpiece0>0) {
 }
 //score high and mid
 while (time-pickuptime[k]-movepartofcycle[l]-placetime[j]>=0) {
-    piecesscored+=grabamount0;
+    piecesscored+=grabamount0[0];
     time-=placetime[j]+movepartofcycle[l]+pickuptime[k];
-    if(piecesscored<=9){points += pointsforbestscorer[1]*grabamount0;}
-    else{points+= pointsforokscorer[1]*grabamount0;}
+    if(piecesscored<=9){points += pointsforbestscorer[1]*grabamount0[0];}
+    else{points+= pointsforokscorer[1]*grabamount0[0];}
     if (piecesscored % 3===0){points +=5;}
     scenariospoints[i][j][k][l][m].push({x: 150-time, y: points});
 }
