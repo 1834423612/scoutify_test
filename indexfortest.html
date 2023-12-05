@@ -99,7 +99,7 @@ while (time - placetime[j] >= 135 && piecesscored < autonPieceLimit) {
     time -= placetime[j];
     holdingpiece0 = 0;
 	scenariospoints[i][j][k][l][m][n].push({x: 150-time, y: points});
-    //piecesscoredovertime[i][j][k][l][m][m].push({x: 150-time, y: piecesscored});
+    piecesscoredovertime[i][j][k][l][m][n].push({x: 150-time, y: piecesscored});
     if (time - autonmovepartofcycle[l]/2 - pickuptime[k] >= 135) {//the autonmovepartofcycle[l] is divided by two b/c the bot only travels to pick up game pices, not also back 
         time -= autonmovepartofcycle[l]/2 + pickuptime[k];
         holdingpiece0+=grabamount[n];
@@ -125,7 +125,7 @@ if (holdingpiece0>0) {
     time-= placetime[j];
     if (piecesscored % 3===0){points+=5;}//test for links
 	scenariospoints[i][j][k][l][m][n].push({x: 150-time, y: points});
-    //piecesscoredovertime[i][j][k][l][m][m].push({x: 150-time, y: piecesscored});
+    piecesscoredovertime[i][j][k][l][m][n].push({x: 150-time, y: piecesscored});
 }
 //score high and mid
 while (time-pickuptime[k]-movepartofcycle[l]-placetime[j]>=0) {//if we want the program to see how much slower we can be w/out worsening score changing the 0 in ">=0" to some other number is a start.
@@ -135,7 +135,7 @@ while (time-pickuptime[k]-movepartofcycle[l]-placetime[j]>=0) {//if we want the 
     else{points+= pointsforokscorer[1]*grabamount[n];}
     if (piecesscored % 3===0){points +=5;}
     scenariospoints[i][j][k][l][m][n].push({x: 150-time, y: points});
-    //piecesscoredovertime[i][j][k][l][m][m].push({x: 150-time, y: piecesscored});
+    piecesscoredovertime[i][j][k][l][m][n].push({x: 150-time, y: piecesscored});
 }
 let x=decodescenario(''+i+j+k+l+m+n);
 if (Math.floor(piecesscored / 3) > 3) {rnkValues.push({x:x,y:1})}
@@ -157,10 +157,10 @@ for(let i=0;i<scenariospoints[0][0][0][0][0][0].length-1;i++){
 endpoints.push(scenariospoints[0][0][0][0][0][0].length);
 
 const endpointsofpsotValues=[-1];
-//for(let i=0;i<piecesscoredovertime[0][0][0][0][0][0].length-1;i++){
-//	if(piecesscoredovertime[0][0][0][0][0][0][i].x>piecesscoredovertime[0][0][0][0][0][0][i+1].x){endpointsofpsotValues.push(i);}
-//}
-//endpointsofpsotValues.push(piecesscoredovertime[0][0][0][0][0][0].length);
+for(let i=0;i<piecesscoredovertime[0][0][0][0][0][0].length-1;i++){
+	if(piecesscoredovertime[0][0][0][0][0][0][i].x>piecesscoredovertime[0][0][0][0][0][0][i+1].x){endpointsofpsotValues.push(i);}
+}
+endpointsofpsotValues.push(piecesscoredovertime[0][0][0][0][0][0].length);
 
 
 const scenario='000000';
@@ -169,11 +169,12 @@ const b=decodescenario(scenario);
 const startpoint=endpoints[b]+1;//an accessor
 const endpoint=endpoints[b+1];
 
-//const startpointofpsotValues=endpointsofpsotValues[b]+1;//an accessor
-//const endpointofpsotValues=endpointsofpsotValues[b+1];
+const startpointofpsotValues=endpointsofpsotValues[b]+1;//an accessor
+const endpointofpsotValues=endpointsofpsotValues[b+1];
+
 //for each point in the given range, push a point to the xyValues array
 for(let i=startpoint;i<endpoint;i++){xyValues.push(scenariospoints[0][0][0][0][0][0][i]);}
-//for(let i=startpointofpsotValues;i<endpointofpsotValues;i++){psotValues.push(piecesscoredovertime[0][0][0][0][0][0][i]);}
+for(let i=startpointofpsotValues;i<endpointofpsotValues;i++){psotValues.push(piecesscoredovertime[0][0][0][0][0][0][i]);}
 window.addEventListener("load", function(event) { //only initialize chart once window loads completely to avoid context issues
 var scoretimechart = new Chart("myChart", {
     type: "scatter",
