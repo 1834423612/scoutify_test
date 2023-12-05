@@ -37,12 +37,12 @@
         <p>Endgame Score: {{ testscores[2] }}</p>
         <p>Total Score: {{ score }}</p>
     </div>
-<script type="module" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+<!-- <script type="module" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script> -->
 <canvas id="myChart" style="width:100%;max-width:700px"></canvas>
 <canvas id="rnkpntChart" style="width:100%;max-width:700px"></canvas>
 </template>
 
-<script setup>
+<script setup>  
 
 //Assumptions: We will always engage. We will score for high, then mid, then low, but because we never will get to the low grid, we don't have to account for it
 let balancingtime = [3, 5, 7];//it can take either 3 seconds, 5 seconds, or 7 seconds
