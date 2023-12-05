@@ -229,20 +229,14 @@ var psotchart = new Chart("psotchart", {
         }]
     },
     options: {
-    	onClick: function(evt) {   
-        	var element = psotchart.getElementAtEvent(evt);
-			if(element.length > 0){
-				var ind = element[0]._index;
-        		if(confirm('Do you want to see this scenario?')){alert(ind);}
-        	}
-        },
         legend: {display: false},
         scales: {
-        	xAxes: [{ticks: {min: 0, max:balancingtime.length*placetime.length*pickuptime.length*autonmovepartofcycle.length*movepartofcycle.length*grabamount.length}}],
-        	yAxes: [{ticks: {min: 0, max:150}}],
+        	xAxes: [{ticks: {min: 0, max:150}}],
+        	yAxes: [{ticks: {min: 0, max:20}}],
         }
     }
 });
+
 
 });
 </script>
