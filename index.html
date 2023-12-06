@@ -207,15 +207,13 @@
                         footerFontStyle: "normal",
                         callbacks: {
                             label: function (tooltipItem, data) {
-                            //let teamName = data.teamName[tooltipItem.index]
-                            //let text = [teamName + ": (" + tooltipItem.xLabel + ', ' + tooltipItem.yLabel + ")"]
-                            return "hello"+data;//text
+                                if(rnkValues[tooltipItem.index].y===0){return "0";}//there was a bug where if it was 0, then nothing it wouldn't show this
+                                return rnkValues[tooltipItem.index].y;
                             },
                             //color does not appear before the footer
                             footer: function (tooltipItems, data) {
-                                return ["string"];
+                                return decodescenario(tooltipItems[0].index);
                             }
-                    
                         }
                     },
                     onClick: function (evt) {
@@ -264,13 +262,11 @@
                         footerFontStyle: "normal",
                         callbacks: {
                             label: function (tooltipItem, data) {
-                            //let teamName = data.teamName[tooltipItem.index]
-                            //let text = [teamName + ": (" + tooltipItem.xLabel + ', ' + tooltipItem.yLabel + ")"]
-                            return "hello";//text
+                                return totalscores[tooltipItem.index].y;
                             },
                             //color does not appear before the footer
                             footer: function (tooltipItems, data) {
-                                return ["string"];
+                                return decodescenario(tooltipItems[0].index);
                             }
                     
                         }
@@ -321,13 +317,11 @@
                         footerFontStyle: "normal",
                         callbacks: {
                             label: function (tooltipItem, data) {
-                            //let teamName = data.teamName[tooltipItem.index]
-                            //let text = [teamName + ": (" + tooltipItem.xLabel + ', ' + tooltipItem.yLabel + ")"]
-                            return "hello";//text
+                                return piecesoverscenarios[tooltipItem.index].y;
                             },
                             //color does not appear before the footer
                             footer: function (tooltipItems, data) {
-                                return ["string"];
+                                return decodescenario(tooltipItems[0].index);
                             }
                     
                         }
@@ -424,7 +418,6 @@
             });
 
         });
-
 
         function updatedata(scenario){
             let scenarioencoded=scenario;
