@@ -158,35 +158,22 @@
                 }
             }
         }
-
-        let xyValues = [];
-        let psotValues = [];//pieces scored over time
         //figure out which scenario each scatter point belongs to by defining the endpoints of each data set
         const endpoints = [-1];//its -1 b/c it's the ending-point in a scenario where nothing happens: it was done like this so the next scenario starts w/ zero (-1+1=0). I added one b/c the endpoint of one scenario is 1 plus the startpoint of another scenario.
         for (let i = 0; i < scenariospoints[0][0][0][0][0][0].length - 1; i++) {
             if (scenariospoints[0][0][0][0][0][0][i].x > scenariospoints[0][0][0][0][0][0][i + 1].x) { endpoints.push(i); }
         }
         endpoints.push(scenariospoints[0][0][0][0][0][0].length);
-
+        //do the same for the pieces scored-time chart
         const endpointsofpsotValues = [-1];
         for (let i = 0; i < piecesscoredovertime[0][0][0][0][0][0].length - 1; i++) {
             if (piecesscoredovertime[0][0][0][0][0][0][i].x > piecesscoredovertime[0][0][0][0][0][0][i + 1].x) { endpointsofpsotValues.push(i); }
         }
         endpointsofpsotValues.push(piecesscoredovertime[0][0][0][0][0][0].length);
 
-
-        const scenario = '000000';
-        const b = decodescenario(scenario);
-
-        const startpoint = endpoints[b] + 1;//an accessor
-        const endpoint = endpoints[b + 1];
-
-        const startpointofpsotValues = endpointsofpsotValues[b] + 1;//an accessor
-        const endpointofpsotValues = endpointsofpsotValues[b + 1];
-
-        //for each point in the given range, push a point to the xyValues array
-        for (let i = startpoint; i < endpoint+1; i++) { xyValues.push(scenariospoints[0][0][0][0][0][0][i]); }
-        for (let i = startpointofpsotValues; i < endpointofpsotValues+1; i++) { psotValues.push(piecesscoredovertime[0][0][0][0][0][0][i]); }
+        let xyValues;
+        let psotValues;//pieces scored over time
+        uptadedata("000000");
         window.addEventListener("load", function (event) { //only initialize chart once window loads completely to avoid context issues
             
             const rnkpntchart = new Chart("rnkpntChart", {
@@ -299,6 +286,24 @@
 
         });
 
+
+        function updatedata(scenario){
+            let scenariodecoded=scenario;
+            if(typeof(scenario)==="string"){scenariodecoded = decodescenario(scenario);}//this will allow the "arg: scenario" to be entered in like this: "000000" or like this: 0, and the computer will turn it into this: 0, if it isn't already
+            
+            const startpoint = endpoints[scenariodecoded] + 1;//an accessor
+            const endpoint = endpoints[scenariodecoded + 1];
+
+            const startpointofpsotValues = endpointsofpsotValues[scenariodecoded] + 1;//an accessor
+            const endpointofpsotValues = endpointsofpsotValues[scenariodecoded + 1];
+
+            //empty out the data arrays
+            xyValues=[];
+            psotValues=[];
+            //for each point in the given range, push a point to the xyValues array
+            for (let i = startpoint; i < endpoint+1; i++) { xyValues.push(scenariospoints[0][0][0][0][0][0][i]); }
+            for (let i = startpointofpsotValues; i < endpointofpsotValues+1; i++) { psotValues.push(piecesscoredovertime[0][0][0][0][0][0][i]); }
+        }
     </script>
 
 </body>
