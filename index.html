@@ -171,8 +171,8 @@
         }
         endpointsofpsotValues.push(piecesscoredovertime[0][0][0][0][0][0].length);
 
-        let xyValues;
-        let psotValues;//pieces scored over time
+        var xyValues=[];
+        var psotValues=[];//pieces scored over time
         uptadedata("000000");
         window.addEventListener("load", function (event) { //only initialize chart once window loads completely to avoid context issues
             
@@ -298,8 +298,8 @@
             const endpointofpsotValues = endpointsofpsotValues[scenariodecoded + 1];
 
             //empty out the data arrays
-            xyValues=[];
-            psotValues=[];
+            xyValues=new Array;
+            psotValues=new Array;
             //for each point in the given range, push a point to the xyValues array
             for (let i = startpoint; i < endpoint+1; i++) { xyValues.push(scenariospoints[0][0][0][0][0][0][i]); }
             for (let i = startpointofpsotValues; i < endpointofpsotValues+1; i++) { psotValues.push(piecesscoredovertime[0][0][0][0][0][0][i]); }
