@@ -117,15 +117,8 @@
                                         else { time = 135; }
                                     }
                                 }
-                                //endgame
-                                time = 135;
-                                if (pointsforbalancing[1] !== 0) {
-                                    points += pointsforbalancing[1];
-                                    time -= balancingtime[i];
-                                }
-                                //problem: want to plot endgame last instead of somewhere in the middle
-                                scenariospoints[i][j][k][l][m][n].push({ x: 150 - time, y: points });
                                 //teleop
+                                time = 135;
                                 // if holding pieces at beginning of teleop
                                 if (holdingpiece0 > 0) {
                                     piecesscored += holdingpiece0;
@@ -137,7 +130,7 @@
                                     piecesscoredovertime[i][j][k][l][m][n].push({ x: 150 - time, y: piecesscored });
                                 }
                                 //score high and mid
-                                while (time - pickuptime[k] - movepartofcycle[l] - placetime[j] >= 0) {//if we want the program to see how much slower we can be w/out worsening score changing the 0 in ">=0" to some other number is a start.
+                                while (((time - pickuptime[k] - movepartofcycle[l] - placetime[j]-balancingtime[i]>= 0)&&(pointsforbalancing[1] !== 0))||((time - pickuptime[k] - movepartofcycle[l] - placetime[j]>= 0)&&(pointsforbalancing[1] === 0))) {//if we want the program to see how much slower we can be w/out worsening score changing the 0 in ">=0" to some other number is a start.
                                     piecesscored += grabamount[n];
                                     time -= placetime[j] + movepartofcycle[l] + pickuptime[k];
                                     if (piecesscored <= 9) { points += pointsforbestscorer[1] * grabamount[n]; }
@@ -146,6 +139,13 @@
                                     scenariospoints[i][j][k][l][m][n].push({ x: 150 - time, y: points });
                                     piecesscoredovertime[i][j][k][l][m][n].push({ x: 150 - time, y: piecesscored });
                                 }
+                                //endgame
+                                if (pointsforbalancing[1] !== 0) {
+                                    points += pointsforbalancing[1];
+                                    time -= balancingtime[i];
+                                }
+                                scenariospoints[i][j][k][l][m][n].push({ x: 150 - time, y: points });
+
                                 let x = decodescenario('' + i + j + k + l + m + n);
                                 if (Math.floor(piecesscored / 3) > 3) { rnkValues.push({ x: x, y: 1 }) }
                                 else { rnkValues.push({ x: x, y: 0 }) }
@@ -184,8 +184,8 @@
         const endpointofpsotValues = endpointsofpsotValues[b + 1];
 
         //for each point in the given range, push a point to the xyValues array
-        for (let i = startpoint; i < endpoint; i++) { xyValues.push(scenariospoints[0][0][0][0][0][0][i]); }
-        for (let i = startpointofpsotValues; i < endpointofpsotValues; i++) { psotValues.push(piecesscoredovertime[0][0][0][0][0][0][i]); }
+        for (let i = startpoint; i < endpoint+1; i++) { xyValues.push(scenariospoints[0][0][0][0][0][0][i]); }
+        for (let i = startpointofpsotValues; i < endpointofpsotValues+1; i++) { psotValues.push(piecesscoredovertime[0][0][0][0][0][0][i]); }
         window.addEventListener("load", function (event) { //only initialize chart once window loads completely to avoid context issues
             
             var scoretimechart = new Chart("myChart", {
@@ -298,6 +298,7 @@
                 }
             });
         });
+
     </script>
 
 </body>
