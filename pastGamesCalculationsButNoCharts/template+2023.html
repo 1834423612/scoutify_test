@@ -19,6 +19,14 @@ const pointsformobility = 3;
 const scenariospoints=new Array(balancingtime.length).fill(new Array(placetime.length).fill(new Array(pickuptime.length).fill(new Array(autonmovepartofcycle.length).fill(new Array(movepartofcycle.length).fill(new Array(0))))));//for chart
 const rnkValues=[];
 const grabamount0=[1];//for games where you can grab more than one piece, this might need to be turned into a range
+
+
+let decodescenario = (a) =>
+a.charAt(0)*placetime.length*autonpickup.length*autonmovepartofcycle.length*movepartofcycle.length+
+a.charAt(1)*autonpickup.length*autonmovepartofcycle.length*movepartofcycle.length+
+a.charAt(2)*autonmovepartofcycle.length*movepartofcycle.length+a.charAt(3)*movepartofcycle.length+a.charAt(4)*1;//the multiplication by one switches the type from string to number so that the a.charAt(4) is added instead of concatenated
+
+	
 //create a scenario tree
 const grabamount1=1;
 for (let i in balancingtime) {
