@@ -355,6 +355,22 @@
                     }]
                 },
                 options: {
+                    tooltips: {
+                        bodyFontStyle: "bold",
+                        footerFontStyle: "normal",
+                        callbacks: {
+                            label: function (tooltipItem, data) {
+                            //let teamName = data.teamName[tooltipItem.index]
+                            //let text = [teamName + ": (" + tooltipItem.xLabel + ', ' + tooltipItem.yLabel + ")"]
+                            return "hello";//text
+                            },
+                            //color does not appear before the footer
+                            footer: function (tooltipItems, data) {
+                                return ["string"];
+                            }
+                    
+                        }
+                    },
                     legend: { display: false },
                     scales: {
                         xAxes: [{
@@ -389,8 +405,8 @@
             const endpointofpsotValues = endpointsofpsotValues[scenarioencoded + 1];
 
             //empty out the data arrays
-         xyValues.splice(0,xyValues.length);
-           psotValues.splice(0,psotValues.length);
+            xyValues.splice(0,xyValues.length);
+            psotValues.splice(0,psotValues.length);
             //for each point in the given range, push a point to the xyValues array
             for (let i = startpoint; i < endpoint+1; i++) { xyValues.push(scenariospoints[0][0][0][0][0][0][i]); }
             for (let i = startpointofpsotValues; i < endpointofpsotValues+1; i++) { psotValues.push(piecesscoredovertime[0][0][0][0][0][0][i]); }
