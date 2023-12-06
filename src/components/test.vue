@@ -1,7 +1,7 @@
 <template>
     <p> to do:
-	    do the other years
-	    might want to be able to show more than one chart at once
+        do the other years
+        might want to be able to show more than one chart at once
     </p>
     <div class="card">
         <div class="card-inner">
@@ -31,18 +31,56 @@
 
     <!-- Result Card -->
     <div v-if="scoreCalculated" class="result-card">
-        <h3>Calculated Scores:</h3>
+        <!--<h3>Calculated Scores:</h3>
         <p>Auton Score: {{ testscores[0] }}</p>
         <p>Teleop Score: {{ testscores[1] }}</p>
         <p>Endgame Score: {{ testscores[2] }}</p>
-        <p>Total Score: {{ score }}</p>
+        <p>Total Score: {{ score }}</p>-->
+
+        <!-- <Scatter :data="data" :options="options" /> -->
+        <!-- <canvas id="myChart" Kjstyle="width:100%;max-width:700px"></canvas>
+        <canvas id="rnkpntChart" style="width:100%;max-width:700px"></canvas> -->
+        <br />
     </div>
-<!-- <script type="module" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script> -->
-<canvas id="myChart" style="width:100%;max-width:700px"></canvas>
-<canvas id="rnkpntChart" style="width:100%;max-width:700px"></canvas>
+    <!-- <script type="module" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script> -->
+    
 </template>
 
-<script setup>  
+
+<script>
+// Replace the Cloudflare Chart.js link to local NPM Packages.
+// import the Chart.js
+import {
+  Chart as ChartJS,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Tooltip,
+  Legend
+} from 'chart.js'
+import { Scatter } from 'vue-chartjs'
+import * as ChartConfig from '../assets/static/js/ChartConfig.js';
+
+ChartJS.register(LinearScale, PointElement, LineElement, Tooltip, Legend)
+
+/*  ##########################
+
+      Chart Config Template
+      (NOT FINISHED, Just for TEST!!!)
+
+    ##########################
+*/  
+
+export default {
+  name: 'App',
+  components: {
+    Scatter
+  },
+  data() {
+    return ChartConfig
+  }
+}
+
 
 //Assumptions: We will always engage. We will score for high, then mid, then low, but because we never will get to the low grid, we don't have to account for it
 let balancingtime = [3, 5, 7];//it can take either 3 seconds, 5 seconds, or 7 seconds

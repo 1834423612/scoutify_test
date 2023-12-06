@@ -8,7 +8,8 @@
 
     <span>Chart Begin</span>
     <!-- Test chart -->
-    <BarChart />
+    <!-- <BarChart /> -->
+    <Scatter :data="data" :options="options" style="width: 80%; height: 60%;"/>
   </div>
 </template>
 
@@ -19,9 +20,27 @@ import BarChart from '../components/chart.vue';
 export default {
   components: {
     Test, // Register 'Test' component
-    BarChart
+    BarChart,
+    Scatter
+  },
+  data() {
+    return ChartConfig
   }
 };
+
+import {
+  Chart as ChartJS,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Tooltip,
+  Legend
+} from 'chart.js'
+import { Scatter } from 'vue-chartjs'
+import * as ChartConfig from '../assets/static/js/ChartConfig.js';
+
+ChartJS.register(LinearScale, PointElement, LineElement, Tooltip, Legend)
+
 </script>
 
 <style scoped>

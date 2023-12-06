@@ -1,5 +1,5 @@
 <template>
-  <Scatter :data="data" :options="options" />
+  <!-- <Scatter :data="data" :options="options" /> -->
 </template>
 
 <script lang="ts">
@@ -25,7 +25,7 @@ ChartJS.register(LinearScale, PointElement, LineElement, Tooltip, Legend)
 //     return chartConfig
 //   }
 // }
-  
+
 export const data = {
   datasets: [
     {
@@ -33,14 +33,24 @@ export const data = {
       fill: false,
       borderColor: '#f87979',
       backgroundColor: '#f87979',
-      data: []
+      data: [
+        {
+          x: -2,
+          y: 4
+        },
+      ]
     },
     {
       label: 'Scatter Dataset 2',
       fill: false,
       borderColor: '#7acbf9',
       backgroundColor: '#7acbf9',
-      data: []
+      data: [
+        {
+          x: -2,
+          y: 4
+        },
+      ]
     }
   ]
 }
