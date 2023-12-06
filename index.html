@@ -202,6 +202,22 @@
                     }]
                 },
                 options: {
+                    tooltips: {
+                        bodyFontStyle: "bold",
+                        footerFontStyle: "normal",
+                        callbacks: {
+                            label: function (tooltipItem, data) {
+                            //let teamName = data.teamName[tooltipItem.index]
+                            //let text = [teamName + ": (" + tooltipItem.xLabel + ', ' + tooltipItem.yLabel + ")"]
+                            return "hello"+data;//text
+                            },
+                            //color does not appear before the footer
+                            footer: function (tooltipItems, data) {
+                                return ["string"];
+                            }
+                    
+                        }
+                    },
                     onClick: function (evt) {
                         var element = rnkpntchart.getElementAtEvent(evt);
                         if (element.length > 0) {
@@ -243,6 +259,22 @@
                     }]
                 },
                 options: {
+                    tooltips: {
+                        bodyFontStyle: "bold",
+                        footerFontStyle: "normal",
+                        callbacks: {
+                            label: function (tooltipItem, data) {
+                            //let teamName = data.teamName[tooltipItem.index]
+                            //let text = [teamName + ": (" + tooltipItem.xLabel + ', ' + tooltipItem.yLabel + ")"]
+                            return "hello";//text
+                            },
+                            //color does not appear before the footer
+                            footer: function (tooltipItems, data) {
+                                return ["string"];
+                            }
+                    
+                        }
+                    },
                     onClick: function (evt) {
                         var element = pschart.getElementAtEvent(evt);
                         if (element.length > 0) {
@@ -284,6 +316,22 @@
                     }]
                 },
                 options: {
+                    tooltips: {
+                        bodyFontStyle: "bold",
+                        footerFontStyle: "normal",
+                        callbacks: {
+                            label: function (tooltipItem, data) {
+                            //let teamName = data.teamName[tooltipItem.index]
+                            //let text = [teamName + ": (" + tooltipItem.xLabel + ', ' + tooltipItem.yLabel + ")"]
+                            return "hello";//text
+                            },
+                            //color does not appear before the footer
+                            footer: function (tooltipItems, data) {
+                                return ["string"];
+                            }
+                    
+                        }
+                    },
                     onClick: function (evt) {
                         var element = piecesschart.getElementAtEvent(evt);
                         if (element.length > 0) {
@@ -355,22 +403,6 @@
                     }]
                 },
                 options: {
-                    tooltips: {
-                        bodyFontStyle: "bold",
-                        footerFontStyle: "normal",
-                        callbacks: {
-                            label: function (tooltipItem, data) {
-                            //let teamName = data.teamName[tooltipItem.index]
-                            //let text = [teamName + ": (" + tooltipItem.xLabel + ', ' + tooltipItem.yLabel + ")"]
-                            return "hello";//text
-                            },
-                            //color does not appear before the footer
-                            footer: function (tooltipItems, data) {
-                                return ["string"];
-                            }
-                    
-                        }
-                    },
                     legend: { display: false },
                     scales: {
                         xAxes: [{
