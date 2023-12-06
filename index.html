@@ -77,14 +77,30 @@
             )
         );
 
-        let decodescenario = (a) =>
+        let encodescenario = (a) =>
             a.charAt(0) * placetime.length * pickuptime.length * autonmovepartofcycle.length * movepartofcycle.length * grabamount.length +
             a.charAt(1) * pickuptime.length * autonmovepartofcycle.length * movepartofcycle.length * grabamount.length +
             a.charAt(2) * autonmovepartofcycle.length * movepartofcycle.length * grabamount.length +
             a.charAt(3) * movepartofcycle.length * grabamount.length +
             a.charAt(4) * grabamount.length +
-            a.charAt(5) * 1;//the multiplication by one switches the type from string to number so that the a.charAt(4) is added instead of concatenated
-
+            a.charAt(5) * 1
+        ;//the multiplication by one switches the type from string to number so that the a.charAt(4) is added instead of concatenated
+        function decodescenario(a){
+            const allthelengthsbesidesbalance = placetime.length * pickuptime.length * autonmovepartofcycle.length * movepartofcycle.length * grabamount.length;
+            const allthelengthsbesidesbalanceandplace = pickuptime.length * autonmovepartofcycle.length * movepartofcycle.length * grabamount.length;
+            const allthelengthsbesidesbalanceandplaceandpickup = autonmovepartofcycle.length * movepartofcycle.length * grabamount.length;
+            const lengthsofmovepartofcycleandgrabamount = movepartofcycle.length * grabamount.length;
+            
+            return "" +
+                Math.floor(a/allthelengthsbesidesbalance) +
+                Math.floor(a % allthelengthsbesidesbalance / allthelengthsbesidesbalanceandplace) +
+                Math.floor( a % allthelengthsbesidesbalance % allthelengthsbesidesbalanceandplace / allthelengthsbesidesbalanceandplaceandpickup) +
+                Math.floor( a % allthelengthsbesidesbalance % allthelengthsbesidesbalanceandplace % allthelengthsbesidesbalanceandplaceandpickup / lengthsofmovepartofcycleandgrabamount) +
+                Math.floor( a % allthelengthsbesidesbalance % allthelengthsbesidesbalanceandplace % allthelengthsbesidesbalanceandplaceandpickup % lengthsofmovepartofcycleandgrabamount / grabamount.length) +
+                a % allthelengthsbesidesbalance % allthelengthsbesidesbalanceandplace % allthelengthsbesidesbalanceandplaceandpickup % lengthsofmovepartofcycleandgrabamount % grabamount.length
+            ;
+        }
+        
         //create a scenario tree
         for (let i in balancingtime) {
             for (let j in placetime) {
@@ -147,7 +163,7 @@
                                 }
                                 scenariospoints[i][j][k][l][m][n].push({ x: 150 - time, y: points });
 
-                                let x = decodescenario('' + i + j + k + l + m + n);
+                                let x = encodescenario('' + i + j + k + l + m + n);
                                 if (Math.floor(piecesscored / 3) > 3) { rnkValues.push({ x: x, y: 1 }) }
                                 else { rnkValues.push({ x: x, y: 0 }) }
                                 totalscores.push({ x:x , y: points })
@@ -200,8 +216,20 @@
                     },
                     legend: { display: false },
                     scales: {
-                        xAxes: [{ ticks: { min: 0, max: balancingtime.length * placetime.length * pickuptime.length * autonmovepartofcycle.length * movepartofcycle.length * grabamount.length } }],
-                        yAxes: [{ ticks: { min: 0, max: 1, stepSize: 1 } }],
+                        xAxes: [{
+                            scaleLabel: {
+                                display: true,
+                                labelString: "Scenarios Encoded",
+                            },
+                            ticks: { min: 0, max: balancingtime.length * placetime.length * pickuptime.length * autonmovepartofcycle.length * movepartofcycle.length * grabamount.length }
+                        }],
+                        yAxes: [{
+                            scaleLabel: {
+                                display: true,
+                                labelString: "Rank Points From Links",
+                            },
+                            ticks: { min: 0, max: 1, stepSize: 1 }
+                        }],
                     }
                 }
             });
@@ -229,8 +257,20 @@
                     },
                     legend: { display: false },
                     scales: {
-                        xAxes: [{ ticks: { min: 0, max: balancingtime.length * placetime.length * pickuptime.length * autonmovepartofcycle.length * movepartofcycle.length * grabamount.length} }],
-                        yAxes: [{ ticks: { min: 0, max: 120 } }],
+                        xAxes: [{
+                            scaleLabel: {
+                                display: true,
+                                labelString: "Scenarios Encoded",
+                            },
+                            ticks: { min: 0, max: balancingtime.length * placetime.length * pickuptime.length * autonmovepartofcycle.length * movepartofcycle.length * grabamount.length}
+                        }],
+                        yAxes: [{
+                            scaleLabel: {
+                                display: true,
+                                labelString: "Pieces Scored",
+                            },
+                            ticks: { min: 0, max: 120 }
+                        }],
                     }
                 }
             });
@@ -258,8 +298,20 @@
                     },
                     legend: { display: false },
                     scales: {
-                        xAxes: [{ ticks: { min: 0, max: balancingtime.length * placetime.length * pickuptime.length * autonmovepartofcycle.length * movepartofcycle.length * grabamount.length } }],
-                        yAxes: [{ ticks: { min: 0, max: 20 } }],
+                        xAxes: [{
+                            scaleLabel: {
+                                display: true,
+                                labelString: "Scenarios Encoded",
+                            },
+                             ticks: { min: 0, max: balancingtime.length * placetime.length * pickuptime.length * autonmovepartofcycle.length * movepartofcycle.length * grabamount.length} 
+                            }],
+                        yAxes: [{
+                            scaleLabel: {
+                                display: true,
+                                labelString: "Pieces Scored",
+                            },
+                            ticks: { min: 0, max: 20 }
+                        }],
                     }
                 }
             });
@@ -276,8 +328,20 @@
                 options: {
                     legend: { display: false },
                     scales: {
-                        xAxes: [{ ticks: { min: 0, max: 150} }],
-                        yAxes: [{ ticks: { min: 0, max: 20 } }],
+                        xAxes: [{
+                            scaleLabel: {
+                                display: true,
+                                labelString: "Pieces Scored",
+                            },
+                            ticks: { min: 0, max: 150}
+                        }],
+                        yAxes: [{
+                            scaleLabel: {
+                                display: true,
+                                labelString: "Time",
+                            },
+                            ticks: { min: 0, max: 20 },
+                        }],
                     }
                 }
             });
@@ -293,8 +357,20 @@
                 options: {
                     legend: { display: false },
                     scales: {
-                        xAxes: [{ ticks: { min: 0, max: 150 } }],
-                        yAxes: [{ ticks: { min: 0, max: 120 } }],
+                        xAxes: [{
+                            scaleLabel: {
+                                display: true,
+                                labelString: "Time",
+                            },
+                             ticks: { min: 0, max: 150 } 
+                            }],
+                        yAxes: [{
+                            scaleLabel: {
+                                display: true,
+                                labelString: "Score",
+                            },
+                             ticks: { min: 0, max: 120 } 
+                            }],
                     }
                 }
             });
@@ -303,14 +379,14 @@
 
 
         function updatedata(scenario){
-            let scenariodecoded=scenario;
-            if(typeof(scenario)==="string"){scenariodecoded = decodescenario(scenario);}//this will allow the "arg: scenario" to be entered in like this: "000000" or like this: 0, and the computer will turn it into this: 0, if it isn't already
+            let scenarioencoded=scenario;
+            if(typeof(scenario)==="string"){scenarioencoded = encodescenario(scenario);}//this will allow the "arg: scenario" to be entered in like this: "000000" or like this: 0, and the computer will turn it into this: 0, if it isn't already
             
-            const startpoint = endpoints[scenariodecoded] + 1;//an accessor
-            const endpoint = endpoints[scenariodecoded + 1];
+            const startpoint = endpoints[scenarioencoded] + 1;//an accessor
+            const endpoint = endpoints[scenarioencoded + 1];
 
-            const startpointofpsotValues = endpointsofpsotValues[scenariodecoded] + 1;//an accessor
-            const endpointofpsotValues = endpointsofpsotValues[scenariodecoded + 1];
+            const startpointofpsotValues = endpointsofpsotValues[scenarioencoded] + 1;//an accessor
+            const endpointofpsotValues = endpointsofpsotValues[scenarioencoded + 1];
 
             //empty out the data arrays
          xyValues.splice(0,xyValues.length);
