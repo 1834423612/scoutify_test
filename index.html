@@ -171,9 +171,9 @@
         }
         endpointsofpsotValues.push(piecesscoredovertime[0][0][0][0][0][0].length);
 
-        var xyValues=[];
-        var psotValues=[];//pieces scored over time
-        uptadedata("000000");
+        const xyValues=[];
+        const psotValues=[];//pieces scored over time
+        //uptadedata("000000");
         window.addEventListener("load", function (event) { //only initialize chart once window loads completely to avoid context issues
             
             const rnkpntchart = new Chart("rnkpntChart", {
@@ -298,8 +298,8 @@
             const endpointofpsotValues = endpointsofpsotValues[scenariodecoded + 1];
 
             //empty out the data arrays
-            xyValues=new Array;
-            psotValues=new Array;
+            xyValues.splice(0,xyValues.length);
+            psotValues.splice(0,psotValues.length);
             //for each point in the given range, push a point to the xyValues array
             for (let i = startpoint; i < endpoint+1; i++) { xyValues.push(scenariospoints[0][0][0][0][0][0][i]); }
             for (let i = startpointofpsotValues; i < endpointofpsotValues+1; i++) { psotValues.push(piecesscoredovertime[0][0][0][0][0][0][i]); }
