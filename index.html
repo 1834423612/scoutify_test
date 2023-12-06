@@ -159,8 +159,8 @@
             }
         }
 
-        const xyValues = [];
-        const psotValues = [];//pieces scored over time
+        let xyValues = [];
+        let psotValues = [];//pieces scored over time
         //figure out which scenario each scatter point belongs to by defining the endpoints of each data set
         const endpoints = [-1];//its -1 b/c it's the ending-point in a scenario where nothing happens: it was done like this so the next scenario starts w/ zero (-1+1=0). I added one b/c the endpoint of one scenario is 1 plus the startpoint of another scenario.
         for (let i = 0; i < scenariospoints[0][0][0][0][0][0].length - 1; i++) {
@@ -189,25 +189,7 @@
         for (let i = startpointofpsotValues; i < endpointofpsotValues+1; i++) { psotValues.push(piecesscoredovertime[0][0][0][0][0][0][i]); }
         window.addEventListener("load", function (event) { //only initialize chart once window loads completely to avoid context issues
             
-            var scoretimechart = new Chart("myChart", {
-                type: "scatter",
-                data: {
-                    datasets: [{
-                        pointRadius: 4,
-                        pointBackgroundColor: "rgb(0,0,255)",
-                        data: xyValues
-                    }]
-                },
-                options: {
-                    legend: { display: false },
-                    scales: {
-                        xAxes: [{ ticks: { min: 0, max: 150 } }],
-                        yAxes: [{ ticks: { min: 0, max: 120 } }],
-                    }
-                }
-            });
-
-            var rnkpntchart = new Chart("rnkpntChart", {
+            const rnkpntchart = new Chart("rnkpntChart", {
                 type: "scatter",
                 data: {
                     datasets: [{
@@ -231,7 +213,31 @@
                     }
                 }
             });
-            var piecesschart = new Chart("piecesscoredchart", {
+            const pschart = new Chart("psChart", {
+                type: "scatter",
+                data: {
+                    datasets: [{
+                        pointRadius: 4,
+                        pointBackgroundColor: "rgb(255,255,0)",
+                        data: totalscores
+                    }]
+                },
+                options: {
+                    onClick: function (evt) {
+                        var element = pschart.getElementAtEvent(evt);
+                        if (element.length > 0) {
+                            var ind = element[0]._index;
+                            if (confirm('Do you want to see this scenario?')) { alert(ind); }
+                        }
+                    },
+                    legend: { display: false },
+                    scales: {
+                        xAxes: [{ ticks: { min: 0, max: balancingtime.length * placetime.length * pickuptime.length * autonmovepartofcycle.length * movepartofcycle.length * grabamount.length} }],
+                        yAxes: [{ ticks: { min: 0, max: 120 } }],
+                    }
+                }
+            });
+            const piecesschart = new Chart("piecesscoredchart", {
                 type: "scatter",
                 data: {
                     datasets: [{
@@ -256,32 +262,7 @@
                 }
             });
             
-            var pschart = new Chart("psChart", {
-                type: "scatter",
-                data: {
-                    datasets: [{
-                        pointRadius: 4,
-                        pointBackgroundColor: "rgb(255,255,0)",
-                        data: totalscores
-                    }]
-                },
-                options: {
-                    onClick: function (evt) {
-                        var element = pschart.getElementAtEvent(evt);
-                        if (element.length > 0) {
-                            var ind = element[0]._index;
-                            if (confirm('Do you want to see this scenario?')) { alert(ind); }
-                        }
-                    },
-                    legend: { display: false },
-                    scales: {
-                        xAxes: [{ ticks: { min: 0, max: balancingtime.length * placetime.length * pickuptime.length * autonmovepartofcycle.length * movepartofcycle.length * grabamount.length} }],
-                        yAxes: [{ ticks: { min: 0, max: 120 } }],
-                    }
-                }
-            });
-
-            var psotchart = new Chart("psotchart", {
+            const psotchart = new Chart("psotchart", {
                 type: "scatter",
                 data: {
                     datasets: [{
@@ -298,6 +279,24 @@
                     }
                 }
             });
+            const scoretimechart = new Chart("myChart", {
+                type: "scatter",
+                data: {
+                    datasets: [{
+                        pointRadius: 4,
+                        pointBackgroundColor: "rgb(0,0,255)",
+                        data: xyValues
+                    }]
+                },
+                options: {
+                    legend: { display: false },
+                    scales: {
+                        xAxes: [{ ticks: { min: 0, max: 150 } }],
+                        yAxes: [{ ticks: { min: 0, max: 120 } }],
+                    }
+                }
+            });
+
         });
 
     </script>
