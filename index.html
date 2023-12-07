@@ -221,10 +221,8 @@
                         if (element.length > 0) {
                             var ind = element[0]._index;
                             if (confirm('Do you want to see this scenario?')) {
-                                alert(ind);
-                                updatedata(ind);
-                                psotchart.update();
-                                scoretimechart.update();
+                               updatedata(ind);
+                               updatecharts();
                             }
                         }
                     },
@@ -276,10 +274,8 @@
                         if (element.length > 0) {
                             var ind = element[0]._index;
                             if (confirm('Do you want to see this scenario?')) {
-                                alert(ind);
                                 updatedata(ind);
-                                psotchart.update();
-                                scoretimechart.update();
+                                updatecharts();
                             }
                         }
                     },
@@ -331,10 +327,8 @@
                         if (element.length > 0) {
                             var ind = element[0]._index;
                             if (confirm('Do you want to see this scenario?')) {
-                                alert(ind);
                                 updatedata(ind);
-                                psotchart.update();
-                                scoretimechart.update();
+                                updatecharts();
                             }
                         }
                     },
@@ -436,6 +430,10 @@
             for (let i = startpoint; i < endpoint+1; i++) { xyValues.push(scenariospoints[0][0][0][0][0][0][i]); }
             for (let i = startpointofpsotValues; i < endpointofpsotValues+1; i++) { psotValues.push(piecesscoredovertime[0][0][0][0][0][0][i]); }
         }
+      function updatecharts(){
+        psotchart.update();
+        scoretimechart.update();
+      }
     </script>
 
 </body>
