@@ -19,7 +19,7 @@
         <p style="float:right">Score-Seconds</p>
         <canvas id="myChart" style="width:100%;max-width:500px;float:right"></canvas>
     </div>
-    
+
     <div style="display:block;">
         <p>Piecesscored-Scenario</p>
         <canvas id="piecesscoredchart" style="width:100%;max-width:400px"></canvas>
@@ -203,7 +203,14 @@
                             },
                             //color does not appear before the footer
                             footer: function (tooltipItems, data) {
-                                return decodescenario(tooltipItems[0].index);
+                                return [
+                                    "Balance: "+decodescenario(tooltipItems[0].index).charAt(0),
+                                    "Place: "+decodescenario(tooltipItems[0].index).charAt(1),
+                                    "Pickup: "+decodescenario(tooltipItems[0].index).charAt(2),
+                                    "Autonmovepartofcycle: "+decodescenario(tooltipItems[0].index).charAt(3),
+                                    "Movepartofcycle: "+decodescenario(tooltipItems[0].index).charAt(4),
+                                    "Grabamount: "+decodescenario(tooltipItems[0].index).charAt(5)
+                                ];
                             }
                         }
                     },
@@ -257,7 +264,14 @@
                             },
                             //color does not appear before the footer
                             footer: function (tooltipItems, data) {
-                                return decodescenario(tooltipItems[0].index);
+                                return [
+                                    "Balance: "+decodescenario(tooltipItems[0].index).charAt(0),
+                                    "Place: "+decodescenario(tooltipItems[0].index).charAt(1),
+                                    "Pickup: "+decodescenario(tooltipItems[0].index).charAt(2),
+                                    "Autonmovepartofcycle: "+decodescenario(tooltipItems[0].index).charAt(3),
+                                    "Movepartofcycle: "+decodescenario(tooltipItems[0].index).charAt(4),
+                                    "Grabamount: "+decodescenario(tooltipItems[0].index).charAt(5)
+                                ];
                             }
                     
                         }
@@ -312,7 +326,14 @@
                             },
                             //color does not appear before the footer
                             footer: function (tooltipItems, data) {
-                                return decodescenario(tooltipItems[0].index);
+                                return [
+                                    "Balance: "+decodescenario(tooltipItems[0].index).charAt(0),
+                                    "Place: "+decodescenario(tooltipItems[0].index).charAt(1),
+                                    "Pickup: "+decodescenario(tooltipItems[0].index).charAt(2),
+                                    "Autonmovepartofcycle: "+decodescenario(tooltipItems[0].index).charAt(3),
+                                    "Movepartofcycle: "+decodescenario(tooltipItems[0].index).charAt(4),
+                                    "Grabamount: "+decodescenario(tooltipItems[0].index).charAt(5)
+                                ]; 
                             }
                     
                         }
