@@ -219,10 +219,9 @@
                     onClick: function (evt) {
                         var element = rnkpntchart.getElementAtEvent(evt);
                         if (element.length > 0) {
-                            var ind = element[0]._index;
+                            var scenarioasanumber = element[0]._index;
                             if (confirm('Do you want to see this scenario?')) {
-                               updatedata(ind);
-                               updatecharts();
+                                updatecharts(scenarioasanumber);
                             }
                         }
                     },
@@ -272,10 +271,9 @@
                     onClick: function (evt) {
                         var element = pschart.getElementAtEvent(evt);
                         if (element.length > 0) {
-                            var ind = element[0]._index;
+                            var scenarioasanumber = element[0]._index;
                             if (confirm('Do you want to see this scenario?')) {
-                                updatedata(ind);
-                                updatecharts();
+                                updatecharts(scenarioasanumber);
                             }
                         }
                     },
@@ -325,10 +323,9 @@
                     onClick: function (evt) {
                         var element = piecesschart.getElementAtEvent(evt);
                         if (element.length > 0) {
-                            var ind = element[0]._index;
+                            var scenarioasanumber = element[0]._index;
                             if (confirm('Do you want to see this scenario?')) {
-                                updatedata(ind);
-                                updatecharts();
+                                updatecharts(scenarioasanumber);
                             }
                         }
                     },
@@ -413,7 +410,8 @@
 
         });
 
-        function updatedata(scenario){
+        function updatecharts(scenario){
+          //first update data arrays and then update the charts
             let scenarioencoded=scenario;
             if(typeof(scenario)==="string"){scenarioencoded = encodescenario(scenario);}//this will allow the "arg: scenario" to be entered in like this: "000000" or like this: 0, and the computer will turn it into this: 0, if it isn't already
             
@@ -423,16 +421,16 @@
             const startpointofpsotValues = endpointsofpsotValues[scenarioencoded] + 1;//an accessor
             const endpointofpsotValues = endpointsofpsotValues[scenarioencoded + 1];
 
-            //empty out the data arrays
+          //empty out the data arrays
             xyValues.splice(0,xyValues.length);
             psotValues.splice(0,psotValues.length);
-            //for each point in the given range, push a point to the xyValues array
+          //for each point in the given range, push a point to the xyValues array
             for (let i = startpoint; i < endpoint+1; i++) { xyValues.push(scenariospoints[0][0][0][0][0][0][i]); }
             for (let i = startpointofpsotValues; i < endpointofpsotValues+1; i++) { psotValues.push(piecesscoredovertime[0][0][0][0][0][0][i]); }
-        }
-      function updatecharts(){
-        psotchart.update();
-        scoretimechart.update();
+            
+          //update the charts
+            psotchart.update();
+            scoretimechart.update();
       }
     </script>
 
