@@ -30,6 +30,8 @@
     <script type="module" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
     <script setup>
         //Assumptions: We will always engage. We will score for high, then mid, then low, but because we never will get to the low grid, we don't have to account for it
+        const dolinkshappeninthisgame=true;
+        const linkthresholdprogression=[];//leave this empty unless the links[1] is changing (links[1] is in the for-loop) like in the game steamworks
         const balancingtime = [3, 5, 7];//it can take either 3 seconds, 5 seconds, or 7 seconds
         const pointsforbalancing = [12, 10];//auton and teleop
         const placetime = [2, 4];
@@ -102,6 +104,7 @@
                         for (let m in movepartofcycle) {
                             for (let n in grabamount) {
                                 //initialize the variables
+                                const links=[dolinkshappeninthisgame,3,5,5];//first value is to see if links exist, the second value is how many pieces one needs for a link, and the 3rd value is the points for getting a link during auton and the 4th value is the points during teleop; for the steamship game, the gears should should be the bestscoring method that makes 0 points, but this array will be [true,1,60,40], and whenever we get the threshold the game, we will have to update the second value
                                 let piecesscored = 0;
                                 let holdingpiece0 = 1;//start w/ holding one piece
                                 let time = 150;
@@ -114,7 +117,12 @@
                                 while (time - placetime[j] >= 135 && piecesscored < autonPieceLimit) {
                                     points += pointsforbestscorer[0] * holdingpiece0;
                                     piecesscored += holdingpiece0;
-                                    if (piecesscored % 3 === 0) { points += 5; }
+                                    if (links[0] && piecesscored % links[1] === 0) { 
+                                        points += links[3];
+                                        if (linkthresholdprogression.length>0){
+                                            link;
+                                        }//don't know if this will work
+                                    }
                                     time -= placetime[j];
                                     holdingpiece0 = 0;
                                     scenariospoints[i][j][k][l][m][n].push({ x: 150 - time, y: points });
