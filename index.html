@@ -5,10 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Page Title</title>
 </head>
-
 <body>
     <h1>Charts:</h1>
-
     <div style="display:block;">
         <p>Ranking Points (from making 5 links)-Scenario</p>
         <canvas id="rnkpntChart" style="width:100%;max-width:400px"></canvas>
@@ -30,9 +28,7 @@
         <p>Score-Seconds</p>
         <canvas id="myChart" style="width:100%;max-width:500px"></canvas>
     </div>
-
     <script type="module" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
-
     <script setup>
         //Assumptions: We will always engage. We will score for high, then mid, then low, but because we never will get to the low grid, we don't have to account for it
         const balancingtime = [3, 5, 7];//it can take either 3 seconds, 5 seconds, or 7 seconds
@@ -59,7 +55,6 @@
                 )
             )
         );//for chart
-
         const rnkValues = [];
         const piecesoverscenarios = [];
         const totalscores = [];
@@ -76,7 +71,6 @@
                 )
             )
         );
-
         let encodescenario = (a) =>
             a.charAt(0) * placetime.length * pickuptime.length * autonmovepartofcycle.length * movepartofcycle.length * grabamount.length +
             a.charAt(1) * pickuptime.length * autonmovepartofcycle.length * movepartofcycle.length * grabamount.length +
@@ -162,7 +156,6 @@
                                     time -= balancingtime[i];
                                 }
                                 scenariospoints[i][j][k][l][m][n].push({ x: 150 - time, y: points });
-
                                 let x = encodescenario('' + i + j + k + l + m + n);
                                 if (Math.floor(piecesscored / 3) > 3) { rnkValues.push({ x: x, y: 1 }) }
                                 else { rnkValues.push({ x: x, y: 0 }) }
@@ -186,7 +179,6 @@
             if (piecesscoredovertime[0][0][0][0][0][0][i].x > piecesscoredovertime[0][0][0][0][0][0][i + 1].x) { endpointsofpsotValues.push(i); }
         }
         endpointsofpsotValues.push(piecesscoredovertime[0][0][0][0][0][0].length);
-
         var xyValues=[];
         var psotValues=[];//pieces scored over time
         updatedata("000000");
@@ -219,9 +211,12 @@
                     onClick: function (evt) {
                         var element = rnkpntchart.getElementAtEvent(evt);
                         if (element.length > 0) {
-                            var scenarioasanumber = element[0]._index;
+                            var ind = element[0]._index;
                             if (confirm('Do you want to see this scenario?')) {
-                                updatecharts(scenarioasanumber);
+                                alert(ind);
+                                updatedata(ind);
+                                psotchart.update();
+                                scoretimechart.update();
                             }
                         }
                     },
@@ -271,9 +266,12 @@
                     onClick: function (evt) {
                         var element = pschart.getElementAtEvent(evt);
                         if (element.length > 0) {
-                            var scenarioasanumber = element[0]._index;
+                            var ind = element[0]._index;
                             if (confirm('Do you want to see this scenario?')) {
-                                updatecharts(scenarioasanumber);
+                                alert(ind);
+                                updatedata(ind);
+                                psotchart.update();
+                                scoretimechart.update();
                             }
                         }
                     },
@@ -323,9 +321,12 @@
                     onClick: function (evt) {
                         var element = piecesschart.getElementAtEvent(evt);
                         if (element.length > 0) {
-                            var scenarioasanumber = element[0]._index;
+                            var ind = element[0]._index;
                             if (confirm('Do you want to see this scenario?')) {
-                                updatecharts(scenarioasanumber);
+                                alert(ind);
+                                updatedata(ind);
+                                psotchart.update();
+                                scoretimechart.update();
                             }
                         }
                     },
@@ -407,33 +408,23 @@
                     }
                 }
             });
-
         });
-
-        function updatecharts(scenario){
-          //first update data arrays and then update the charts
+        function updatedata(scenario){
             let scenarioencoded=scenario;
             if(typeof(scenario)==="string"){scenarioencoded = encodescenario(scenario);}//this will allow the "arg: scenario" to be entered in like this: "000000" or like this: 0, and the computer will turn it into this: 0, if it isn't already
             
             const startpoint = endpoints[scenarioencoded] + 1;//an accessor
             const endpoint = endpoints[scenarioencoded + 1];
-
             const startpointofpsotValues = endpointsofpsotValues[scenarioencoded] + 1;//an accessor
             const endpointofpsotValues = endpointsofpsotValues[scenarioencoded + 1];
-
-          //empty out the data arrays
+            //empty out the data arrays
             xyValues.splice(0,xyValues.length);
             psotValues.splice(0,psotValues.length);
-          //for each point in the given range, push a point to the xyValues array
+            //for each point in the given range, push a point to the xyValues array
             for (let i = startpoint; i < endpoint+1; i++) { xyValues.push(scenariospoints[0][0][0][0][0][0][i]); }
             for (let i = startpointofpsotValues; i < endpointofpsotValues+1; i++) { psotValues.push(piecesscoredovertime[0][0][0][0][0][0][i]); }
-            
-          //update the charts
-            psotchart.update();
-            scoretimechart.update();
-      }
+        }
     </script>
 
 </body>
-
 </html>
