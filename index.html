@@ -5,30 +5,36 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Page Title</title>
 </head>
+<style>
+	div{display:inline-block}
+    canvas{width:500px;height:500px}
+</style>
 <body>
     <h1>Charts:</h1>
-
     <div style="display:block;">
         <p>Ranking Points (from making 5 links)-Scenario</p>
-        <canvas id="rnkpntChart" style="width:100%;max-width:400px"></canvas>
+        <canvas id="rnkpntChart"></canvas>
     </div>
-
-  
-    <div style="display:flex, flex-direction:row;">
-        <p>Total Score-Scenario</p>
-        <canvas id="psChart" style="width:100%;max-width:400px"></canvas>
-        <p style="float:right">Score-Seconds</p>
-        <canvas id="myChart" style="width:100%;max-width:500px;float:right"></canvas>
+    <div style="display:block">
+        <div>
+        	<p>Total Score-Scenario</p>
+        	<canvas id="psChart"></canvas>
+        </div>
+        <div>
+        	<p>Score-Seconds</p>
+        	<canvas id="myChart"></canvas>
+        </div>
     </div>
-
-    <div style="display:flex, flex-direction:row;">
-        <p>Piecesscored-Scenario</p>
-        <canvas id="piecesscoredchart" style="width:100%;max-width:400px"></canvas>
-        <p style="float:right">Pieces Scored-Seconds:</p>
-        <canvas id="psotchart" style="width:100%;max-width:500px;float:right"></canvas>
+    <div style="display:block">
+        <div>
+        	<p>Piecesscored-Scenario</p>
+        	<canvas id="piecesscoredchart"></canvas>
+        </div> 
+        <div>
+        	<p>Pieces Scored-Seconds:</p>
+        	<canvas id="psotchart"></canvas>
+        </div>
     </div>
-
-    
     <script type="module" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
     <script setup>
         //Assumptions: We will always engage. We will score for high, then mid, then low, but because we never will get to the low grid, we don't have to account for it
