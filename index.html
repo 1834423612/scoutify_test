@@ -6,32 +6,27 @@
   <title>Page Title</title>
 </head>
 <style>
-	div{display:inline-block}
+    div{display:inline-block}
     canvas{width:500px;height:500px}
 </style>
 <body>
     <h1>Charts:</h1>
     <div style="display:block;">
-        <p>Ranking Points (from making 5 links)-Scenario</p>
         <canvas id="rnkpntChart"></canvas>
     </div>
     <div style="display:block">
         <div>
-        	<p>Total Score-Scenario</p>
         	<canvas id="psChart"></canvas>
         </div>
         <div>
-        	<p>Score-Seconds</p>
         	<canvas id="myChart"></canvas>
         </div>
     </div>
     <div style="display:block">
         <div>
-        	<p>Piecesscored-Scenario</p>
         	<canvas id="piecesscoredchart"></canvas>
         </div> 
         <div>
-        	<p>Pieces Scored-Seconds:</p>
         	<canvas id="psotchart"></canvas>
         </div>
     </div>
@@ -210,6 +205,10 @@
                     }]
                 },
                 options: {
+		    title: {
+        	    	display: true,
+                	text: 'RANK POINTS FROM LINKS - SCENARIO'
+            	    },
                     tooltips: {
                         bodyFontStyle: "bold",
                         footerFontStyle: "normal",
@@ -272,6 +271,10 @@
                     }]
                 },
                 options: {
+		    title: {
+        	    	display: true,
+                	text: 'TOTAL SCORE - SCENARIO'
+            	    },
                     tooltips: {
                         bodyFontStyle: "bold",
                         footerFontStyle: "normal",
@@ -334,6 +337,10 @@
                     }]
                 },
                 options: {
+		    title: {
+        	    	display: true,
+                	text: 'PIECES SCORED - SCENARIO'
+            	    },
                     tooltips: {
                         bodyFontStyle: "bold",
                         footerFontStyle: "normal",
@@ -397,6 +404,10 @@
                     }]
                 },
                 options: {
+		    title: {
+        	    	display: true,
+                	text: 'PIECES SCORED - TIME'
+            	    },
                     legend: { display: false },
                     scales: {
                         xAxes: [{
@@ -426,6 +437,10 @@
                     }]
                 },
                 options: {
+		    title: {
+        	    	display: true,
+                	text: 'SCORE - TIME'
+            	    },
                     legend: { display: false },
                     scales: {
                         xAxes: [{
