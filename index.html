@@ -102,7 +102,8 @@
                         for (let m in movepartofcycle) {
                             for (let n in grabamount) {
                                 //initialize the variables
-                                const links=[dolinkshappeninthisgame,3,5,5];//first value is to see if links exist, the second value is how many pieces one needs for a link, and the 3rd value is the points for getting a link during auton and the 4th value is the points during teleop; for the steamship game, the gears should should be the bestscoring method that makes 0 points, but this array will be [true,1,60,40], and whenever we get the threshold the game, we will have to update the second value
+                                const links=[dolinkshappeninthisgame,3,5,5,0];//first value is to see if links exist, the second value is how many pieces one needs for a link, and the 3rd value is the points for getting a link during auton and the 4th value is the points during teleop; for the steamship game, the gears should should be the bestscoring method that makes 0 points, but this array will be [true,1,60,40], and whenever we get the threshold the game, we will have to update the second value
+                                //links has a fith value set to 0 to keep track of what threshold the bot is up to
                                 let piecesscored = 0;
                                 let holdingpiece0 = 1;//start w/ holding one piece
                                 let time = 150;
