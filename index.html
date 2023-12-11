@@ -26,7 +26,9 @@
     </div>
     <script type="module" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
     <script setup>
+        //add link function
         //missing const movepartofbalance=[];this is the time it takes to go from scoring position to balance
+        //also missing const autonmovepartofbalance=[];
       //Assumptions: We will always engage. We will score for high, then mid, then low, but because we never will get to the low grid, we don't have to account for it
         const dolinkshappeninthisgame=true;
         const linkthresholdprogression=[];//leave this empty unless the links[1] is changing (links[1] is in the for-loop and represents how many pieces makes a link) like in the game steamworks
@@ -38,25 +40,26 @@
         const pointsforokscorer = [4, 3];//mid nodes
         const pickuptime = [2, 4];
         const autonmovepartofcycle = [4, 6];
-        const movepartofcycle = [7, 9, 11];
+        const movepartofcycle = [7, 9, 11];//if the game is pick & place and the goals take different times to travel to, estimate the average travel time
         const autonPieceLimit = 5;
         const pointsformobility = 3;
-        const grabamount = [1];//for games where you can grab more than one piece
+        const grabamount = [1];//for games where you can grab more than one piece, this is the estimated average pieces grabbed. this should be a whole number
         //for charts
         const scenariospoints = [];
         const piecesscoredovertime =[];
         const rnkValues = [];
         const piecesoverscenarios = [];
         const totalscores = [];
-        
+        //turn a string that represents the indices in the scenario tree below into a number
         let encodescenario = (a) =>
             a.charAt(0) * placetime.length * pickuptime.length * autonmovepartofcycle.length * movepartofcycle.length * grabamount.length +
             a.charAt(1) * pickuptime.length * autonmovepartofcycle.length * movepartofcycle.length * grabamount.length +
             a.charAt(2) * autonmovepartofcycle.length * movepartofcycle.length * grabamount.length +
             a.charAt(3) * movepartofcycle.length * grabamount.length +
             a.charAt(4) * grabamount.length +
-            a.charAt(5) * 1
-        ;//the multiplication by one switches the type from string to number so that the a.charAt(4) is added instead of concatenated
+            a.charAt(5) * 1//the multiplication by one switches the type from string to number so that the a.charAt(4) is added instead of concatenated
+        ;
+        //this undoes the encodescenario function
         function decodescenario(a){
             const allthelengthsbesidesbalance = placetime.length * pickuptime.length * autonmovepartofcycle.length * movepartofcycle.length * grabamount.length;
             const allthelengthsbesidesbalanceandplace = pickuptime.length * autonmovepartofcycle.length * movepartofcycle.length * grabamount.length;
@@ -72,8 +75,9 @@
                 a % allthelengthsbesidesbalance % allthelengthsbesidesbalanceandplace % allthelengthsbesidesbalanceandplaceandpickup % lengthsofmovepartofcycleandgrabamount % grabamount.length
             ;
         }
-        
-        //create a scenario tree
+
+        //create a scenario tree, but start by defining variables to use during the iterations
+        let piecesscored,holdingpiece0,time,points;
         for (let i in balancingtime) {
             for (let j in placetime) {
                 for (let k in pickuptime) {
@@ -83,10 +87,10 @@
                                 //initialize the variables
                                 const links=[dolinkshappeninthisgame,3,5,5,0];//first value is to see if links exist, the second value is how many pieces one needs for a link, and the 3rd value is the points for getting a link during auton and the 4th value is the points during teleop; for the steamship game, the gears should should be the bestscoring method that makes 0 points, but this array will be [true,1,60,40], and whenever we get the threshold the game, we will have to update the second value
                                 //links has a fith value set to 0 to keep track of what threshold the bot is up to
-                                let piecesscored = 0;
-                                let holdingpiece0 = 1;//start w/ holding one piece
-                                let time = 150;
-                                let points = pointsformobility + pointsforbalancing[0];//will always strive to make a robot that can get the mobility points
+                                piecesscored = 0;
+                                holdingpiece0 = 1;//start w/ holding one piece
+                                time = 150;
+                                points = pointsformobility + pointsforbalancing[0];//will always strive to make a robot that can get the mobility points
                                 //auton
                                 //auton balance
                                 if (pointsforbalancing[0] !== 0) { time -= balancingtime[i]; }//only subtract balancing time if auton-balance is allowed
@@ -157,7 +161,7 @@
                                     time -= balancingtime[i];
                                 }
                                 scenariospoints.push({ x: 150 - time, y: points });
-                                let x = encodescenario('' + i + j + k + l + m + n);
+                                const x = encodescenario('' + i + j + k + l + m + n);
                                 if (Math.floor(piecesscored / 3) > 3) { rnkValues.push({ x: x, y: 1 }) }
                                 else { rnkValues.push({ x: x, y: 0 }) }
                                 totalscores.push({ x:x , y: points })
