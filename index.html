@@ -26,7 +26,8 @@
     </div>
     <script type="module" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
     <script setup>
-        //add link function
+        //add functions
+        //add function for
         //missing const movepartofbalance=[];this is the time it takes to go from scoring position to balance
         //also missing const autonmovepartofbalance=[];
       //Assumptions: We will always engage. We will score for high, then mid, then low, but because we never will get to the low grid, we don't have to account for it
@@ -78,6 +79,7 @@
 
         //create a scenario tree, but start by defining variables to use during the iterations
         let piecesscored,holdingpiece0,time,points;
+        let links=[];
         for (let i in balancingtime) {
             for (let j in placetime) {
                 for (let k in pickuptime) {
@@ -85,7 +87,7 @@
                         for (let m in movepartofcycle) {
                             for (let n in grabamount) {
                                 //initialize the variables
-                                const links=[dolinkshappeninthisgame,3,5,5,0];//first value is to see if links exist, the second value is how many pieces one needs for a link, and the 3rd value is the points for getting a link during auton and the 4th value is the points during teleop; for the steamship game, the gears should should be the bestscoring method that makes 0 points, but this array will be [true,1,60,40], and whenever we get the threshold the game, we will have to update the second value
+                                links=[dolinkshappeninthisgame,3,5,5,0];//first value is to see if links exist, the second value is how many pieces one needs for a link, and the 3rd value is the points for getting a link during auton and the 4th value is the points during teleop; for the steamship game, the gears should should be the bestscoring method that makes 0 points, but this array will be [true,1,60,40], and whenever we get the threshold the game, we will have to update the second value
                                 //links has a fith value set to 0 to keep track of what threshold the bot is up to
                                 piecesscored = 0;
                                 holdingpiece0 = 1;//start w/ holding one piece
@@ -99,14 +101,7 @@
                                 while (time - placetime[j] >= 135 && piecesscored < autonPieceLimit) {
                                     points += pointsforbestscorer[0] * holdingpiece0;
                                     piecesscored += holdingpiece0;
-				    //test for links
-                                    if (links[0] && piecesscored % links[1] === 0) { 
-                                        points += links[2];
-                                        if (linkthresholdprogression.length>0){
-                                            ++links[4];
-                                            links[1]=linkthresholdprogression[links[4]];
-                                        }
-                                    }
+                                    checkforlinks(0);//0 is auton and 1 is teleop
                                     time -= placetime[j];
                                     holdingpiece0 = 0;
                                     scenariospoints.push({ x: 150 - time, y: points });
@@ -127,14 +122,7 @@
                                     points += pointsforbestscorer[1] * holdingpiece0;
                                     holdingpiece0 = 0;
                                     time -= placetime[j];
-                                    //test for links
-                                    if (links[0] && piecesscored % links[1] === 0) { 
-                                        points += links[3];//links[2] is points for auton and links[3] is points for teleop
-                                        if (linkthresholdprogression.length>0){
-                                            ++links[4];
-                                            links[1]=linkthresholdprogression[links[4]];
-                                        }
-                                    }
+                                    checkforlinks(1);
                                     scenariospoints.push({ x: 150 - time, y: points });
                                     piecesscoredovertime.push({ x: 150 - time, y: piecesscored });
                                 }
@@ -144,14 +132,7 @@
                                     time -= placetime[j] + movepartofcycle[l] + pickuptime[k];
                                     if (piecesscored <= 9) { points += pointsforbestscorer[1] * grabamount[n]; }
                                     else { points += pointsforokscorer[1] * grabamount[n]; }
-                                    //test for links
-                                    if (links[0] && piecesscored % links[1] === 0) { 
-                                        points += links[3];//links[2] is points for auton and links[3] is points for teleop
-                                        if (linkthresholdprogression.length>0){
-                                            ++links[4];
-                                            links[1]=linkthresholdprogression[links[4]];
-                                        }
-                                    }
+                                    checkforlinks(1);
                                     scenariospoints.push({ x: 150 - time, y: points });
                                     piecesscoredovertime.push({ x: 150 - time, y: piecesscored });
                                 }
@@ -469,6 +450,15 @@
             //for each point in the given range, push a point to the xyValues array
             for (let i = startpoint; i < endpoint+1; i++) { xyValues.push(scenariospoints[i]); }
             for (let i = startpointofpsotValues; i < endpointofpsotValues+1; i++) { psotValues.push(piecesscoredovertime[i]); }
+        }
+        function checkforlinks(ifauton0ifteleop1){
+            if (links[0] && piecesscored % links[1] === 0) { 
+                points += links[2+ifauton0ifteleop1];
+                if (linkthresholdprogression.length>0){
+                    ++links[4];
+                    links[1]=linkthresholdprogression[links[4]];
+                }
+            }
         }
     </script>
 
