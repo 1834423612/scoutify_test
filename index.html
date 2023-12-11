@@ -26,15 +26,17 @@
     </div>
     <script type="module" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
     <script setup>
+        //add in the limits
+        //balance at end of auton instead of beggining
         //add functions
-        //add function for
+        //add function for scoring
         //missing const movepartofbalance=[];this is the time it takes to go from scoring position to balance
         //also missing const autonmovepartofbalance=[];
-      //Assumptions: We will always engage. We will score for high, then mid, then low, but because we never will get to the low grid, we don't have to account for it
+        //Assumptions: We will always engage. We will score for high, then mid, then low, but because we never will get to the low grid, we don't have to account for it
         const dolinkshappeninthisgame=true;
         const linkthresholdprogression=[];//leave this empty unless the links[1] is changing (links[1] is in the for-loop and represents how many pieces makes a link) like in the game steamworks
         //for the steamship game, const linkthresholdprogression=[1,2,3,4,5];
-	const balancingtime = [3, 5, 7];//it can take either 3 seconds, 5 seconds, or 7 seconds
+	    const balancingtime = [3, 5, 7];//it can take either 3 seconds, 5 seconds, or 7 seconds
         const pointsforbalancing = [12, 10];//auton and teleop
         const placetime = [2, 4];
         const pointsforbestscorer = [6, 5];// high nodes: auton and teleop
@@ -76,7 +78,6 @@
                 a % allthelengthsbesidesbalance % allthelengthsbesidesbalanceandplace % allthelengthsbesidesbalanceandplaceandpickup % lengthsofmovepartofcycleandgrabamount % grabamount.length
             ;
         }
-
         //create a scenario tree, but start by defining variables to use during the iterations
         let piecesscored,holdingpiece0,time,points;
         let links=[];
@@ -98,6 +99,16 @@
                                 if (pointsforbalancing[0] !== 0) { time -= balancingtime[i]; }//only subtract balancing time if auton-balance is allowed
                                 scenariospoints.push({ x: 150 - time, y: points });
                                 //place pieces during auton
+            /*holdingpiece0+=grabamount[n];
+            piecesscored+=holdingpiece0;
+            holdingpiece0=0;*/
+            //time -= placetime[j] + movepartofcycle[l] + pickuptime[k];
+            //if (piecesscored <= 9) { points += pointsforbestscorer[ifauton0ifteleop1] * grabamount[n]; }
+            //else { points += pointsforokscorer[ifauton0ifteleop1] * grabamount[n]; }
+            //checkforlinks(ifauton0ifteleop1);
+           // scenariospoints.push({ x: 150 - time, y: points });
+            //piecesscoredovertime.push({ x: 150 - time, y: piecesscored });
+        
                                 while (time - placetime[j] >= 135 && piecesscored < autonPieceLimit) {
                                     points += pointsforbestscorer[0] * holdingpiece0;
                                     piecesscored += holdingpiece0;
@@ -128,13 +139,7 @@
                                 }
                                 //score high and mid
                                 while (((time - pickuptime[k] - movepartofcycle[l] - placetime[j]-balancingtime[i]>= 0)&&(pointsforbalancing[1] !== 0))||((time - pickuptime[k] - movepartofcycle[l] - placetime[j]>= 0)&&(pointsforbalancing[1] === 0))) {//if we want the program to see how much slower we can be w/out worsening score changing the 0 in ">=0" to some other number is a start.
-                                    piecesscored += grabamount[n];
-                                    time -= placetime[j] + movepartofcycle[l] + pickuptime[k];
-                                    if (piecesscored <= 9) { points += pointsforbestscorer[1] * grabamount[n]; }
-                                    else { points += pointsforokscorer[1] * grabamount[n]; }
-                                    checkforlinks(1);
-                                    scenariospoints.push({ x: 150 - time, y: points });
-                                    piecesscoredovertime.push({ x: 150 - time, y: piecesscored });
+                                    scorepiece(1,j,k,l,n);
                                 }
                                 //endgame
                                 if (pointsforbalancing[1] !== 0) {
@@ -145,8 +150,8 @@
                                 const x = encodescenario('' + i + j + k + l + m + n);
                                 if (Math.floor(piecesscored / 3) > 3) { rnkValues.push({ x: x, y: 1 }) }
                                 else { rnkValues.push({ x: x, y: 0 }) }
-                                totalscores.push({ x:x , y: points })
-                                piecesoverscenarios.push({ x:x , y: piecesscored })
+                                totalscores.push({ x:x , y: points });
+                                piecesoverscenarios.push({ x:x , y: piecesscored });
                             }
                         }
                     }
@@ -210,7 +215,6 @@
                         if (element.length > 0) {
                             var ind = element[0]._index;
                             if (confirm('Do you want to see this scenario?')) {
-                                alert(ind);
                                 updatedata(ind);
                                 psotchart.update();
                                 scoretimechart.update();
@@ -224,7 +228,7 @@
                                 display: true,
                                 labelString: "Scenarios Encoded",
                             },
-                            ticks: { min: 0, max: balancingtime.length * placetime.length * pickuptime.length * autonmovepartofcycle.length * movepartofcycle.length * grabamount.length }
+                            ticks: { min: 0, max: balancingtime.length * placetime.length * pickuptime.length * autonmovepartofcycle.length * movepartofcycle.length * grabamount.length-1}
                         }],
                         yAxes: [{
                             scaleLabel: {
@@ -276,7 +280,6 @@
                         if (element.length > 0) {
                             var ind = element[0]._index;
                             if (confirm('Do you want to see this scenario?')) {
-                                alert(ind);
                                 updatedata(ind);
                                 psotchart.update();
                                 scoretimechart.update();
@@ -290,7 +293,7 @@
                                 display: true,
                                 labelString: "Scenarios Encoded",
                             },
-                            ticks: { min: 0, max: balancingtime.length * placetime.length * pickuptime.length * autonmovepartofcycle.length * movepartofcycle.length * grabamount.length}
+                            ticks: { min: 0, max: balancingtime.length * placetime.length * pickuptime.length * autonmovepartofcycle.length * movepartofcycle.length * grabamount.length-1}
                         }],
                         yAxes: [{
                             scaleLabel: {
@@ -342,7 +345,6 @@
                         if (element.length > 0) {
                             var ind = element[0]._index;
                             if (confirm('Do you want to see this scenario?')) {
-                                alert(ind);
                                 updatedata(ind);
                                 psotchart.update();
                                 scoretimechart.update();
@@ -356,7 +358,7 @@
                                 display: true,
                                 labelString: "Scenarios Encoded",
                             },
-                             ticks: { min: 0, max: balancingtime.length * placetime.length * pickuptime.length * autonmovepartofcycle.length * movepartofcycle.length * grabamount.length} 
+                             ticks: { min: 0, max: balancingtime.length * placetime.length * pickuptime.length * autonmovepartofcycle.length * movepartofcycle.length * grabamount.length-1} 
                             }],
                         yAxes: [{
                             scaleLabel: {
@@ -459,6 +461,17 @@
                     links[1]=linkthresholdprogression[links[4]];
                 }
             }
+        }
+        function scorepiece(ifauton0ifteleop1,j,k,l,n){
+            holdingpiece0+=grabamount[n];
+            piecesscored+=holdingpiece0;
+            holdingpiece0=0;
+            time -= placetime[j] + movepartofcycle[l]*ifauton0ifteleop1 + pickuptime[k]*ifauton0ifteleop1;
+            if (piecesscored <= 9) { points += pointsforbestscorer[ifauton0ifteleop1] * grabamount[n]; }
+            else { points += pointsforokscorer[ifauton0ifteleop1] * grabamount[n]; }
+            checkforlinks(ifauton0ifteleop1);
+            scenariospoints.push({ x: 150 - time, y: points });
+            piecesscoredovertime.push({ x: 150 - time, y: piecesscored });
         }
     </script>
 
