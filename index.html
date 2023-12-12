@@ -53,6 +53,7 @@
         const rnkValues = [];
         const piecesoverscenarios = [];
         const totalscores = [];
+	const color=[];
         //turn a string that represents the indices in the scenario tree below into a number
         let encodescenario = (a) =>
             a.charAt(0) * placetime.length * pickuptime.length * autonmovepartofcycle.length * movepartofcycle.length * grabamount.length +
@@ -148,8 +149,14 @@
                                 }
                                 scenariospoints.push({ x: 150 - time, y: points });
                                 const x = encodescenario('' + i + j + k + l + m + n);
-                                if (Math.floor(piecesscored / 3) > 3) { rnkValues.push({ x: x, y: 1 }) }
-                                else { rnkValues.push({ x: x, y: 0 }) }
+                                if (Math.floor(piecesscored / 3) > 3) {
+				rnkValues.push({ x: x, y: 1 });
+				color.push("rgb(0,255,0)");
+				}
+                                else {
+				rnkValues.push({ x: x, y: 0 });
+				color.push("rgb(255,0,0)");
+				}
                                 totalscores.push({ x:x , y: points });
                                 piecesoverscenarios.push({ x:x , y: piecesscored });
                             }
@@ -180,7 +187,7 @@
                 data: {
                     datasets: [{
                         pointRadius: 4,
-                        pointBackgroundColor: "rgb(255,0,0)",
+                        pointBackgroundColor: color,
                         data: rnkValues
                     }]
                 },
