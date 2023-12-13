@@ -119,7 +119,7 @@
                                 scenariospoints.push({ x: 150 - time, y: points });
 			              //push chart values
                                 const s = encodescenario('' + i + j + k + l + m + n);
-                                rnkValues.push({ x: piecesscored, y: points,s:s });
+                                rnkValues.push({ x:points , y:piecesscored,s:s });
                                 if (Math.floor(piecesscored / 3) > 3) {color.push("rgb(0,255,0)");}
                                 else {color.push("rgb(255,0,0)");}                                  
                             }
@@ -157,7 +157,7 @@
                 options: {
 		    title: {
         	    	display: true,
-                	text: 'RANK POINTS FROM LINKS - SCENARIO'
+                	text: 'Pieces Scored - Total Score where green is 1 rnkpnts from links and red is zero rnkpnts from links'
             	    },
                     tooltips: {
                         bodyFontStyle: "bold",
@@ -195,16 +195,16 @@
                         xAxes: [{
                             scaleLabel: {
                                 display: true,
-                                labelString: "Pieces Scored",
+                                labelString: "Total Score",
                             },
-                            ticks: { min: 0, max: 20}
+                            ticks: { min: 0, max: 120}
                         }],
                         yAxes: [{
                             scaleLabel: {
                                 display: true,
-                                labelString: "Total Score",
+                                labelString: "Pieces Scored",
                             },
-                            ticks: { min: 0, max: 120 }
+                            ticks: { min: 0, max: 20 }
                         }],
                     }
                 }
