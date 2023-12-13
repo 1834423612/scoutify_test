@@ -30,13 +30,11 @@
         //balance at end of auton instead of beggining
         //add functions
         //add function for scoring
-        //missing const movepartofbalance=[];this is the time it takes to go from scoring position to balance
-        //also missing const autonmovepartofbalance=[];
         //Assumptions: We will always engage. We will score for high, then mid, then low, but because we never will get to the low grid, we don't have to account for it
-        const dolinkshappeninthisgame=true;
-        const linkthresholdprogression=[];//leave this empty unless the links[1] is changing (links[1] is in the for-loop and represents how many pieces makes a link) like in the game steamworks
+        const dolinkshappeninthisgame = true;
+        const linkthresholdprogression = [];//leave this empty unless the links[1] is changing (links[1] is in the for-loop and represents how many pieces makes a link) like in the game steamworks
         //for the steamship game, const linkthresholdprogression=[1,2,3,4,5];
-	    const balancingtime = [3, 5, 7];//it can take either 3 seconds, 5 seconds, or 7 seconds
+	const balancingtime = [3, 5, 7];//it can take either 3 seconds, 5 seconds, or 7 seconds. this includes the time it takes to get to the balancing area.
         const pointsforbalancing = [12, 10];//auton and teleop
         const placetime = [2, 4];
         const pointsforbestscorer = [6, 5];// high nodes: auton and teleop
@@ -81,7 +79,7 @@
         }
         //create a scenario tree, but start by defining variables to use during the iterations
         let piecesscored,holdingpiece0,time,points;
-        let links=[];
+        let links = [];
         for (let i in balancingtime) {
             for (let j in placetime) {
                 for (let k in pickuptime) {
@@ -101,13 +99,14 @@
                                 scenariospoints.push({ x: 150 - time, y: points });
                                 //place pieces during auton
             /*holdingpiece0+=grabamount[n];
-            piecesscored+=holdingpiece0;
-            holdingpiece0=0;*/
-            //time -= placetime[j] + movepartofcycle[l] + pickuptime[k];
+            
+            time -= placetime[j] + movepartofcycle[l] + pickuptime[k];*/
             //if (piecesscored <= 9) { points += pointsforbestscorer[ifauton0ifteleop1] * grabamount[n]; }
             //else { points += pointsforokscorer[ifauton0ifteleop1] * grabamount[n]; }
-            //checkforlinks(ifauton0ifteleop1);
-           // scenariospoints.push({ x: 150 - time, y: points });
+            //piecesscored+=holdingpiece0*!ifauton0ifteleop1+grabamount[n]*ifauton0ifteleop1;
+            //holdingpiece0=0;
+	    //checkforlinks(ifauton0ifteleop1);
+            // scenariospoints.push({ x: 150 - time, y: points });
             //piecesscoredovertime.push({ x: 150 - time, y: piecesscored });
         
                                 while (time - placetime[j] >= 135 && piecesscored < autonPieceLimit) {
@@ -140,7 +139,8 @@
                                 }
                                 //score high and mid
                                 while (((time - pickuptime[k] - movepartofcycle[l] - placetime[j]-balancingtime[i]>= 0)&&(pointsforbalancing[1] !== 0))||((time - pickuptime[k] - movepartofcycle[l] - placetime[j]>= 0)&&(pointsforbalancing[1] === 0))) {//if we want the program to see how much slower we can be w/out worsening score changing the 0 in ">=0" to some other number is a start.
-                                    scorepiece(1,j,k,l,n);
+                                    holdingpiece0+=grabamount[n];
+				    scorepiece(1,j,k,l);
                                 }
                                 //endgame
                                 if (pointsforbalancing[1] !== 0) {
@@ -469,14 +469,13 @@
                 }
             }
         }
-        function scorepiece(ifauton0ifteleop1,j,k,l,n){
-            holdingpiece0+=grabamount[n];
-            piecesscored+=holdingpiece0;
+        function scorepiece(ifauton0ifteleop1,j,k,l){
+	    piecesscored+=holdingpiece0;
+            time -= placetime[j] + (movepartofcycle[l] + pickuptime[k])*ifauton0ifteleop1;//the autonscoring loop is different than the teleop scoring loop b/c bots are preloaded and in position for auton. It's also different b/c during auton, the robot also will pick up pieces even if it doesn't have enough time to place them. 
+            if (piecesscored <= 9) { points += pointsforbestscorer[ifauton0ifteleop1] * holdingpiece0; }
+            else { points += pointsforokscorer[ifauton0ifteleop1] * holdingpiece0; }
             holdingpiece0=0;
-            time -= placetime[j] + movepartofcycle[l]*ifauton0ifteleop1 + pickuptime[k]*ifauton0ifteleop1;
-            if (piecesscored <= 9) { points += pointsforbestscorer[ifauton0ifteleop1] * grabamount[n]; }
-            else { points += pointsforokscorer[ifauton0ifteleop1] * grabamount[n]; }
-            checkforlinks(ifauton0ifteleop1);
+	    checkforlinks(ifauton0ifteleop1);
             scenariospoints.push({ x: 150 - time, y: points });
             piecesscoredovertime.push({ x: 150 - time, y: piecesscored });
         }
