@@ -99,7 +99,6 @@
                                 //place pieces during auton
                                 while (time - placetime[j] >= 135 && piecesscored < autonPieceLimit) {
                                     scorepiece(0,j,k,l);
-                                    piecesscoredovertime.push({ x: 150 - time, y: piecesscored });
                                     if (time - autonmovepartofcycle[l] / 2 - pickuptime[k] >= 135) {//the autonmovepartofcycle[l] is divided by two b/c the bot only travels to pick up game pices, not also back 
                                         time -= autonmovepartofcycle[l] / 2 + pickuptime[k];
                                         holdingpiece0 += grabamount[n];
@@ -112,7 +111,7 @@
                                 time = 135;
                                 // if holding pieces at beginning of teleop
                                 if (holdingpiece0 > 0) {
-				    scorepiece(1,j,k,l,1);//this doesn't count the time it takes to go from the charge station into the grid
+				    scorepiece(1,j,k,l,1);//this doesn't count the time it takes to go from the charge station into the grid, which is bad for games when the place where mobility points are awarded is far away from a goal
                                 }
                                 //score high and mid
                                 while (((time - pickuptime[k] - movepartofcycle[l] - placetime[j]-balancingtime[i]>= 0)&&(pointsforbalancing[1] !== 0))||((time - pickuptime[k] - movepartofcycle[l] - placetime[j]>= 0)&&(pointsforbalancing[1] === 0))) {//if we want the program to see how much slower we can be w/out worsening score changing the 0 in ">=0" to some other number is a start.
