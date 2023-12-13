@@ -93,29 +93,13 @@
                                 holdingpiece0 = 1;//start w/ holding one piece
                                 time = 150;
                                 points = pointsformobility + pointsforbalancing[0];//will always strive to make a robot that can get the mobility points
-                                //auton
+                        //auton
                                 //auton balance
                                 if (pointsforbalancing[0] !== 0) { time -= balancingtime[i]; }//only subtract balancing time if auton-balance is allowed
                                 scenariospoints.push({ x: 150 - time, y: points });
                                 //place pieces during auton
-            /*holdingpiece0+=grabamount[n];
-            
-            time -= placetime[j] + movepartofcycle[l] + pickuptime[k];*/
-            //if (piecesscored <= 9) { points += pointsforbestscorer[ifauton0ifteleop1] * grabamount[n]; }
-            //else { points += pointsforokscorer[ifauton0ifteleop1] * grabamount[n]; }
-            //piecesscored+=holdingpiece0*!ifauton0ifteleop1+grabamount[n]*ifauton0ifteleop1;
-            //holdingpiece0=0;
-	    //checkforlinks(ifauton0ifteleop1);
-            // scenariospoints.push({ x: 150 - time, y: points });
-            //piecesscoredovertime.push({ x: 150 - time, y: piecesscored });
-        
                                 while (time - placetime[j] >= 135 && piecesscored < autonPieceLimit) {
-                                    points += pointsforbestscorer[0] * holdingpiece0;
-                                    piecesscored += holdingpiece0;
-                                    checkforlinks(0);//0 is auton and 1 is teleop
-                                    time -= placetime[j];
-                                    holdingpiece0 = 0;
-                                    scenariospoints.push({ x: 150 - time, y: points });
+                                    scorepiece(0,j,k,l);
                                     piecesscoredovertime.push({ x: 150 - time, y: piecesscored });
                                     if (time - autonmovepartofcycle[l] / 2 - pickuptime[k] >= 135) {//the autonmovepartofcycle[l] is divided by two b/c the bot only travels to pick up game pices, not also back 
                                         time -= autonmovepartofcycle[l] / 2 + pickuptime[k];
@@ -125,7 +109,7 @@
                                         else { time = 135; }
                                     }
                                 }
-                                //teleop
+                        //teleop
                                 time = 135;
                                 // if holding pieces at beginning of teleop
                                 if (holdingpiece0 > 0) {
@@ -142,12 +126,13 @@
                                     holdingpiece0+=grabamount[n];
 				    scorepiece(1,j,k,l);
                                 }
-                                //endgame
+                        //endgame
                                 if (pointsforbalancing[1] !== 0) {
                                     points += pointsforbalancing[1];
                                     time -= balancingtime[i];
                                 }
                                 scenariospoints.push({ x: 150 - time, y: points });
+			//push chart values
                                 const x = encodescenario('' + i + j + k + l + m + n);
                                 if (Math.floor(piecesscored / 3) > 3) {
 				rnkValues.push({ x: x, y: 1 });
