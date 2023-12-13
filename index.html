@@ -98,7 +98,7 @@
                                 scenariospoints.push({ x: 150 - time, y: points });
                                 //place pieces during auton
                                 while (time - placetime[j] >= 135 && piecesscored < autonPieceLimit) {
-                                    scorepiece(0,j,k,l);
+                                    scorepiece(0,j,k,m);
                                     if (time - autonmovepartofcycle[l] / 2 - pickuptime[k] >= 135) {//the autonmovepartofcycle[l] is divided by two b/c the bot only travels to pick up game pices, not also back 
                                         time -= autonmovepartofcycle[l] / 2 + pickuptime[k];
                                         holdingpiece0 += grabamount[n];
@@ -111,12 +111,12 @@
                                 time = 135;
                                 // if holding pieces at beginning of teleop
                                 if (holdingpiece0 > 0) {
-				    scorepiece(1,j,k,l,1);//this doesn't count the time it takes to go from the charge station into the grid, which is bad for games when the place where mobility points are awarded is far away from a goal
+				    scorepiece(1,j,k,m,1);//this doesn't count the time it takes to go from the charge station into the grid, which is bad for games when the place where mobility points are awarded is far away from a goal
                                 }
                                 //score high and mid
-                                while (((time - pickuptime[k] - movepartofcycle[l] - placetime[j]-balancingtime[i]>= 0)&&(pointsforbalancing[1] !== 0))||((time - pickuptime[k] - movepartofcycle[l] - placetime[j]>= 0)&&(pointsforbalancing[1] === 0))) {//if we want the program to see how much slower we can be w/out worsening score changing the 0 in ">=0" to some other number is a start.
+                                while (((time - pickuptime[k] - movepartofcycle[m] - placetime[j]-balancingtime[i]>= 0)&&(pointsforbalancing[1] !== 0))||((time - pickuptime[k] - movepartofcycle[m] - placetime[j]>= 0)&&(pointsforbalancing[1] === 0))) {//if we want the program to see how much slower we can be w/out worsening score changing the 0 in ">=0" to some other number is a start.
                                     holdingpiece0+=grabamount[n];
-				    scorepiece(1,j,k,l);
+				    scorepiece(1,j,k,m);
                                 }
                         //endgame
                                 if (pointsforbalancing[1] !== 0) {
@@ -446,10 +446,10 @@
                 }
             }
         }
-        function scorepiece(ifauton0ifteleop1,j,k,l,holdingpiecesatbeginningofteleop){
+        function scorepiece(ifauton0ifteleop1,j,k,m,holdingpiecesatbeginningofteleop){
 	    piecesscored+=holdingpiece0;
 	    if(holdingpiecesatbeginningofteleop===1||ifauton0ifteleop1===0){ time -= placetime[j]; }
-            else { time -= placetime[j] + movepartofcycle[l] + pickuptime[k]; }
+            else { time -= placetime[j] + movepartofcycle[m] + pickuptime[k]; }
 	    if (piecesscored <= 9) { points += pointsforbestscorer[ifauton0ifteleop1] * holdingpiece0; }
             else { points += pointsforokscorer[ifauton0ifteleop1] * holdingpiece0; }
             holdingpiece0=0;
