@@ -122,7 +122,6 @@
                                 rnkValues.push({ x: piecesscored, y: points,s:s });
                                 if (Math.floor(piecesscored / 3) > 3) {color.push("rgb(0,255,0)");}
                                 else {color.push("rgb(255,0,0)");}                                  
-                                }
                             }
                         }
                     }
@@ -165,19 +164,18 @@
                         footerFontStyle: "normal",
                         callbacks: {
                             label: function (tooltipItem, data) {
-                                //if(rnkValues[tooltipItem.index].y===0){return "0";}//there was a bug where if it was 0, then nothing it wouldn't show this
-                                //return ["Pieces Score: "+rnkValues[tooltipItem.index].x,"Total Score: "+rnkValues[tooltipItem.index].y];
+                                return ["Pieces Scored: "+rnkValues[tooltipItem.index].x,"Total Score: "+rnkValues[tooltipItem.index].y];
                             },
                             //color does not appear before the footer
                             footer: function (tooltipItems, data) {
-                                /*return [
+                                return [
                                     "Balance (s): "+balancingtime[decodescenario(tooltipItems[2].index).charAt(0)],
                                     "Place (s): "+placetime[decodescenario(tooltipItems[2].index).charAt(1)],
                                     "Pickup (s): "+pickuptime[decodescenario(tooltipItems[2].index).charAt(2)],
                                     "Autonmovepartofcycle (s): "+autonmovepartofcycle[decodescenario(tooltipItems[2].index).charAt(3)],
                                     "Movepartofcycle (s): "+movepartofcycle[decodescenario(tooltipItems[2].index).charAt(4)],
                                     "Grabamount (pieces on average): "+grabamount[decodescenario(tooltipItems[2].index).charAt(5)]
-                                ];*/
+                                ];
                             }
                         }
                     },
@@ -199,14 +197,14 @@
                                 display: true,
                                 labelString: "Pieces Scored",
                             },
-                            ticks: { min: 0, max: balancingtime.length * placetime.length * pickuptime.length * autonmovepartofcycle.length * movepartofcycle.length * grabamount.length-1}
+                            ticks: { min: 0, max: 20}
                         }],
                         yAxes: [{
                             scaleLabel: {
                                 display: true,
                                 labelString: "Total Score",
                             },
-                            ticks: { min: 0, max: 1, stepSize: 1 }
+                            ticks: { min: 0, max: 120 }
                         }],
                     }
                 }
