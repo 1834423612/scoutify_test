@@ -167,6 +167,14 @@
         var xyValues=[];
         var psotValues=[];//pieces scored over time
         updatedata("000000");
+        const groupsofpoints = [];
+        for(let i in allinclusivescenariodata){
+            const pointgroup=allinclusivescenariodata[i].x+";"+allinclusivescenariodata[i].y;
+            if (!groupsofpoints.includes(pointgroup)){
+                groupsofpoints.push([pointgroup,i]);
+            }
+            else{groupsofpoints[groupsofpoints.indexOf(pointgroup)].push(i);}
+        }
         window.addEventListener("load", function (event) { //only initialize chart once window loads completely to avoid context issues
             const scenariochart = new Chart("scenarioChart", {
                 type: "scatter",
