@@ -12,6 +12,10 @@
 <body>
     <h1>Charts:</h1>
     <div style="display:block;">
+        <canvas id="scenarioChart"></canvas>
+    </div>
+    <hr>
+    <div style="display:block;">
         <canvas id="rnkpntChart"></canvas>
     </div>
     <hr>
@@ -29,6 +33,7 @@
         //add in the limits
         //balance at end of auton instead of beggining
         //add functions
+	//use Math.max.apply() to automatically size charts
         //Assumptions: We will always engage. We will score for high, then mid, then low, but because we never will get to the low grid, we don't have to account for it
         const dolinkshappeninthisgame = true;
         const linkthresholdprogression = [];//leave this empty unless the links[1] is changing (links[1] is in the for-loop and represents how many pieces makes a link) like in the game steamworks
@@ -50,6 +55,7 @@
         const rnkValues = [];
         const piecesoverscenarios = [];
         const totalscores = [];
+	const allinclusivescenariodata=[];
 	const color=[];
         //turn a string that represents the indices in the scenario tree below into a number
         let encodescenario = (a) =>
@@ -136,6 +142,7 @@
 				}
                                 totalscores.push({ x:x , y: points });
                                 piecesoverscenarios.push({ x:x , y: piecesscored });
+				allinclusivescenariodata.push({ x:points , y: piecesscored, scenario:x })
                             }
                         }
                     }
@@ -158,7 +165,74 @@
         var psotValues=[];//pieces scored over time
         updatedata("000000");
         window.addEventListener("load", function (event) { //only initialize chart once window loads completely to avoid context issues
-            
+            const scenariochart = new Chart("scenarioChart", {
+                type: "scatter",
+                data: {
+                    datasets: [{
+                        pointRadius: 4,
+                        pointBackgroundColor: color,
+                        data: allinclusivescenariodata
+                    }]
+                },
+                options: {
+		    title: {
+        	    	display: true,
+                	text: 'Pieces Scored - Total Score where green is 1 rnkpnts from links and red is zero rnkpnts from links'
+            	    },
+                    tooltips: {
+                        bodyFontStyle: "bold",
+                        footerFontStyle: "normal",
+                        callbacks: {
+                            label: function (tooltipItem, data) {
+                                return ["Pieces Scored: "+allinclusivescenariodata[tooltipItem.index].x,"Total Score: "+allinclusivescenariodata[tooltipItem.index].y];
+                            },
+                            //color does not appear before the footer
+                            footer: function (tooltipItems, data) {
+                                return[
+				    "Pieces Scored: "+allinclusivescenariodata[tooltipItems[0].index],
+				    "Total Score: "+allinclusivescenariodata[tooltipItems[1].index]
+				];
+                            
+                                    /*"Balance (s): "+balancingtime[decodescenario(tooltipItems[2].index).charAt(0)],
+                                    "Place (s): "+placetime[decodescenario(tooltipItems[2].index).charAt(1)],
+                                    "Pickup (s): "+pickuptime[decodescenario(tooltipItems[2].index).charAt(2)],
+                                    "Autonmovepartofcycle (s): "+autonmovepartofcycle[decodescenario(tooltipItems[2].index).charAt(3)],
+                                    "Movepartofcycle (s): "+movepartofcycle[decodescenario(tooltipItems[2].index).charAt(4)],
+                                    "Grabamount (pieces on average): "+grabamount[decodescenario(tooltipItems[2].index).charAt(5)]
+                                ];*/
+                            }
+                        }
+                    },
+                    onClick: function (evt) {
+                        var element = scenariochart.getElementAtEvent(evt);
+                        if (element.length > 0) {
+                            var ind = element[0]._index;
+                            if (confirm('Do you want to see this scenario?')) {
+                                updatedata(ind);
+                                psotchart.update();
+                                scoretimechart.update();
+                            }
+                        }
+                    },
+                    legend: { display: false },
+                    scales: {
+                        xAxes: [{
+                            scaleLabel: {
+                                display: true,
+                                labelString: "Total Score",
+                            },
+                            ticks: { min: 0, max: 120}
+                        }],
+                        yAxes: [{
+                            scaleLabel: {
+                                display: true,
+                                labelString: "Pieces Scored",
+                            },
+                            ticks: { min: 0, max: 20 }
+                        }],
+                    }
+                }
+            });
             const rnkpntchart = new Chart("rnkpntChart", {
                 type: "scatter",
                 data: {
