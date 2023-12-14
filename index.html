@@ -33,7 +33,6 @@
         //add in the limits
         //balance at end of auton instead of beggining
         //add functions
-        //get rid of the additional data points at 15 seconds
         //fix tooltip of the allinclusive scenario chart
 
         //Assumptions: We will always engage. We will score for high, then mid, then low, but because we never will get to the low grid, we don't have to account for it
@@ -123,6 +122,7 @@
 				                    scorepiece(1,j,k,m,1);//this doesn't count the time it takes to go from the charge station into the grid, which is bad for games when the place where mobility points are awarded is far away from a goal
                                 }
                                 //score high and mid
+                                
                                 while (((time - pickuptime[k] - movepartofcycle[m] - placetime[j]-balancingtime[i]>= 0)&&(pointsforbalancing[1] !== 0))||((time - pickuptime[k] - movepartofcycle[m] - placetime[j]>= 0)&&(pointsforbalancing[1] === 0))) {//if we want the program to see how much slower we can be w/out worsening score changing the 0 in ">=0" to some other number is a start.
                                     holdingpiece0+=grabamount[n];
 				                    scorepiece(1,j,k,m);
@@ -522,15 +522,17 @@
             }
         }
         function scorepiece(ifauton0ifteleop1,j,k,m,holdingpiecesatbeginningofteleop){
-	    piecesscored+=holdingpiece0;
-	    if(holdingpiecesatbeginningofteleop===1||ifauton0ifteleop1===0){ time -= placetime[j]; }
+	        piecesscored+=holdingpiece0;
+	        if(holdingpiecesatbeginningofteleop===1||ifauton0ifteleop1===0){ time -= placetime[j]; }
             else { time -= placetime[j] + movepartofcycle[m] + pickuptime[k]; }
-	    if (piecesscored <= 9) { points += pointsforbestscorer[ifauton0ifteleop1] * holdingpiece0; }
+	        if (piecesscored <= 9) { points += pointsforbestscorer[ifauton0ifteleop1] * holdingpiece0; }
             else { points += pointsforokscorer[ifauton0ifteleop1] * holdingpiece0; }
             holdingpiece0=0;
-	    checkforlinks(ifauton0ifteleop1);
-            scenariospoints.push({ x: 150 - time, y: points });
-            piecesscoredovertime.push({ x: 150 - time, y: piecesscored });
+	        checkforlinks(ifauton0ifteleop1);
+            if(time!==135){
+                scenariospoints.push({ x: 150 - time, y: points });
+                piecesscoredovertime.push({ x: 150 - time, y: piecesscored });
+            }
         }
     </script>
 
