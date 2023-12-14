@@ -120,12 +120,12 @@
                                 time = 135;
                                 // if holding pieces at beginning of teleop
                                 if (holdingpiece0 > 0) {
-				    scorepiece(1,j,k,m,1);//this doesn't count the time it takes to go from the charge station into the grid, which is bad for games when the place where mobility points are awarded is far away from a goal
+				                    scorepiece(1,j,k,m,1);//this doesn't count the time it takes to go from the charge station into the grid, which is bad for games when the place where mobility points are awarded is far away from a goal
                                 }
                                 //score high and mid
                                 while (((time - pickuptime[k] - movepartofcycle[m] - placetime[j]-balancingtime[i]>= 0)&&(pointsforbalancing[1] !== 0))||((time - pickuptime[k] - movepartofcycle[m] - placetime[j]>= 0)&&(pointsforbalancing[1] === 0))) {//if we want the program to see how much slower we can be w/out worsening score changing the 0 in ">=0" to some other number is a start.
                                     holdingpiece0+=grabamount[n];
-				    scorepiece(1,j,k,m);
+				                    scorepiece(1,j,k,m);
                                 }
                         //endgame
                                 if (pointsforbalancing[1] !== 0) {
@@ -187,23 +187,14 @@
                         footerFontStyle: "normal",
                         callbacks: {
                             label: function (tooltipItem, data) {
-                                return ["Total Score: "+allinclusivescenariodata[tooltipItem.index].x,"Pieces Scored: "+allinclusivescenariodata[tooltipItem.index].y];
+                                return decodescenario(tooltipItem.index);
                             },
-                            //color does not appear before the footer
+                            //when points overlap, can only have one footer, but multiple labels
                             footer: function (tooltipItems, data) {
-                                return tooltipItems[1].index;
-                                /*[
-				    "Total Score: "+allinclusivescenariodata[tooltipItems[0].index],
-				"Pieces Scored: "+allinclusivescenariodata[tooltipItems[1].index]
-                				];
-                            
-                                    /*"Balance (s): "+balancingtime[decodescenario(tooltipItems[2].index).charAt(0)],
-                                    "Place (s): "+placetime[decodescenario(tooltipItems[2].index).charAt(1)],
-                                    "Pickup (s): "+pickuptime[decodescenario(tooltipItems[2].index).charAt(2)],
-                                    "Autonmovepartofcycle (s): "+autonmovepartofcycle[decodescenario(tooltipItems[2].index).charAt(3)],
-                                    "Movepartofcycle (s): "+movepartofcycle[decodescenario(tooltipItems[2].index).charAt(4)],
-                                    "Grabamount (pieces on average): "+grabamount[decodescenario(tooltipItems[2].index).charAt(5)]
-                                ];*/
+                                return [
+				                    "Total Score: "+allinclusivescenariodata[tooltipItems[0].index].x,
+				                    "Pieces Scored: "+allinclusivescenariodata[tooltipItems[0].index].y
+  				                ];
                             }
                         }
                     },
