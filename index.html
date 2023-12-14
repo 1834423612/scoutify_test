@@ -13,6 +13,7 @@
     <h1>Charts:</h1>
     <div style="display:block;">
         <canvas id="scenarioChart"></canvas>
+	<p id="tooltip"></p>
     </div>
     <hr>
     <div style="display:block;">
@@ -136,13 +137,13 @@
 			                    //push chart values that have scenarios as a dimension
                                 const x = encodescenario('' + i + j + k + l + m + n);
                                 if (Math.floor(piecesscored / 3) > 3) {
-				                    rnkValues.push({ x: x, y: 1 });
-				                    color.push("rgb(0,255,0)");
-				                }
+					rnkValues.push({ x: x, y: 1 });
+				        color.push("rgb(0,255,0)");
+				}
                                 else {
-				                    rnkValues.push({ x: x, y: 0 });
-				                    color.push("rgb(255,0,0)");
-				                }
+					rnkValues.push({ x: x, y: 0 });
+				        color.push("rgb(255,0,0)");
+				}
                                 totalscores.push({ x:x , y: points });
                                 piecesoverscenarios.push({ x:x , y: piecesscored });
 				                allinclusivescenariodata.push({ x:points , y: piecesscored, scenario:x })
@@ -200,9 +201,9 @@
                             //when points overlap, can only have one footer, but multiple labels
                             footer: function (tooltipItems, data) {
                                 return [
-				                    "Total Score: "+allinclusivescenariodata[tooltipItems[0].index].x,
-				                    "Pieces Scored: "+allinclusivescenariodata[tooltipItems[0].index].y
-  				                ];
+					"Total Score: "+allinclusivescenariodata[tooltipItems[0].index].x,
+				        "Pieces Scored: "+allinclusivescenariodata[tooltipItems[0].index].y
+  				];
                             }
                         }
                     },
