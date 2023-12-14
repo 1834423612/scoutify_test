@@ -538,6 +538,13 @@
             scenariospoints.push({ x: 150 - time, y: points });
             piecesscoredovertime.push({ x: 150 - time, y: piecesscored });
         }
+	function getchartminmaxs(arr,propertyofarr){
+		const array = Array.from( axis, (element, index) => axis[index].propertyofarr );
+		return {
+			    min: Math.min.apply( 0, array ),
+                            max: Math.max.apply( 0, array ),
+		};
+	}
     </script>
 
 </body>
