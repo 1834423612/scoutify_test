@@ -40,7 +40,8 @@
         const dolinkshappeninthisgame = true;
         const linkthresholdprogression = [];//leave this empty unless the links[1] is changing (links[1] is in the for-loop and represents how many pieces makes a link) like in the game steamworks
         //for the steamship game, const linkthresholdprogression=[1,2,3,4,5];
-	const balancingtime = [3, 5, 7];//it can take either 3 seconds, 5 seconds, or 7 seconds. this includes the time it takes to get to the balancing area.
+	    //for any of the following time arrays and the grabamount array, the first index must have the smallest value, and the last index must have the largest value
+        const balancingtime = [3, 5, 7];//it can take either 3 seconds, 5 seconds, or 7 seconds. this includes the time it takes to get to the balancing area.
         const pointsforbalancing = [12, 10];//auton and teleop
         const placetime = [2, 4];
         const pointsforbestscorer = [6, 5];// high nodes: auton and teleop
@@ -57,8 +58,8 @@
         const rnkValues = [];
         const piecesoverscenarios = [];
         const totalscores = [];
-	const allinclusivescenariodata=[];
-	const color=[];
+	    const allinclusivescenariodata=[];
+	    const color=[];
         //turn a string that represents the indices in the scenario tree below into a number
         let encodescenario = (a) =>
             a.charAt(0) * placetime.length * pickuptime.length * autonmovepartofcycle.length * movepartofcycle.length * grabamount.length +
