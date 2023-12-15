@@ -65,8 +65,8 @@
         const rnkValues = [];
         const piecesoverscenarios = [];
         const totalscores = [];
-	const allinclusivescenariodata=[];
-	const color=[];
+	    const allinclusivescenariodata=[];
+	    const color=[];
         //turn a string that represents the indices in the scenario tree below into a number
         let encodescenario = (a) =>
             a.charAt(0) * placetime.length * pickuptime.length * autonmovepartofcycle.length * movepartofcycle.length * grabamount.length +
@@ -201,7 +201,7 @@
                 options: {
 		    title: {
         	    	display: true,
-                	text: 'Pieces Scored - Total Score where green is 1 rnkpnts from links and red is zero rnkpnts from links'
+                	text: 'Pieces Scored - Total Score'
             	    },
                     tooltips: {
                         bodyFontStyle: "bold",
@@ -214,9 +214,9 @@
                             //when points overlap, can only have one footer, but multiple labels
                             footer: function (tooltipItems, data) {
                                 return [
-				    "Total Score: "+allinclusivescenariodata[tooltipItems[0].index].x,
-				    "Pieces Scored: "+allinclusivescenariodata[tooltipItems[0].index].y
-  				];
+				                    "Total Score: "+allinclusivescenariodata[tooltipItems[0].index].x,
+				                    "Pieces Scored: "+allinclusivescenariodata[tooltipItems[0].index].y
+  				                    ];
                             }
                         }
                     },
