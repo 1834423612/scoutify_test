@@ -8,9 +8,17 @@
 <style>
     div{display:inline-block}
     canvas{width:500px;height:500px;max-width:500px}
+    ul{list-style:none;}
 </style>
 <body>
     <h1>Charts:</h1>
+    <h4>Key:</h4>
+    <ul>
+    	<pre>
+    		<li><mark style="background-color:rgb(0,255,0);">  </mark> : 1 RNKPNT</li>
+    		<li><mark style="background-color:rgb(255,0,0);">  </mark> : 0 RNKPNT</li>
+    	</pre>
+    </ul>
     <div style="display:block;">
         <canvas id="scenarioChart"></canvas>
 	<p id="tooltip"></p>
@@ -34,7 +42,6 @@
         //add in the limits
         //balance at end of auton instead of beggining
         //add functions
-        //fix tooltip of the allinclusive scenario chart
 
         //Assumptions: We will always engage. We will score for high, then mid, then low, but because we never will get to the low grid, we don't have to account for it
         const dolinkshappeninthisgame = true;
@@ -58,8 +65,8 @@
         const rnkValues = [];
         const piecesoverscenarios = [];
         const totalscores = [];
-	    const allinclusivescenariodata=[];
-	    const color=[];
+	const allinclusivescenariodata=[];
+	const color=[];
         //turn a string that represents the indices in the scenario tree below into a number
         let encodescenario = (a) =>
             a.charAt(0) * placetime.length * pickuptime.length * autonmovepartofcycle.length * movepartofcycle.length * grabamount.length +
