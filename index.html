@@ -211,7 +211,26 @@
                         callbacks: {
                             label: function (tooltipItem, data) {
       				const scenario=decodescenario(tooltipItem.index);
-      				if(zeroindices.includes(scenario)){document.getElementById("tooltip").innerHTML=groupsofpoints[zeroindices.indexOf(scenario)];}
+      				if(zeroindices.includes(scenario)){
+                        document.getElementById("tooltip").innerHTML="";
+                        for(let i of groupsofpoints[zeroindices.indexOf(scenario)]){
+                            const details = document.createElement("details");
+                            document.getElementById("tooltip").appendChild(details);
+                            const summary = document.createElement("summary");
+                            document.getElementById("details").appendChild(summary);
+                            summary.innerText = i;
+                            const p = document.createElement("p");
+                            document.getElementById("tooltip").appendChild(p);
+                            p.innerText =
+                                    "Balance (s): "+balancingtime[decodescenario(i).charAt(0)],
+                                    "Place (s): "+placetime[decodescenario(i).charAt(1)],
+                                    "Pickup (s): "+pickuptime[decodescenario(i).charAt(2)],
+                                    "Autonmovepartofcycle (s): "+autonmovepartofcycle[decodescenario(i).charAt(3)],
+                                    "Movepartofcycle (s): "+movepartofcycle[decodescenario(i).charAt(4)],
+                                    "Grabamount (pieces on average): "+grabamount[decodescenario(i).charAt(5)]
+                                ;
+                        }
+                    }
                             },
                             //when points overlap, can only have one footer, but multiple labels
                             footer: function (tooltipItems, data) {
