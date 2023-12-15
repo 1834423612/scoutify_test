@@ -120,13 +120,13 @@
                                 time = 135;
                                 // if holding pieces at beginning of teleop
                                 if (holdingpiece0 > 0) {
-				                    scorepiece(1,j,k,m,1);//this doesn't count the time it takes to go from the charge station into the grid, which is bad for games when the place where mobility points are awarded is far away from a goal
+				    scorepiece(1,j,k,m,1);//this doesn't count the time it takes to go from the charge station into the grid, which is bad for games when the place where mobility points are awarded is far away from a goal
                                 }
                                 //score high and mid
                                 
                                 while (((time - pickuptime[k] - movepartofcycle[m] - placetime[j]-balancingtime[i]>= 0)&&(pointsforbalancing[1] !== 0))||((time - pickuptime[k] - movepartofcycle[m] - placetime[j]>= 0)&&(pointsforbalancing[1] === 0))) {//if we want the program to see how much slower we can be w/out worsening score changing the 0 in ">=0" to some other number is a start.
                                     holdingpiece0+=grabamount[n];
-				                    scorepiece(1,j,k,m);
+				    scorepiece(1,j,k,m);
                                 }
                         //endgame
                                 if (pointsforbalancing[1] !== 0) {
@@ -134,7 +134,7 @@
                                     time -= balancingtime[i];
                                 }
                                 scenariospoints.push({ x: 150 - time, y: points });
-			                    //push chart values that have scenarios as a dimension
+			        //push chart values that have scenarios as a dimension
                                 const x = encodescenario('' + i + j + k + l + m + n);
                                 if (Math.floor(piecesscored / 3) > 3) {
 					rnkValues.push({ x: x, y: 1 });
@@ -146,7 +146,7 @@
 				}
                                 totalscores.push({ x:x , y: points });
                                 piecesoverscenarios.push({ x:x , y: piecesscored });
-				                allinclusivescenariodata.push({ x:points , y: piecesscored, scenario:x })
+				allinclusivescenariodata.push({ x:points , y: piecesscored, scenario:x })
                             }
                         }
                     }
@@ -168,14 +168,19 @@
         var xyValues=[];
         var psotValues=[];//pieces scored over time
         updatedata("000000");
-        const groupsofpoints = [];
+        //create data arrays that will be used for the all inclusive chart's tooltip
+	const groupsofpoints = [];
+        const coordinatesofgroups = [];
         for(let i in allinclusivescenariodata){
-            const pointgroup=allinclusivescenariodata[i].x+";"+allinclusivescenariodata[i].y;
-            if (!groupsofpoints.includes(pointgroup)){
-                groupsofpoints.push([pointgroup,i]);
+            const coordinates=allinclusivescenariodata[i].x+";"+ allinclusivescenariodata[i].y;
+            if (coordinatesofgroups.includes(coordinates)){
+            groupsofpoints[coordinatesofgroups.indexOf(coordinates)].push(decodescenario(i));
             }
-            else{groupsofpoints[groupsofpoints.indexOf(pointgroup)].push(i);}
+            else{groupsofpoints.push([decodescenario(i)]);coordinatesofgroups.push(coordinates);}
         }
+        const zeroindices=[];
+        for(let i of groupsofpoints){zeroindices.push(i[0]);}
+	//load charts
         window.addEventListener("load", function (event) { //only initialize chart once window loads completely to avoid context issues
             const scenariochart = new Chart("scenarioChart", {
                 type: "scatter",
@@ -196,13 +201,14 @@
                         footerFontStyle: "normal",
                         callbacks: {
                             label: function (tooltipItem, data) {
-                                return decodescenario(tooltipItem.index);
+      				const scenario=decodescenario(tooltipItem.index);
+      				if(zeroindices.includes(scenario)){document.getElementById("tooltip").innerHTML=groupsofpoints[zeroindices.indexOf(scenario)];}
                             },
                             //when points overlap, can only have one footer, but multiple labels
                             footer: function (tooltipItems, data) {
                                 return [
-					"Total Score: "+allinclusivescenariodata[tooltipItems[0].index].x,
-				        "Pieces Scored: "+allinclusivescenariodata[tooltipItems[0].index].y
+				    "Total Score: "+allinclusivescenariodata[tooltipItems[0].index].x,
+				    "Pieces Scored: "+allinclusivescenariodata[tooltipItems[0].index].y
   				];
                             }
                         }
@@ -236,9 +242,9 @@
                                 labelString: "Pieces Scored",
                             },
                             ticks: {
-			                    min: allinclusivescenariodata[allinclusivescenariodata.length-1].y,
+			        min: allinclusivescenariodata[allinclusivescenariodata.length-1].y,
                                 max: allinclusivescenariodata[0].y,
-			                }
+			    }
                         }],
                     }
                 }
