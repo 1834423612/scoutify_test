@@ -42,6 +42,7 @@
         //add in the limits
         //balance at end of auton instead of beggining
         //add functions
+        //add tooltip for the tooltip
 
         //Assumptions: We will always engage. We will score for high, then mid, then low, but because we never will get to the low grid, we don't have to account for it
         const dolinkshappeninthisgame = true;
@@ -107,22 +108,23 @@
                                 piecesscored = 0;
                                 holdingpiece0 = 1;//start w/ holding one piece
                                 time = 150;
-                                points = pointsformobility + pointsforbalancing[0];//will always strive to make a robot that can get the mobility points
+                                points = 0;//will always strive to make a robot that can get the mobility points
                         //auton
-                                //auton balance
-                                if (pointsforbalancing[0] !== 0) { time -= balancingtime[i]; }//only subtract balancing time if auton-balance is allowed
-                                scenariospoints.push({ x: 150 - time, y: points });
                                 //place pieces during auton
-                                while (time - placetime[j] >= 135 && piecesscored < autonPieceLimit) {
+                                while (time - placetime[j] - balancingtime[i]*(pointsforbalancing[0]>0)>= 135 && piecesscored < autonPieceLimit) {
                                     scorepiece(0,j,k,m);
                                     if (time - autonmovepartofcycle[l] / 2 - pickuptime[k] >= 135) {//the autonmovepartofcycle[l] is divided by two b/c the bot only travels to pick up game pices, not also back 
                                         time -= autonmovepartofcycle[l] / 2 + pickuptime[k];
                                         holdingpiece0 += grabamount[n];
                                         if (piecesscored + holdingpiece0 > autonPieceLimit) { holdingpiece0 = autonPieceLimit - piecesscored }//prevents holding more pieces than allowed given the autonPieceLimit and the pieces already scored: this is needed in a game where you can pick up more than one piece at a time
-                                        if (time - autonmovepartofcycle[l] / 2 - placetime[j] >= 135) { time -= autonmovepartofcycle[l] / 2; }
-                                        else { time = 135; }
+                                        if (time - autonmovepartofcycle[l] / 2 - placetime[j] - balancingtime[i]*(pointsforbalancing[0]>0) >= 135) { time -= autonmovepartofcycle[l] / 2; }
+                                        else { time = 135+balancingtime[i]*(pointsforbalancing[0]>0); }
                                     }
                                 }
+                                //auton balance
+                                if (pointsforbalancing[0] > 0) { time -= balancingtime[i]; points+=pointsforbalancing[0]+pointsformobility;}//only subtract balancing time if auton-balance is allowed
+                                else {points+=pointsformobility;}
+                                scenariospoints.push({ x: 150 - time, y: points });
                         //teleop
                                 time = 135;
                                 // if holding pieces at beginning of teleop
