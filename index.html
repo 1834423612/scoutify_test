@@ -124,43 +124,36 @@
                                 time = 150; //seconds left in the game
                                 points = pointsformobility;//will always strive to make a robot that can get the mobility points
                         //auton
-                                //place pieces during auton
-                                while (time - placetime[j] - balancingtime[i]*(pointsforbalancing[0]>0)>= 135 && piecesscored < autonPieceLimit) {
-                                    scorepiece(0,j,k,m);
-                                    if (time - autonmovepartofcycle[l] / 2 - pickuptime[k] >= 135) {//the autonmovepartofcycle[l] is divided by two b/c the bot only travels to pick up game pices, not also back 
-                                        time -= autonmovepartofcycle[l] / 2 + pickuptime[k];
-                                        holdingpiece0 += grabamount[n];
-                                        if (piecesscored + holdingpiece0 > autonPieceLimit) { holdingpiece0 = autonPieceLimit - piecesscored }//prevents holding more pieces than allowed given the autonPieceLimit and the pieces already scored: this is needed in a game where you can pick up more than one piece at a time
-                                        if (time - autonmovepartofcycle[l] / 2 - placetime[j] - balancingtime[i]*(pointsforbalancing[0]>0) >= 135) { time -= autonmovepartofcycle[l] / 2; }
-                                        else { time = 135+balancingtime[i]*(pointsforbalancing[0]>0); }
+                                //if(!startpreloaded){time-pickuptime[k]}
+                                //if(!startneargoal){time-autonmovepartofcycle[l]} this is unimplemented yet
+                                
+                                //if there's time to balance and score...
+                                if(time - placetime[j] - balancingtime[i]*(pointsforbalancing[0]>0)>= 135){
+                                    //place pieces during auton
+                                    while (time - placetime[j] - balancingtime[i]*(pointsforbalancing[0]>0)>= 135 && piecesscored < autonPieceLimit) {
+                                        scorepiece(0,j,k,m);
+                                        if (time - autonmovepartofcycle[l] / 2 - pickuptime[k] >= 135) {//the autonmovepartofcycle[l] is divided by two b/c the bot only travels to pick up game pices, not also back 
+                                            time -= autonmovepartofcycle[l] / 2 + pickuptime[k];
+                                            holdingpiece0 += grabamount[n];
+                                            if (piecesscored + holdingpiece0 > autonPieceLimit) { holdingpiece0 = autonPieceLimit - piecesscored }//prevents holding more pieces than allowed given the autonPieceLimit and the pieces already scored: this is needed in a game where you can pick up more than one piece at a time
+                                            if (time - autonmovepartofcycle[l] / 2 - placetime[j] - balancingtime[i]*(pointsforbalancing[0]>0) >= 135) { time -= autonmovepartofcycle[l] / 2; }
+                                            else if (pointsforbalancing[0] > 0){balance(1,i);}//balance if auton-balance is allowed
+                                        }
                                     }
                                 }
-                                //auton balance
-                                if (pointsforbalancing[0] > 0) {
-                                    time -= balancingtime[i];
-                                    points+=pointsforbalancing[0];
-                                    scenariospoints.push({ x: 150 - time, y: points });
-                                }//only subtract balancing time if auton-balance is allowed
-                                
+                                else if (pointsforbalancing[0] > 0){balance(1,i);}//only balance if auton-balance is allowed
                         //teleop
                                 time = 135;
                                 // if holding pieces at beginning of teleop
-                                if (holdingpiece0 > 0) {
-				    scorepiece(1,j,k,m,1);//this doesn't count the time it takes to go from the charge station into the grid, which is bad for games when the place where mobility points are awarded is far away from a goal
-                                }
+                                if (holdingpiece0 > 0) {scorepiece(1,j,k,m,1);}//this doesn't count the time it takes to go from the charge station into the grid, which is bad for games when the place where mobility points are awarded is far away from a goal
                                 //score high and mid
-                                
-                                while (((time - pickuptime[k] - movepartofcycle[m] - placetime[j]-balancingtime[i]>= 0)&&(pointsforbalancing[1] !== 0))||((time - pickuptime[k] - movepartofcycle[m] - placetime[j]>= 0)&&(pointsforbalancing[1] === 0))) {//if we want the program to see how much slower we can be w/out worsening score changing the 0 in ">=0" to some other number is a start.
+                                while (time - pickuptime[k] - movepartofcycle[m] - placetime[j]-balancingtime[i]*(pointsforbalancing[1]>0) >= 0) {//if we want the program to see how much slower we can be w/out worsening score changing the 0 in ">=0" to some other number is a start.
                                     holdingpiece0+=grabamount[n];
-				    scorepiece(1,j,k,m);
+				                    scorepiece(1,j,k,m);
                                 }
-                        //endgame
-                                if (pointsforbalancing[1] !== 0) {
-                                    points += pointsforbalancing[1];
-                                    time -= balancingtime[i];
-                                }
-                                scenariospoints.push({ x: 150 - time, y: points });
-			        //push chart values that have scenarios as a dimension
+                                //endgame
+                                if (pointsforbalancing[1] !== 0) {balance(1,i);}
+                                //push chart values that have scenarios as a dimension
                                 const x = encodescenario('' + i + j + k + l + m + n);
                                 if (Math.floor(piecesscored / 3) > 3) {
 					                rnkValues.push({ x: x, y: 1 });
@@ -593,6 +586,11 @@
                 scenariospoints.push({ x: 150 - time, y: points });
                 piecesscoredovertime.push({ x: 150 - time, y: piecesscored });
             }
+        }
+        function balance(ifauton0ifteleop1,i){
+            points += pointsforbalancing[ifauton0ifteleop1];
+            time -= balancingtime[i];
+            scenariospoints.push({ x: 150 - time, y: points });
         }
     </script>
 
