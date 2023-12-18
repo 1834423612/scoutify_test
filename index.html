@@ -87,10 +87,10 @@
         const lengthsofmovepartofcycleandgrabamount = movepartofcycle.length * grabamount.length;
         //turn a string that represents the indices in the scenario tree below into a number
         let encodescenario = (a) =>
-            a.charAt(0) * placetime.length * pickuptime.length * autonmovepartofcycle.length * movepartofcycle.length * grabamount.length +
-            a.charAt(1) * pickuptime.length * autonmovepartofcycle.length * movepartofcycle.length * grabamount.length +
-            a.charAt(2) * autonmovepartofcycle.length * movepartofcycle.length * grabamount.length +
-            a.charAt(3) * movepartofcycle.length * grabamount.length +
+            a.charAt(0) * allthelengthsbesidesbalance +
+            a.charAt(1) * allthelengthsbesidesbalanceandplace +
+            a.charAt(2) * allthelengthsbesidesbalanceandplaceandpickup +
+            a.charAt(3) * lengthsofmovepartofcycleandgrabamount +
             a.charAt(4) * grabamount.length +
             a.charAt(5) * 1//the multiplication by one switches the type from string to number so that the a.charAt(4) is added instead of concatenated
         ;
