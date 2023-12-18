@@ -45,11 +45,13 @@
         //add functions
         //add tooltip for the tooltip
         //update other years using this updated code
+        //add compatability for multiple game pieces at a time with the new const holdPieceLimit
 
         //Assumptions: We will always engage. We will score for high, then mid, then low, but because we never will get to the low grid, we don't have to account for it
         
-        //intitialize variable
-        //There are two common types of arrays: points and time. Whenever there is a points array, it will look like this: [pointsAwardedForScoringThisWayInAuton,pointsAwardedForScoringThisWayInTeleop]. Whenever there is a time array, it will look like this [guess#1forHowLongThisTaskWillTake,...other guesses]. The guesses must be arranged in order from least to greatest time. The grabamount array is like the time arrays in that it must be arranged the same way. It will look like this: []
+
+    //intitialize variable
+        //There are two common types of arrays: points and time. Whenever there is a points array, it will look like this: [pointsAwardedForScoringThisWayInAuton,pointsAwardedForScoringThisWayInTeleop]. Whenever there is a time array, it will look like this [guess#1forHowLongThisTaskWillTake,...other guesses]. The guesses must be arranged in order from least to greatest time. The grabamount array is like the time arrays in that it must be arranged the same way. It will look like this: [1stguessForAveragePiecesGrabbedWhileTryingToPickup,other guesses]
         const dolinkshappeninthisgame = true;
         const linkthresholdprogression = [];//leave this empty unless the links[1] is changing (links[1] is in the for-loop and represents how many pieces makes a link) like in the game steamworks
         //for the steamship game, const linkthresholdprogression=[1,2,3,4,5];
@@ -64,7 +66,8 @@
         const movepartofcycle = [7, 9, 11];//if the game is pick & place and the goals take different times to travel to, estimate the average travel time
         const autonPieceLimit = 5;
         const pointsformobility = 3;
-        const grabamount = [1];//for games where you can grab more than one piece, this is the estimated average pieces grabbed. this should be a whole number
+        const grabamount = [1];//for games where you can grab more than one piece, this is the estimated average pieces grabbed. this must be a whole number
+        const holdPieceLimit=1;
         //for charts
         const scenariospoints = [];//looks like this: [{x:time,y:points},...] & this contains multiple coordinate pairs for each scenario
         const piecesscoredovertime = [];//like the scenariospoints array except the y-values track the pieces scored instead
@@ -74,7 +77,9 @@
 	    const allinclusivescenariodata=[];//like rnkValues except the y-values are pieces scored and the x-values show the totalscore
 	    const color=[];//looks like this: ["rgb(color for 1stScenarioInTheScenarioTree)",..."rgb(color for lastScenarioInTheScenarioTree)"] 
         
-        
+
+    //make a scenario to be represented by two data types, a string and integer
+        //this needs to be done b/c the chart can't use a string for numbers on an axis & the human has no idea what the number is
         //define some scenario related variables
         const allthelengthsbesidesbalance = placetime.length * pickuptime.length * autonmovepartofcycle.length * movepartofcycle.length * grabamount.length;
         const allthelengthsbesidesbalanceandplace = pickuptime.length * autonmovepartofcycle.length * movepartofcycle.length * grabamount.length;
@@ -100,7 +105,8 @@
                 a % allthelengthsbesidesbalance % allthelengthsbesidesbalanceandplace % allthelengthsbesidesbalanceandplaceandpickup % lengthsofmovepartofcycleandgrabamount % grabamount.length
         ;
         
-        //create a scenario tree, but start by defining variables to use during the iterations
+
+    //create a scenario tree, but start by defining variables to use during the iterations
         let piecesscored,holdingpiece0,time,points;
         let links = [];
         for (let i in balancingtime) {
@@ -109,6 +115,7 @@
                     for (let l in autonmovepartofcycle) {
                         for (let m in movepartofcycle) {
                             for (let n in grabamount) {
+                                //this loops through each scenario where the scenario is defined in string format as (""+i+j+k+l+m+n) 
                                 //initialize the variables
                                 links=[dolinkshappeninthisgame,3,5,5,0];//first value is to see if links exist, the second value is how many pieces one needs for a link, and the 3rd value is the points for getting a link during auton and the 4th value is the points during teleop; for the steamship game, the gears should should be the bestscoring method that makes 0 points, but this array will be [true,1,60,40], and whenever we get the threshold the game, we will have to update the second value
                                 //links has a fith value set to 0 to keep track of what threshold the bot is up to
