@@ -172,7 +172,9 @@
                 }
             }
         }
-        //figure out which scenario each scatter point belongs to by defining the endpoints of each data set
+        //Figure out which scenario each set of scatter points belongs to by defining the endpoints of each scenaraio i.e. where one scenario stops and a new one starts.
+        //To define where the endpoints will appear, loop through each value in the scenariospoints, which holds coordinate points for everytime the bot scores points for each scenario.
+        //When the points-value (aka y-property) of one coordinate pair is less than the points of another coordinate pair, there must be a new scenario.
         const endpoints = [-1];//its -1 b/c it's the ending-point in a scenario where nothing happens: it was done like this so the next scenario starts w/ zero (-1+1=0). I added one b/c the endpoint of one scenario is 1 plus the startpoint of another scenario.
         for (let i = 0; i < scenariospoints.length - 1; i++) {
             if (scenariospoints[i].x > scenariospoints[i + 1].x) { endpoints.push(i); }
