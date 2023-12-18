@@ -21,7 +21,7 @@
     	</pre>
     </ul>
     <div style="display:block;">
-        <p>Note that the color indicator is inaccurate b/c the points overlap.</p>
+        <p>Note that the color indicator is inaccurate b/c the points overlap. This year it's ok b/c the rnkpnt is given to for getting a y-value greater than a certain number</p>
         <canvas id="scenarioChart"></canvas>
 	    <p id="tooltip"></p>
     </div>
@@ -47,13 +47,14 @@
         //add tooltip for the tooltip
         //update other years using this updated code
         //add compatability for multiple game pieces at a time with the new const holdPieceLimit
-        //ther is a
+        //need to add in table that give data about selcted variable
+        //there is a glitch where the tooltip dissapears occasionally 
 
         //Assumptions: We will always engage. We will score for high, then mid, then low, but because we never will get to the low grid, we don't have to account for it
         
 
     //intitialize variable
-        //There are two common types of arrays: points and time. Whenever there is a points array, it will look like this: [pointsAwardedForScoringThisWayInAuton,pointsAwardedForScoringThisWayInTeleop]. Whenever there is a time array, it will look like this [guess#1forHowLongThisTaskWillTake,...other guesses]. The guesses must be arranged in order from least to greatest time. The grabamount array is like the time arrays in that it must be arranged the same way. It will look like this: [1stguessForAveragePiecesGrabbedWhileTryingToPickup,other guesses]
+        //There are two common types of arrays: points and time. Whenever there is a points array, it will look like this: [pointsAwardedForScoringThisWayInAuton,pointsAwardedForScoringThisWayInTeleop]. Whenever there is a time array, it will look like this [guess#1forHowLongThisTaskWillTake,...other guesses]. The guesses must be arranged in order from least to greatest time and can contain no more than 10 guesses. The grabamount array is like the time arrays in that it must be arranged the same way and can't be longer than 10 values. It will look like this: [1stguessForAveragePiecesGrabbedWhileTryingToPickup,other guesses]
         const dolinkshappeninthisgame = true;
         const linkthresholdprogression = [];//leave this empty unless the links[1] is changing (links[1] is in the for-loop and represents how many pieces makes a link) like in the game steamworks
         //for the steamship game, const linkthresholdprogression=[1,2,3,4,5];
@@ -110,11 +111,7 @@
         
 
     //create a scenario tree, but start by defining variables to use during the iterations
-        let piecesscored = [];
-        let holdingpiece = [];
-        let time = [];
-        let points = [];
-        let links = [];
+        let piecesscored = [], holdingpiece = [], time = [], points = [], links = [];
         for (let i in balancingtime) {
             for (let j in placetime) {
                 for (let k in pickuptime) {
@@ -209,7 +206,7 @@
         const zeroindices=[];
         for(let i of groupsofpoints){zeroindices.push(i[0]);}
 
-        
+
 	    //load charts
         updatedata(0);
         window.addEventListener("load", function (event) { //only initialize chart once window loads completely to avoid context issues
@@ -232,27 +229,27 @@
                         footerFontStyle: "normal",
                         callbacks: {
                             label: function (tooltipItem, data) {
-      				const scenario=decodescenario(tooltipItem.index);
-      				if(zeroindices.includes(scenario)){
-                        document.getElementById("tooltip").innerHTML="";
-                        for(let i of groupsofpoints[zeroindices.indexOf(scenario)]){
-                            const details = document.createElement("details");
-                            document.getElementById("tooltip").appendChild(details);
-                            const summary = document.createElement("summary");
-                            document.getElementById("details").appendChild(summary);
-                            summary.innerText = i;
-                            const p = document.createElement("p");
-                            document.getElementById("tooltip").appendChild(p);
-                            p.innerText =
-                                "Balance (s): "+balancingtime[decodescenario(i).charAt(0)],
-                                "Place (s): "+placetime[decodescenario(i).charAt(1)],
-                                "Pickup (s): "+pickuptime[decodescenario(i).charAt(2)],
-                                "Autonmovepartofcycle (s): "+autonmovepartofcycle[decodescenario(i).charAt(3)],
-                                "Movepartofcycle (s): "+movepartofcycle[decodescenario(i).charAt(4)],
-                                "Grabamount (pieces on average): "+grabamount[decodescenario(i).charAt(5)]
-                            ;
-                        }
-                    }
+                                const scenario=decodescenario(tooltipItem.index);
+                                if(zeroindices.includes(scenario)){
+                                    document.getElementById("tooltip").innerHTML="";
+                                    for(let i of groupsofpoints[zeroindices.indexOf(scenario)]){
+                                        const details = document.createElement("details");
+                                        document.getElementById("tooltip").appendChild(details);
+                                        const summary = document.createElement("summary");
+                                        document.getElementById("details").appendChild(summary);
+                                        summary.innerText = i;
+                                        const p = document.createElement("p");
+                                        document.getElementById("tooltip").appendChild(p);
+                                        p.innerText =
+                                            "Balance (s): "+balancingtime[decodescenario(i).charAt(0)],
+                                            "Place (s): "+placetime[decodescenario(i).charAt(1)],
+                                            "Pickup (s): "+pickuptime[decodescenario(i).charAt(2)],
+                                            "Autonmovepartofcycle (s): "+autonmovepartofcycle[decodescenario(i).charAt(3)],
+                                            "Movepartofcycle (s): "+movepartofcycle[decodescenario(i).charAt(4)],
+                                            "Grabamount (pieces on average): "+grabamount[decodescenario(i).charAt(5)]
+                                        ;
+                                    }
+                                }
                             },
                             //When points overlap, can only have one footer, but multiple labels. Also, a problem occurs b/c the color identification isn't accurate when the points overlap.
                             footer: function (tooltipItems, data) {
