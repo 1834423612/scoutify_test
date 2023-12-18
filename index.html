@@ -72,11 +72,12 @@
         const scenariospoints = [];//looks like this: [{x:time,y:points},...] & this contains multiple coordinate pairs for each scenario
         const piecesscoredovertime = [];//like the scenariospoints array except the y-values track the pieces scored instead
         const rnkValues = [];//looks like this: [{x:1stScenarioInTheScenarioTree,y: #ofRnkPnts from links},...{x:lastScenarioInTheScenarioTree,y: #ofRnkPnts from links}] 
-        const piecesoverscenarios = [];//like rnkValues except the y-values show pieces scored
-        const totalscores = [];//like rnkValues except the y-values show the totalscore
-	    const allinclusivescenariodata=[];//like rnkValues except the y-values are pieces scored and the x-values show the totalscore
+        const piecesoverscenarios = [];//like rnkValues except the y-properties show pieces scored
+        const totalscores = [];//like rnkValues except the y-properties show the totalscores
+	    const allinclusivescenariodata=[];//like rnkValues except the y-properties are pieces scored and the x-properties show the totalscores
 	    const color=[];//looks like this: ["rgb(color for 1stScenarioInTheScenarioTree)",..."rgb(color for lastScenarioInTheScenarioTree)"] 
-        
+        var xyValues=[];//this is for a single scenario & looks like this: [{x:score,y:time},...]
+        var psotValues=[];//looks like xyValues except x-property is pieces scored
 
     //make a scenario to be represented by two data types, a string and integer
         //this needs to be done b/c the chart can't use a string for numbers on an axis & the human has no idea what the number is
@@ -186,8 +187,6 @@
             if (piecesscoredovertime[i].x > piecesscoredovertime[i + 1].x) { endpointsofpsotValues.push(i); }
         }
         endpointsofpsotValues.push(piecesscoredovertime.length);
-        var xyValues=[];//score over time
-        var psotValues=[];//pieces scored over time
         updatedata("000000");
         //create data arrays that will be used for the all inclusive chart's tooltip
 	const groupsofpoints = [];
