@@ -33,7 +33,7 @@
     <hr>
     <div style="display:block">
         <div><canvas id="psChart"></canvas></div>
-        <div><canvas id="myChart"></canvas></div>
+        <div><p>Note that the program balances on the 15th second no matter what, but doesn't balance no matter what on the last second of teleop, it actually shows the time left.</p><canvas id="myChart"></canvas></div>
     </div>
     <hr>
     <div style="display:block">
@@ -42,12 +42,10 @@
     </div>
     <script type="module" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
     <script setup>
-        //add in the limits
-        //balance at end of auton instead of beggining
         //add functions when relevant or needed
         //update other years using this updated code
         //add compatability for multiple game pieces at a time with the new const holdPieceLimit
-        //need to add in table that give data about selcted variable
+        //need to add in table that give data about selceted variable
         //there is a glitch where the tooltip dissapears occasionally 
         
         //Assumptions: We will always engage. We will score for high, then mid, then low, but because we never will get to the low grid, we don't have to account for it
@@ -62,7 +60,8 @@
         const balancingtime = [3, 5, 7];//it can take either 3 seconds, 5 seconds, or 7 seconds. this includes the time it takes to get to the balancing area.
         const pointsforbalancing = [12, 10];//auton and teleop
         const placetime = [2, 4];
-        const pointsforbestscorer = [6, 5];// high nodes: auton and teleop. the computer will do the pointsforbestscorer until it can't anymore, and then switch to scoring w/ pointsforokscorer
+        const pointsforbestscorer = [6, 5];// high nodes: auton and teleop. the computer will do the pointsforbestscorer until it reaches the limit, and then switches to scoring w/ pointsforokscorer
+        const limitforbestscorer=9;
         const pointsforokscorer = [4, 3];//mid nodes
         const pickuptime = [2, 4];
         const autonmovepartofcycle = [4, 6];
@@ -70,7 +69,7 @@
         const autonPieceLimit = 5;
         const pointsformobility = 3;
         const grabamount = [1];//for games where you can grab more than one piece, this is the estimated average pieces grabbed. this must be a whole number
-        const holdPieceLimit=1;
+        const holdPieceLimit = 1;
         //for charts
         const scenariospoints = [];//looks like this: [{x:time,y:points},...] & this contains multiple coordinate pairs for each scenario
         const piecesscoredovertime = [];//like the scenariospoints array except the y-values track the pieces scored instead
@@ -139,13 +138,17 @@
                                             time[0] -= autonmovepartofcycle[l] / 2 + pickuptime[k];
                                             holdingpiece[0] += grabamount[n];
                                             if (piecesscored[0] + holdingpiece[0] > autonPieceLimit) { holdingpiece[0] = autonPieceLimit - piecesscored[0] }//prevents holding more pieces than allowed given the autonPieceLimit and the pieces already scored: this is needed in a game where you can pick up more than one piece at a time
-                                            if (time[0] - autonmovepartofcycle[l] / 2 - placetime[j] - balancingtime[i]*(pointsforbalancing[0]>0) >= 135) { time[0] -= autonmovepartofcycle[l] / 2; }
-                                            else if (pointsforbalancing[0] > 0){balance(0,i);}//balance if auton-balance is allowed
+                                            if (time[0] - autonmovepartofcycle[l] / 2 - placetime[j] - balancingtime[i]*(pointsforbalancing[0]>0) >= 135) { time[0] -= autonmovepartofcycle[l] / 2;}
+                                            else if (pointsforbalancing[0] > 0){//balance if auton-balance is allowed
+                                                time[0]=135+balancingtime[i]*(pointsforbalancing[0]>0);
+                                                balance(0,i);
+                                            }
+                                            else{time[0]=135;}
                                         }
                                     }
                                 }
                                 else if (pointsforbalancing[0] > 0){balance(0,i);}//balance if auton-balance is allowed
-                        //teleop
+                            //teleop
                                 time[0] = 135;
                                 // if holding pieces at beginning of teleop
                                 if (holdingpiece[0] > 0) {scorepiece(1,j,k,m,1);}//this doesn't count the time it takes to go from the charge station into the grid, which is bad for games when the place where mobility points are awarded is far away from a goal
@@ -155,7 +158,7 @@
 				                    scorepiece(1,j,k,m);
                                 }
                                 //endgame
-                                if (pointsforbalancing[1] !== 0) {balance(1,i);}
+                                if (pointsforbalancing[1] > 0) {balance(1,i);}
                                 //push chart values that have scenarios as a dimension
                                 const x = encodescenario('' + i + j + k + l + m + n);
                                 if (Math.floor(piecesscored[0] / 3) > 3) {
@@ -175,6 +178,8 @@
                 }
             }
         }
+
+
         //Figure out which scenario each set of scatter points belongs to by defining the endpoints of each scenaraio i.e. where one scenario stops and a new one starts.
         //To define where the endpoints will appear, loop through each value in the scenariospoints, which holds coordinate points for everytime the bot scores points for each scenario.
         //When the points-value (aka y-property) of one coordinate pair is less than the points of another coordinate pair, there must be a new scenario.
@@ -345,7 +350,7 @@
                                 display: true,
                                 labelString: "Scenarios Encoded",
                             },
-                            ticks: { min: 0, max: balancingtime.length * placetime.length * pickuptime.length * autonmovepartofcycle.length * movepartofcycle.length * grabamount.length-1}
+                            ticks: { min: 0, max: balancingtime.length * allthelengthsbesidesbalance-1}
                         }],
                         yAxes: [{
                             scaleLabel: {
@@ -410,7 +415,7 @@
                                 display: true,
                                 labelString: "Scenarios Encoded",
                             },
-                            ticks: { min: 0, max: balancingtime.length * placetime.length * pickuptime.length * autonmovepartofcycle.length * movepartofcycle.length * grabamount.length-1}
+                            ticks: { min: 0, max: balancingtime.length * allthelengthsbesidesbalance-1}
                         }],
                         yAxes: [{
                             scaleLabel: {
@@ -582,14 +587,12 @@
 	        piecesscored[0]+=holdingpiece[0];
 	        if(holdingpiecesatbeginningofteleop===1||ifauton0ifteleop1===0){ time[0] -= placetime[j]; }
             else { time[0] -= placetime[j] + movepartofcycle[m] + pickuptime[k]; }
-	        if (piecesscored[0] <= 9) { points[0] += pointsforbestscorer[ifauton0ifteleop1] * holdingpiece[0]; }
+	        if (piecesscored[0] <= limitforbestscorer) { points[0] += pointsforbestscorer[ifauton0ifteleop1] * holdingpiece[0]; }
             else { points[0] += pointsforokscorer[ifauton0ifteleop1] * holdingpiece[0]; }
             holdingpiece[0]=0;
 	        checkforlinks(ifauton0ifteleop1);
-            if(time[0]!==135){
-                scenariospoints.push({ x: 150 - time[0], y: points[0] });
-                piecesscoredovertime.push({ x: 150 - time[0], y: piecesscored[0] });
-            }
+            scenariospoints.push({ x: 150 - time[0], y: points[0] });
+            piecesscoredovertime.push({ x: 150 - time[0], y: piecesscored[0] });
         }
         function balance(ifauton0ifteleop1,i){
             points[0] += pointsforbalancing[ifauton0ifteleop1];
