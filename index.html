@@ -12,6 +12,7 @@
 </style>
 <body>
     <h1>Charts:</h1>
+    <!--makes a key for the graph colors-->
     <h4>Key:</h4>
     <ul>
     	<pre>
@@ -43,8 +44,12 @@
         //balance at end of auton instead of beggining
         //add functions
         //add tooltip for the tooltip
+        //update other years using this updated code
 
         //Assumptions: We will always engage. We will score for high, then mid, then low, but because we never will get to the low grid, we don't have to account for it
+        
+        //intitialize variable
+        //There are two common types of arrays: points and time. Whenever there is a points array, it will look like this: [pointsAwardedForScoringThisWayInAuton,pointsAwardedForScoringThisWayInTeleop]. Whenever there is a time array, it will look like this [guess#1forHowLongThisTaskWillTake,...other guesses]. The guesses must be arranged in order from least to greatest time. The grabamount array is like the time arrays in that it must be arranged the same way. It will look like this: []
         const dolinkshappeninthisgame = true;
         const linkthresholdprogression = [];//leave this empty unless the links[1] is changing (links[1] is in the for-loop and represents how many pieces makes a link) like in the game steamworks
         //for the steamship game, const linkthresholdprogression=[1,2,3,4,5];
@@ -52,7 +57,7 @@
         const balancingtime = [3, 5, 7];//it can take either 3 seconds, 5 seconds, or 7 seconds. this includes the time it takes to get to the balancing area.
         const pointsforbalancing = [12, 10];//auton and teleop
         const placetime = [2, 4];
-        const pointsforbestscorer = [6, 5];// high nodes: auton and teleop
+        const pointsforbestscorer = [6, 5];// high nodes: auton and teleop. the computer will do the pointsforbestscorer until it can't anymore, and then switch to scoring w/ pointsforokscorer
         const pointsforokscorer = [4, 3];//mid nodes
         const pickuptime = [2, 4];
         const autonmovepartofcycle = [4, 6];
@@ -61,13 +66,20 @@
         const pointsformobility = 3;
         const grabamount = [1];//for games where you can grab more than one piece, this is the estimated average pieces grabbed. this should be a whole number
         //for charts
-        const scenariospoints = [];
-        const piecesscoredovertime =[];
-        const rnkValues = [];
-        const piecesoverscenarios = [];
-        const totalscores = [];
-	    const allinclusivescenariodata=[];
-	    const color=[];
+        const scenariospoints = [];//looks like this: [{x:time,y:points},...] & this contains multiple coordinate pairs for each scenario
+        const piecesscoredovertime = [];//like the scenariospoints array except the y-values track the pieces scored instead
+        const rnkValues = [];//looks like this: [{x:1stScenarioInTheScenarioTree,y: #ofRnkPnts from links},...{x:lastScenarioInTheScenarioTree,y: #ofRnkPnts from links}] 
+        const piecesoverscenarios = [];//like rnkValues except the y-values show pieces scored
+        const totalscores = [];//like rnkValues except the y-values show the totalscore
+	    const allinclusivescenariodata=[];//like rnkValues except the y-values are pieces scored and the x-values show the totalscore
+	    const color=[];//looks like this: ["rgb(color for 1stScenarioInTheScenarioTree)",..."rgb(color for lastScenarioInTheScenarioTree)"] 
+        
+        
+        //define some scenario related variables
+        const allthelengthsbesidesbalance = placetime.length * pickuptime.length * autonmovepartofcycle.length * movepartofcycle.length * grabamount.length;
+        const allthelengthsbesidesbalanceandplace = pickuptime.length * autonmovepartofcycle.length * movepartofcycle.length * grabamount.length;
+        const allthelengthsbesidesbalanceandplaceandpickup = autonmovepartofcycle.length * movepartofcycle.length * grabamount.length;
+        const lengthsofmovepartofcycleandgrabamount = movepartofcycle.length * grabamount.length;
         //turn a string that represents the indices in the scenario tree below into a number
         let encodescenario = (a) =>
             a.charAt(0) * placetime.length * pickuptime.length * autonmovepartofcycle.length * movepartofcycle.length * grabamount.length +
@@ -77,22 +89,17 @@
             a.charAt(4) * grabamount.length +
             a.charAt(5) * 1//the multiplication by one switches the type from string to number so that the a.charAt(4) is added instead of concatenated
         ;
-        //this undoes the encodescenario function
-        function decodescenario(a){
-            const allthelengthsbesidesbalance = placetime.length * pickuptime.length * autonmovepartofcycle.length * movepartofcycle.length * grabamount.length;
-            const allthelengthsbesidesbalanceandplace = pickuptime.length * autonmovepartofcycle.length * movepartofcycle.length * grabamount.length;
-            const allthelengthsbesidesbalanceandplaceandpickup = autonmovepartofcycle.length * movepartofcycle.length * grabamount.length;
-            const lengthsofmovepartofcycleandgrabamount = movepartofcycle.length * grabamount.length;
-            
-            return "" +
+        //the following function undoes the encodescenario function by converting a scenario from the number format into the string format
+        let decodescenario = (a) =>
+            "" +
                 Math.floor(a / allthelengthsbesidesbalance) +
                 Math.floor(a % allthelengthsbesidesbalance / allthelengthsbesidesbalanceandplace) +
                 Math.floor( a % allthelengthsbesidesbalance % allthelengthsbesidesbalanceandplace / allthelengthsbesidesbalanceandplaceandpickup) +
                 Math.floor( a % allthelengthsbesidesbalance % allthelengthsbesidesbalanceandplace % allthelengthsbesidesbalanceandplaceandpickup / lengthsofmovepartofcycleandgrabamount) +
                 Math.floor( a % allthelengthsbesidesbalance % allthelengthsbesidesbalanceandplace % allthelengthsbesidesbalanceandplaceandpickup % lengthsofmovepartofcycleandgrabamount / grabamount.length) +
                 a % allthelengthsbesidesbalance % allthelengthsbesidesbalanceandplace % allthelengthsbesidesbalanceandplaceandpickup % lengthsofmovepartofcycleandgrabamount % grabamount.length
-            ;
-        }
+        ;
+        
         //create a scenario tree, but start by defining variables to use during the iterations
         let piecesscored,holdingpiece0,time,points;
         let links = [];
@@ -107,8 +114,8 @@
                                 //links has a fith value set to 0 to keep track of what threshold the bot is up to
                                 piecesscored = 0;
                                 holdingpiece0 = 1;//start w/ holding one piece
-                                time = 150;
-                                points = 0;//will always strive to make a robot that can get the mobility points
+                                time = 150; //seconds left in the game
+                                points = pointsformobility;//will always strive to make a robot that can get the mobility points
                         //auton
                                 //place pieces during auton
                                 while (time - placetime[j] - balancingtime[i]*(pointsforbalancing[0]>0)>= 135 && piecesscored < autonPieceLimit) {
@@ -122,9 +129,12 @@
                                     }
                                 }
                                 //auton balance
-                                if (pointsforbalancing[0] > 0) { time -= balancingtime[i]; points+=pointsforbalancing[0]+pointsformobility;}//only subtract balancing time if auton-balance is allowed
-                                else {points+=pointsformobility;}
-                                scenariospoints.push({ x: 150 - time, y: points });
+                                if (pointsforbalancing[0] > 0) {
+                                    time -= balancingtime[i];
+                                    points+=pointsforbalancing[0];
+                                    scenariospoints.push({ x: 150 - time, y: points });
+                                }//only subtract balancing time if auton-balance is allowed
+                                
                         //teleop
                                 time = 135;
                                 // if holding pieces at beginning of teleop
@@ -146,16 +156,16 @@
 			        //push chart values that have scenarios as a dimension
                                 const x = encodescenario('' + i + j + k + l + m + n);
                                 if (Math.floor(piecesscored / 3) > 3) {
-					rnkValues.push({ x: x, y: 1 });
-				        color.push("rgb(0,255,0)");
-				}
+					                rnkValues.push({ x: x, y: 1 });
+				                    color.push("rgb(0,255,0)");
+				                }
                                 else {
-					rnkValues.push({ x: x, y: 0 });
-				        color.push("rgb(255,0,0)");
-				}
+					                rnkValues.push({ x: x, y: 0 });
+				                    color.push("rgb(255,0,0)");
+				                }
                                 totalscores.push({ x:x , y: points });
                                 piecesoverscenarios.push({ x:x , y: piecesscored });
-				allinclusivescenariodata.push({ x:points , y: piecesscored, scenario:x })
+				                allinclusivescenariodata.push({ x:points , y: piecesscored, scenario:x })
                             }
                         }
                     }
