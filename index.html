@@ -233,14 +233,9 @@
                                 if(zeroindices.includes(scenario)){
                                     document.getElementById("tooltip").innerHTML="";
                                     for(let i of groupsofpoints[zeroindices.indexOf(scenario)]){
-                                        const details = document.createElement("details");
-                                        document.getElementById("tooltip").appendChild(details);
-                                        const summary = document.createElement("summary");
-                                        document.getElementById("details").appendChild(summary);
-                                        summary.innerText = i;
-                                        const p = document.createElement("p");
-                                        document.getElementById("tooltip").appendChild(p);
-                                        p.innerText =
+                                        const detail = document.createElement("details");
+                                        document.getElementById("tooltip").appendChild(detail);
+                                        detail.innerHTML="<summary>"+i+"</summary>"+
                                             "Balance (s): "+balancingtime[decodescenario(i).charAt(0)],
                                             "Place (s): "+placetime[decodescenario(i).charAt(1)],
                                             "Pickup (s): "+pickuptime[decodescenario(i).charAt(2)],
