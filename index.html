@@ -21,8 +21,9 @@
     	</pre>
     </ul>
     <div style="display:block;">
+        <p>Note that the color indicator is inaccurate b/c the points overlap.</p>
         <canvas id="scenarioChart"></canvas>
-	<p id="tooltip"></p>
+	    <p id="tooltip"></p>
     </div>
     <hr>
     <div style="display:block;">
@@ -46,6 +47,7 @@
         //add tooltip for the tooltip
         //update other years using this updated code
         //add compatability for multiple game pieces at a time with the new const holdPieceLimit
+        //ther is a
 
         //Assumptions: We will always engage. We will score for high, then mid, then low, but because we never will get to the low grid, we don't have to account for it
         
@@ -108,7 +110,10 @@
         
 
     //create a scenario tree, but start by defining variables to use during the iterations
-        let piecesscored,holdingpiece0,time,points;
+        let piecesscored = [];
+        let holdingpiece = [];
+        let time = [];
+        let points = [];
         let links = [];
         for (let i in balancingtime) {
             for (let j in placetime) {
@@ -120,43 +125,43 @@
                                 //initialize the variables
                                 links=[dolinkshappeninthisgame,3,5,5,0];//first value is to see if links exist, the second value is how many pieces one needs for a link, and the 3rd value is the points for getting a link during auton and the 4th value is the points during teleop; for the steamship game, the gears should should be the bestscoring method that makes 0 points, but this array will be [true,1,60,40], and whenever we get the threshold the game, we will have to update the second value
                                 //links has a fith value set to 0 to keep track of what threshold the bot is up to
-                                piecesscored = 0;
-                                holdingpiece0 = 1;//start w/ holding one piece
-                                time = 150; //seconds left in the game
-                                points = pointsformobility;//will always strive to make a robot that can get the mobility points
+                                piecesscored[0] = 0;
+                                holdingpiece[0] = 1;//start w/ holding one piece
+                                time[0] = 150; //seconds left in the game
+                                points[0] = pointsformobility;//will always strive to make a robot that can get the mobility points
                         //auton
                                 //if(!startpreloaded){time-pickuptime[k]}
                                 //if(!startneargoal){time-autonmovepartofcycle[l]} this is unimplemented yet
                                 
                                 //if there's time to balance and score...
-                                if(time - placetime[j] - balancingtime[i]*(pointsforbalancing[0]>0)>= 135){
+                                if(time[0] - placetime[j] - balancingtime[i]*(pointsforbalancing[0]>0)>= 135){
                                     //place pieces during auton
-                                    while (time - placetime[j] - balancingtime[i]*(pointsforbalancing[0]>0)>= 135 && piecesscored < autonPieceLimit) {
+                                    while (time[0] - placetime[j] - balancingtime[i]*(pointsforbalancing[0]>0)>= 135 && piecesscored[0] < autonPieceLimit) {
                                         scorepiece(0,j,k,m);
-                                        if (time - autonmovepartofcycle[l] / 2 - pickuptime[k] >= 135) {//the autonmovepartofcycle[l] is divided by two b/c the bot only travels to pick up game pices, not also back 
-                                            time -= autonmovepartofcycle[l] / 2 + pickuptime[k];
-                                            holdingpiece0 += grabamount[n];
-                                            if (piecesscored + holdingpiece0 > autonPieceLimit) { holdingpiece0 = autonPieceLimit - piecesscored }//prevents holding more pieces than allowed given the autonPieceLimit and the pieces already scored: this is needed in a game where you can pick up more than one piece at a time
-                                            if (time - autonmovepartofcycle[l] / 2 - placetime[j] - balancingtime[i]*(pointsforbalancing[0]>0) >= 135) { time -= autonmovepartofcycle[l] / 2; }
-                                            else if (pointsforbalancing[0] > 0){balance(1,i);}//balance if auton-balance is allowed
+                                        if (time[0] - autonmovepartofcycle[l] / 2 - pickuptime[k] >= 135) {//the autonmovepartofcycle[l] is divided by two b/c the bot only travels to pick up game pices, not also back 
+                                            time[0] -= autonmovepartofcycle[l] / 2 + pickuptime[k];
+                                            holdingpiece[0] += grabamount[n];
+                                            if (piecesscored[0] + holdingpiece[0] > autonPieceLimit) { holdingpiece[0] = autonPieceLimit - piecesscored[0] }//prevents holding more pieces than allowed given the autonPieceLimit and the pieces already scored: this is needed in a game where you can pick up more than one piece at a time
+                                            if (time[0] - autonmovepartofcycle[l] / 2 - placetime[j] - balancingtime[i]*(pointsforbalancing[0]>0) >= 135) { time[0] -= autonmovepartofcycle[l] / 2; }
+                                            else if (pointsforbalancing[0] > 0){balance(0,i);}//balance if auton-balance is allowed
                                         }
                                     }
                                 }
-                                else if (pointsforbalancing[0] > 0){balance(1,i);}//balance if auton-balance is allowed
+                                else if (pointsforbalancing[0] > 0){balance(0,i);}//balance if auton-balance is allowed
                         //teleop
-                                time = 135;
+                                time[0] = 135;
                                 // if holding pieces at beginning of teleop
-                                if (holdingpiece0 > 0) {scorepiece(1,j,k,m,1);}//this doesn't count the time it takes to go from the charge station into the grid, which is bad for games when the place where mobility points are awarded is far away from a goal
+                                if (holdingpiece[0] > 0) {scorepiece(1,j,k,m,1);}//this doesn't count the time it takes to go from the charge station into the grid, which is bad for games when the place where mobility points are awarded is far away from a goal
                                 //score high and mid
-                                while (time - pickuptime[k] - movepartofcycle[m] - placetime[j]-balancingtime[i]*(pointsforbalancing[1]>0) >= 0) {//if we want the program to see how much slower we can be w/out worsening score changing the 0 in ">=0" to some other number is a start.
-                                    holdingpiece0+=grabamount[n];
+                                while (time[0] - pickuptime[k] - movepartofcycle[m] - placetime[j]-balancingtime[i]*(pointsforbalancing[1]>0) >= 0) {//if we want the program to see how much slower we can be w/out worsening score changing the 0 in ">=0" to some other number is a start.
+                                    holdingpiece[0]+=grabamount[n];
 				                    scorepiece(1,j,k,m);
                                 }
                                 //endgame
                                 if (pointsforbalancing[1] !== 0) {balance(1,i);}
                                 //push chart values that have scenarios as a dimension
                                 const x = encodescenario('' + i + j + k + l + m + n);
-                                if (Math.floor(piecesscored / 3) > 3) {
+                                if (Math.floor(piecesscored[0] / 3) > 3) {
 					                rnkValues.push({ x: x, y: 1 });
 				                    color.push("rgb(0,255,0)");
 				                }
@@ -164,9 +169,9 @@
 					                rnkValues.push({ x: x, y: 0 });
 				                    color.push("rgb(255,0,0)");
 				                }
-                                totalscores.push({ x:x , y: points });
-                                piecesoverscenarios.push({ x:x , y: piecesscored });
-				                allinclusivescenariodata.push({ x:points , y: piecesscored, scenario:x })
+                                totalscores.push({ x:x , y: points[0] });
+                                piecesoverscenarios.push({ x:x , y: piecesscored[0] });
+				                allinclusivescenariodata.push({ x:points[0] , y: piecesscored[0], scenario:x })
                             }
                         }
                     }
@@ -204,7 +209,8 @@
         const zeroindices=[];
         for(let i of groupsofpoints){zeroindices.push(i[0]);}
 
-	//load charts
+        
+	    //load charts
         updatedata(0);
         window.addEventListener("load", function (event) { //only initialize chart once window loads completely to avoid context issues
             const scenariochart = new Chart("scenarioChart", {
@@ -248,7 +254,7 @@
                         }
                     }
                             },
-                            //when points overlap, can only have one footer, but multiple labels
+                            //When points overlap, can only have one footer, but multiple labels. Also, a problem occurs b/c the color identification isn't accurate when the points overlap.
                             footer: function (tooltipItems, data) {
                                 return [
 				                    "Total Score: "+allinclusivescenariodata[tooltipItems[0].index].x,
@@ -476,7 +482,7 @@
                                 display: true,
                                 labelString: "Scenarios Encoded",
                             },
-                             ticks: { min: 0, max: balancingtime.length * placetime.length * pickuptime.length * autonmovepartofcycle.length * movepartofcycle.length * grabamount.length-1} 
+                             ticks: { min: 0, max: balancingtime.length * allthelengthsbesidesbalance - 1} 
                             }],
                         yAxes: [{
                             scaleLabel: {
@@ -558,8 +564,7 @@
         });
         function updatedata(scenario){
             let scenarioencoded=scenario;
-            if(typeof(scenario)==="string"){scenarioencoded = encodescenario(scenario);}//this will allow the "arg: scenario" to be entered in like this: "000000" or like this: 0, and the computer will turn it into this: 0, if it isn't already
-            
+            if(typeof(scenario)==="string"){scenarioencoded = encodescenario(scenario);}//this will allow the "arg: scenario" to be entered in string format or integer format
             const startpoint = endpoints[scenarioencoded] + 1;//an accessor
             const endpoint = endpoints[scenarioencoded + 1];
             const startpointofpsotValues = endpointsofpsotValues[scenarioencoded] + 1;//an accessor
@@ -572,8 +577,8 @@
             for (let i = startpointofpsotValues; i < endpointofpsotValues+1; i++) { psotValues.push(piecesscoredovertime[i]); }
         }
         function checkforlinks(ifauton0ifteleop1){
-            if (links[0] && piecesscored % links[1] === 0) { 
-                points += links[2+ifauton0ifteleop1];
+            if (links[0] && piecesscored[0] % links[1] === 0) { 
+                points[0] += links[2+ifauton0ifteleop1];
                 if (linkthresholdprogression.length>0){
                     ++links[4];
                     links[1]=linkthresholdprogression[links[4]];
@@ -581,22 +586,22 @@
             }
         }
         function scorepiece(ifauton0ifteleop1,j,k,m,holdingpiecesatbeginningofteleop){
-	        piecesscored+=holdingpiece0;
-	        if(holdingpiecesatbeginningofteleop===1||ifauton0ifteleop1===0){ time -= placetime[j]; }
-            else { time -= placetime[j] + movepartofcycle[m] + pickuptime[k]; }
-	        if (piecesscored <= 9) { points += pointsforbestscorer[ifauton0ifteleop1] * holdingpiece0; }
-            else { points += pointsforokscorer[ifauton0ifteleop1] * holdingpiece0; }
-            holdingpiece0=0;
+	        piecesscored[0]+=holdingpiece[0];
+	        if(holdingpiecesatbeginningofteleop===1||ifauton0ifteleop1===0){ time[0] -= placetime[j]; }
+            else { time[0] -= placetime[j] + movepartofcycle[m] + pickuptime[k]; }
+	        if (piecesscored[0] <= 9) { points[0] += pointsforbestscorer[ifauton0ifteleop1] * holdingpiece[0]; }
+            else { points[0] += pointsforokscorer[ifauton0ifteleop1] * holdingpiece[0]; }
+            holdingpiece[0]=0;
 	        checkforlinks(ifauton0ifteleop1);
-            if(time!==135){
-                scenariospoints.push({ x: 150 - time, y: points });
-                piecesscoredovertime.push({ x: 150 - time, y: piecesscored });
+            if(time[0]!==135){
+                scenariospoints.push({ x: 150 - time[0], y: points[0] });
+                piecesscoredovertime.push({ x: 150 - time[0], y: piecesscored[0] });
             }
         }
         function balance(ifauton0ifteleop1,i){
-            points += pointsforbalancing[ifauton0ifteleop1];
-            time -= balancingtime[i];
-            scenariospoints.push({ x: 150 - time, y: points });
+            points[0] += pointsforbalancing[ifauton0ifteleop1];
+            time[0] -= balancingtime[i];
+            scenariospoints.push({ x: 150 - time[0], y: points[0] });
         }
     </script>
 
