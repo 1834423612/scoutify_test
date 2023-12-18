@@ -229,13 +229,13 @@
                         footerFontStyle: "normal",
                         callbacks: {
                             label: function (tooltipItem, data) {
+                                //if this is the first point in a group, than activate all the details for that group
                                 const scenario=decodescenario(tooltipItem.index);
                                 if(zeroindices.includes(scenario)){
                                     document.getElementById("tooltip").innerHTML="";
                                     for(let i of groupsofpoints[zeroindices.indexOf(scenario)]){
                                         const detail = document.createElement("details");
                                         document.getElementById("tooltip").appendChild(detail);
-                                        //detail.style.display=inline;
                                         detail.innerHTML="<summary>"+i+"</summary>"+
                                             "Balance (s): "+balancingtime[i.charAt(0)]+"<br>"+
                                             "Place (s): "+placetime[i.charAt(1)]+"<br>"+
