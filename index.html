@@ -76,8 +76,8 @@
         const totalscores = [];//like rnkValues except the y-properties show the totalscores
 	    const allinclusivescenariodata=[];//like rnkValues except the y-properties are pieces scored and the x-properties show the totalscores
 	    const color=[];//looks like this: ["rgb(color for 1stScenarioInTheScenarioTree)",..."rgb(color for lastScenarioInTheScenarioTree)"] 
-        var xyValues=[];//this is for a single scenario & looks like this: [{x:score,y:time},...]
-        var psotValues=[];//looks like xyValues except x-property is pieces scored
+        const xyValues=[];//this is for a single scenario & looks like this: [{x:score,y:time},...]
+        const psotValues=[];//looks like xyValues except x-property is pieces scored
 
     //make a scenario to be represented by two data types, a string and integer
         //this needs to be done b/c the chart can't use a string for numbers on an axis & the human has no idea what the number is
@@ -187,20 +187,25 @@
             if (piecesscoredovertime[i].x > piecesscoredovertime[i + 1].x) { endpointsofpsotValues.push(i); }
         }
         endpointsofpsotValues.push(piecesscoredovertime.length);
-        updatedata("000000");
+        
+        
         //create data arrays that will be used for the all inclusive chart's tooltip
-	const groupsofpoints = [];
+	    const groupsofpoints = [];
         const coordinatesofgroups = [];
         for(let i in allinclusivescenariodata){
             const coordinates=allinclusivescenariodata[i].x+";"+ allinclusivescenariodata[i].y;
-            if (coordinatesofgroups.includes(coordinates)){
-            groupsofpoints[coordinatesofgroups.indexOf(coordinates)].push(decodescenario(i));
+            //If the coordinates already exists in coordinatesofgroups, then just need to add these coordinates to the list. Otherwise, need to create the said array before pushing it into the array.
+            if (coordinatesofgroups.includes(coordinates)){ groupsofpoints[coordinatesofgroups.indexOf(coordinates)].push(decodescenario(i)); }
+            else{
+                groupsofpoints.push([decodescenario(i)]);
+                coordinatesofgroups.push(coordinates);
             }
-            else{groupsofpoints.push([decodescenario(i)]);coordinatesofgroups.push(coordinates);}
         }
         const zeroindices=[];
         for(let i of groupsofpoints){zeroindices.push(i[0]);}
+
 	//load charts
+        updatedata(0);
         window.addEventListener("load", function (event) { //only initialize chart once window loads completely to avoid context issues
             const scenariochart = new Chart("scenarioChart", {
                 type: "scatter",
@@ -248,7 +253,7 @@
                                 return [
 				                    "Total Score: "+allinclusivescenariodata[tooltipItems[0].index].x,
 				                    "Pieces Scored: "+allinclusivescenariodata[tooltipItems[0].index].y
-  				                    ];
+  				                ];
                             }
                         }
                     },
@@ -281,9 +286,9 @@
                                 labelString: "Pieces Scored",
                             },
                             ticks: {
-			        min: allinclusivescenariodata[allinclusivescenariodata.length-1].y,
+			                    min: allinclusivescenariodata[allinclusivescenariodata.length-1].y,
                                 max: allinclusivescenariodata[0].y,
-			    }
+			                }
                         }],
                     }
                 }
