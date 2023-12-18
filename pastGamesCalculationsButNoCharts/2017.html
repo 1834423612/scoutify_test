@@ -4,123 +4,266 @@
 <title>Page Title</title>
 </head>
 <body>
-<script setup>
-    //this is steamworks
-    //if the number of points from boiler exceeds 40, get rnkpnt
-    //getting enough gears to get all rotors moving is a rnk pnt
-//Assumptions: We will always engage. We will score for high, then mid, then low, but because we never will get to the low grid, we don't have to account for it
-let balancingtime = [3, 5, 7];//it can take either 3 seconds, 5 seconds, or 7 seconds
-let pointsforbalancing = [0, 50];//auton and teleop
-let placetime = [2, 8];
-let pointsforhigh = [1, 1/3];//auton and teleop
-let pointsformid = [1/3, 1/9];
-let autonpickup = [2, 4];
-let gearplacetime=[2,8]
-let autonmovepartofcycle = [4,6];
-let movepartofcycle =  [7, 9, 11];
-const autonPieceLimit = infinity;
-const gearpoints=[60,40];
-const pointsformobility = 5;
-const scenariospoints=new Array(balancingtime.length).fill(new Array(placetime.length).fill(new Array(autonpickup.length).fill(new Array(autonmovepartofcycle.length).fill(new Array(movepartofcycle.length).fill(new Array(0))))));//for chart
-const rnkValues=[];
+        <script setup>
+//gear only robot
+/*
+    //intitialize variables
+        //There are two common types of arrays: points and time. Whenever there is a points array, it will look like this: [pointsAwardedForScoringThisWayInAuton,pointsAwardedForScoringThisWayInTeleop]. Whenever there is a time array, it will look like this [guess#1forHowLongThisTaskWillTake,...other guesses]. The guesses must be arranged in order from least to greatest time and can contain no more than 10 guesses. The grabamount array is like the time arrays in that it must be arranged the same way and can't be longer than 10 values. It will look like this: [1stguessForAveragePiecesGrabbedWhileTryingToPickup,other guesses]
+        const dolinkshappeninthisgame = true;
+        const linkthresholdprogression = [1,2,3,4,5];//leave this empty unless the links[1] is changing (links[1] is in the for-loop and represents how many pieces makes a link) like in the game steamworks
+        //for the steamship game, const linkthresholdprogression=[1,2,3,4,5];
+	    //for any of the following time arrays and the grabamount array, the first index must have the smallest value, and the last index must have the largest value
+        const balancingtime = [3, 5, 7];//it can take either 3 seconds, 5 seconds, or 7 seconds. this includes the time it takes to get to the balancing area.
+        const pointsforbalancing = [0, 50];//auton and teleop
+        const placetime = [2, 8];
+        const pointsforbestscorer = [0, 0];// gears nodes: auton and teleop. the computer will do the pointsforbestscorer until it reaches the limit, and then switches to scoring w/ pointsforokscorer
+        const limitforbestscorer=15;
+        const pointsforokscorer = [1, 1/3];//high nodes
+        const pickuptime = [2, 4];
+        const autonmovepartofcycle = [4, 6];
+        const movepartofcycle = [7, 9, 11];//if the game is pick & place and the goals take different times to travel to, estimate the average travel time
+        const autonPieceLimit = 5;
+        const pointsformobility = 3;
+        const grabamount = [1];//probably won't have time to score balls where there this would change
+        const holdPieceLimit = 1;
+        const piecesscoredforrnkpnt=15;
+        //for charts
+        const scenariospoints = [];//looks like this: [{x:time,y:points},...] & this contains multiple coordinate pairs for each scenario
+        const piecesscoredovertime = [];//like the scenariospoints array except the y-values track the pieces scored instead
+        const rnkValues = [];//looks like this: [{x:1stScenarioInTheScenarioTree,y: #ofRnkPnts from links},...{x:lastScenarioInTheScenarioTree,y: #ofRnkPnts from links}] 
+        const piecesoverscenarios = [];//like rnkValues except the y-properties show pieces scored
+        const totalscores = [];//like rnkValues except the y-properties show the totalscores
+	    const allinclusivescenariodata=[];//like rnkValues except the y-properties are pieces scored and the x-properties show the totalscores
+	    const color=[];//looks like this: ["rgb(color for 1stScenarioInTheScenarioTree)",..."rgb(color for lastScenarioInTheScenarioTree)"] 
+        const xyValues=[];//this is for a single scenario & looks like this: [{x:score,y:time},...]
+        const psotValues=[];//looks like xyValues except x-property is pieces scored
 
-//create a scenario tree
-for (let i in balancingtime) {
-    for (let j in placetime) {
-        for (let k in autonpickup) {
-            for (let l in autonmovepartofcycle) {
-                for (let m in movepartofcycle) {
-                    for (let n in gearplacetime)
-//initialize the variables
-let nodesscored=0;
-let autonPCCount = 0;
-let holdingpiece=10;//start w/ holding one piece
-let holdingpiece1=1;//the gear 
-//auton balance
-let points=pointsformobility;
-let time=150;
-scenariospoints[i][j][k][l][m][n].push({x: 150-time, y: points});
 
-//place pieces during auton
-while (time - placetime[j] >= 135 && autonPCCount < autonPieceLimit) {
-    
-	if (nodesscored <10){
-        nodesscored+=holdingpiece1;
-        //switch case stuff w/ points+=pointsforgear[0]
-        autonPCCount+=holdingpiece;
-        holdingpiece1 = 0;
-        time -= gearplacetime[n];
-    }
-    else{
-        nodesscored+=holdingpiece;
-        points+=pointsforhigh[0]*holdingpiece;
-        autonPCCount+=holdingpiece;
-        holdingpiece = 0;
-        time -= placetime[j];
-    }
-    
-	scenariospoints[i][j][k][l][m][n].push({x: 150-time, y: points});
-    if (time - autonmovepartofcycle[l]/2 - autonpickup[k] >= 135) {//the autonmovepartofcycle[l] is divided by two b/c the robot only travels to pick up the cones, not also back 
-        time -= autonmovepartofcycle[l]/2 + autonpickup[k];
-        ++holdingpiece1;
-        if(time-autonmovepartofcycle[l]/2-gearplacetime[n]>=135){time-=autonmovepartofcycle[l]/2;}
-        else{time=135;}
-        
-    }
-}
-//humans (or at least another program) needs to check if time for boiler during auton but not time for gear and see if its worth it, or maybe we need the boiler to get another ranking point
-//endgame
-time = 135 - balancingtime[i];
-points += pointsforbalancing[1];
-scenariospoints[i][j][k][l][m][n].push({x: 150-time, y: points});
-//teleop
-// if holding pieces at beginning of teleop
-if (holdingpiece0>0) {
-   
-	if (nodesscored <10){
-        nodesscored+=holdingpiece1;
-        //switch case stuff w/ points+=pointsforgear[1]
-        autonPCCount+=holdingpiece;
-        holdingpiece1 = 0;
-        time -= gearplacetime[n];
-    }
-    scenariospoints[i][j][k][l][m][n].push({x: 150-time, y: points});
-}
-//do all the gears:
-while (time-movepartofcycle[l]-gearplacetime[n]>=0&&nodesscored<9) {
-    ++nodesscored;
-    time-=gearplacetime[n]+movepartofcycle[l]+autonpickup[k];
-    //the switch statement
-    scenariospoints[i][j][k][l][m][n].push({x: 150-time, y: points});
-}
-//if holding any fuel at the begginging of teleop
-if (holdingpiece>0) {
-   
-   if (nodesscored>9){
-       nodesscored+=holdingpiece;
-       points+=pointsforgear[1]*hodingpiece;
-       autonPCCount+=holdingpiece;
-       holdingpiece0 = 0;
-       time -= placetime[j];
-   }
-   scenariospoints[i][j][k][l][m][n].push({x: 150-time, y: points});
-}
-//score high
-while (time-movepartofcycle[l]-placetime[j]>=0) {
-    nodesscored+=holdingpiece;
-       points+=pointsforgear[1]*hodingpiece;
-       autonPCCount+=holdingpiece;
-       holdingpiece0 = 0;
-       time -= placetime[j];
-}
-if (Math.floor(nodesscored-10) >= 40) {rnkValues.push({x:x,y:1})}
-else{rnkValues.push({x:x,y:0})}
+    //create a scenario tree, but start by defining variables to use during the iterations
+        let piecesscored = [], holdingpiece = [], time = [], points = [], links = [];
+        for (let i in balancingtime) {
+            for (let j in placetime) {
+                for (let k in pickuptime) {
+                    for (let l in autonmovepartofcycle) {
+                        for (let m in movepartofcycle) {
+                            for (let n in grabamount) {
+                                //this loops through each scenario where the scenario is defined in string format as (""+i+j+k+l+m+n) 
+                                //initialize the variables
+                                links=[dolinkshappeninthisgame,1,60,40,0];//first value is to see if links exist, the second value is how many pieces one needs for a link, and the 3rd value is the points for getting a link during auton and the 4th value is the points during teleop; for the steamship game, the gears should should be the bestscoring method that makes 0 points, but this array will be [true,1,60,40], and whenever we get the threshold the game, we will have to update the second value
+                                //links has a fith value set to 0 to keep track of what threshold the bot is up to
+                                piecesscored[0] = 0;
+                                holdingpiece[0] = 1;//start w/ holding one piece
+                                holdingpiece[1] = 10;
+                                time[0] = 150; //seconds left in the game
+                                points[0] = pointsformobility;//will always strive to make a robot that can get the mobility points
+                        //auton
+                                //if(!startpreloaded){time-pickuptime[k]}
+                                //if(!startneargoal){time-autonmovepartofcycle[l]} this is unimplemented yet
+                                
+                                //if there's time to balance and score...
+                                if(time[0] - placetime[j] - balancingtime[i]*(pointsforbalancing[0]>0)>= 135){
+                                    //place pieces during auton
+                                    while (time[0] - placetime[j] - balancingtime[i]*(pointsforbalancing[0]>0)>= 135 && piecesscored[0] < autonPieceLimit) {
+                                        scorepiece(0,j,k,m);
+                                        if (time[0] - autonmovepartofcycle[l] / 2 - pickuptime[k] >= 135) {//the autonmovepartofcycle[l] is divided by two b/c the bot only travels to pick up game pices, not also back 
+                                            time[0] -= autonmovepartofcycle[l] / 2 + pickuptime[k];
+                                            holdingpiece[0] += grabamount[n];
+                                            if (piecesscored[0] + holdingpiece[0] > autonPieceLimit) { holdingpiece[0] = autonPieceLimit - piecesscored[0] }//prevents holding more pieces than allowed given the autonPieceLimit and the pieces already scored: this is needed in a game where you can pick up more than one piece at a time
+                                            if (time[0] - autonmovepartofcycle[l] / 2 - placetime[j] - balancingtime[i]*(pointsforbalancing[0]>0) >= 135) { time[0] -= autonmovepartofcycle[l] / 2;}
+                                            else if (pointsforbalancing[0] > 0){//balance if auton-balance is allowed
+                                                time[0]=135+balancingtime[i]*(pointsforbalancing[0]>0);
+                                                balance(0,i);
+                                            }
+                                            else{time[0]=135;}
+                                        }
+                                    }
+                                }
+                                else if (pointsforbalancing[0] > 0){balance(0,i);}//balance if auton-balance is allowed
+                            //teleop
+                                time[0] = 135;
+                                // if holding pieces at beginning of teleop
+                                if (holdingpiece[0] > 0) {scorepiece(1,j,k,m,1);}//this doesn't count the time it takes to go from the charge station into the grid, which is bad for games when the place where mobility points are awarded is far away from a goal
+                                //score high and mid
+                                while (time[0] - pickuptime[k] - movepartofcycle[m] - placetime[j]-balancingtime[i]*(pointsforbalancing[1]>0) >= 0) {//if we want the program to see how much slower we can be w/out worsening score changing the 0 in ">=0" to some other number is a start.
+                                    holdingpiece[0]+=grabamount[n];
+				                    scorepiece(1,j,k,m);
+                                }
+                                //endgame
+                                if (pointsforbalancing[1] > 0) {balance(1,i);}
+                                //push chart values that have scenarios as a dimension
+                                const x = encodescenario('' + i + j + k + l + m + n);
+                                if (piecesscored[0] >= piecesscoredforrnkpnt) {
+					                rnkValues.push({ x: x, y: 1 });
+				                    color.push("rgb(0,255,0)");
+				                }
+                                else {
+					                rnkValues.push({ x: x, y: 0 });
+				                    color.push("rgb(255,0,0)");
+				                }
+                                totalscores.push({ x:x , y: points[0] });
+                                piecesoverscenarios.push({ x:x , y: piecesscored[0] });
+				                allinclusivescenariodata.push({ x:points[0] , y: piecesscored[0], scenario:x })
+                            }
+                        }
+                    }
                 }
             }
         }
-    }
-}
-</script>
+        function checkforlinks(ifauton0ifteleop1){
+            if (links[0] && piecesscored[0] % links[1] === 0) { 
+                points[0] += links[2+ifauton0ifteleop1];
+                if (linkthresholdprogression.length>0){
+                    ++links[4];
+                    links[1]=linkthresholdprogression[links[4]];
+                }
+            }
+        }
+        function scorepiece(ifauton0ifteleop1,j,k,m,holdingpiecesatbeginningofteleop){
+	        piecesscored[0]+=holdingpiece[0];
+	        if(holdingpiecesatbeginningofteleop===1||ifauton0ifteleop1===0){ time[0] -= placetime[j]; }
+            else { time[0] -= placetime[j] + movepartofcycle[m] + pickuptime[k]; }
+	        if (piecesscored[0] <= limitforbestscorer) { points[0] += pointsforbestscorer[ifauton0ifteleop1] * holdingpiece[0]; }
+            else { points[0] += pointsforokscorer[ifauton0ifteleop1] * holdingpiece[0]; }
+            holdingpiece[0]=0;
+	        checkforlinks(ifauton0ifteleop1);
+            scenariospoints.push({ x: 150 - time[0], y: points[0] });
+            piecesscoredovertime.push({ x: 150 - time[0], y: piecesscored[0] });
+        }
+        function balance(ifauton0ifteleop1,i){
+            points[0] += pointsforbalancing[ifauton0ifteleop1];
+            time[0] -= balancingtime[i];
+            scenariospoints.push({ x: 150 - time[0], y: points[0] });
+        }*/
+        //ball only robot
 
+    //intitialize variables
+        //There are two common types of arrays: points and time. Whenever there is a points array, it will look like this: [pointsAwardedForScoringThisWayInAuton,pointsAwardedForScoringThisWayInTeleop]. Whenever there is a time array, it will look like this [guess#1forHowLongThisTaskWillTake,...other guesses]. The guesses must be arranged in order from least to greatest time and can contain no more than 10 guesses. The grabamount array is like the time arrays in that it must be arranged the same way and can't be longer than 10 values. It will look like this: [1stguessForAveragePiecesGrabbedWhileTryingToPickup,other guesses]
+        const dolinkshappeninthisgame = false;
+        const linkthresholdprogression = [0];//leave this empty unless the links[1] is changing (links[1] is in the for-loop and represents how many pieces makes a link) like in the game steamworks
+        //for the steamship game, const linkthresholdprogression=[1,2,3,4,5];
+	    //for any of the following time arrays and the grabamount array, the first index must have the smallest value, and the last index must have the largest value
+        const balancingtime = [3, 5, 7];//it can take either 3 seconds, 5 seconds, or 7 seconds. this includes the time it takes to get to the balancing area.
+        const pointsforbalancing = [0, 50];//auton and teleop
+        const placetime = [2, 8];
+        const pointsforbestscorer = [1, 1/3];// gears nodes: auton and teleop. the computer will do the pointsforbestscorer until it reaches the limit, and then switches to scoring w/ pointsforokscorer
+        const limitforbestscorer=Infinity;
+        const pointsforokscorer = [1/3, 1/9];//high nodes
+        const pickuptime = [2, 4];
+        const autonmovepartofcycle = [4, 6];
+        const movepartofcycle = [7, 9, 11];//if the game is pick & place and the goals take different times to travel to, estimate the average travel time
+        const autonPieceLimit = 5;
+        const pointsformobility = 3;
+        const grabamount = [5,8,11,15];
+        const holdPieceLimit = Infinity;
+        const pressureforrnkpnt=40;
+        //for charts
+        const scenariospoints = [];//looks like this: [{x:time,y:points},...] & this contains multiple coordinate pairs for each scenario
+        const piecesscoredovertime = [];//like the scenariospoints array except the y-values track the pieces scored instead
+        const rnkValues = [];//looks like this: [{x:1stScenarioInTheScenarioTree,y: #ofRnkPnts from links},...{x:lastScenarioInTheScenarioTree,y: #ofRnkPnts from links}] 
+        const piecesoverscenarios = [];//like rnkValues except the y-properties show pieces scored
+        const totalscores = [];//like rnkValues except the y-properties show the totalscores
+	    const allinclusivescenariodata=[];//like rnkValues except the y-properties are pieces scored and the x-properties show the totalscores
+	    const color=[];//looks like this: ["rgb(color for 1stScenarioInTheScenarioTree)",..."rgb(color for lastScenarioInTheScenarioTree)"] 
+        const xyValues=[];//this is for a single scenario & looks like this: [{x:score,y:time},...]
+        const psotValues=[];//looks like xyValues except x-property is pieces scored
+
+
+    //create a scenario tree, but start by defining variables to use during the iterations
+        let piecesscored = [], holdingpiece = [], time = [], points = [], links = [],pressure=[];
+        for (let i in balancingtime) {
+            for (let j in placetime) {
+                for (let k in pickuptime) {
+                    for (let l in autonmovepartofcycle) {
+                        for (let m in movepartofcycle) {
+                            for (let n in grabamount) {
+                                //this loops through each scenario where the scenario is defined in string format as (""+i+j+k+l+m+n) 
+                                //initialize the variables
+                                links=[dolinkshappeninthisgame,1,60,40,0];//first value is to see if links exist, the second value is how many pieces one needs for a link, and the 3rd value is the points for getting a link during auton and the 4th value is the points during teleop; for the steamship game, the gears should should be the bestscoring method that makes 0 points, but this array will be [true,1,60,40], and whenever we get the threshold the game, we will have to update the second value
+                                //links has a fith value set to 0 to keep track of what threshold the bot is up to
+                                let pressureforrnkpnt=0;
+                                piecesscored[0] = 0;
+                                holdingpiece[0] = 1;//start w/ holding one piece
+                                holdingpiece[1] = 10;
+                                time[0] = 150; //seconds left in the game
+                                points[0] = pointsformobility;//will always strive to make a robot that can get the mobility points
+                        //auton
+                                //if(!startpreloaded){time-pickuptime[k]}
+                                //if(!startneargoal){time-autonmovepartofcycle[l]} this is unimplemented yet
+                                
+                                //if there's time to balance and score...
+                                if(time[0] - placetime[j] - balancingtime[i]*(pointsforbalancing[0]>0)>= 135){
+                                    //place pieces during auton
+                                    while (time[0] - placetime[j] - balancingtime[i]*(pointsforbalancing[0]>0)>= 135 && piecesscored[0] < autonPieceLimit) {
+                                        scorepiece(0,j,k,m);
+                                        if (time[0] - autonmovepartofcycle[l] / 2 - pickuptime[k] >= 135) {//the autonmovepartofcycle[l] is divided by two b/c the bot only travels to pick up game pices, not also back 
+                                            time[0] -= autonmovepartofcycle[l] / 2 + pickuptime[k];
+                                            holdingpiece[0] += grabamount[n];
+                                            if (piecesscored[0] + holdingpiece[0] > autonPieceLimit) { holdingpiece[0] = autonPieceLimit - piecesscored[0] }//prevents holding more pieces than allowed given the autonPieceLimit and the pieces already scored: this is needed in a game where you can pick up more than one piece at a time
+                                            if (time[0] - autonmovepartofcycle[l] / 2 - placetime[j] - balancingtime[i]*(pointsforbalancing[0]>0) >= 135) { time[0] -= autonmovepartofcycle[l] / 2;}
+                                            else if (pointsforbalancing[0] > 0){//balance if auton-balance is allowed
+                                                time[0]=135+balancingtime[i]*(pointsforbalancing[0]>0);
+                                                balance(0,i);
+                                            }
+                                            else{time[0]=135;}
+                                        }
+                                    }
+                                }
+                                else if (pointsforbalancing[0] > 0){balance(0,i);}//balance if auton-balance is allowed
+                            //teleop
+                                time[0] = 135;
+                                // if holding pieces at beginning of teleop
+                                if (holdingpiece[0] > 0) {scorepiece(1,j,k,m,1);}//this doesn't count the time it takes to go from the charge station into the grid, which is bad for games when the place where mobility points are awarded is far away from a goal
+                                //score high and mid
+                                while (time[0] - pickuptime[k] - movepartofcycle[m] - placetime[j]-balancingtime[i]*(pointsforbalancing[1]>0) >= 0) {//if we want the program to see how much slower we can be w/out worsening score changing the 0 in ">=0" to some other number is a start.
+                                    holdingpiece[0]+=grabamount[n];
+				                    scorepiece(1,j,k,m);
+                                }
+                                //endgame
+                                if (pointsforbalancing[1] > 0) {balance(1,i);}
+                                //push chart values that have scenarios as a dimension
+                                const x = encodescenario('' + i + j + k + l + m + n);
+                                if (pressureforrnkpnt[0] >= pressure) {
+					                rnkValues.push({ x: x, y: 1 });
+				                    color.push("rgb(0,255,0)");
+				                }
+                                else {
+					                rnkValues.push({ x: x, y: 0 });
+				                    color.push("rgb(255,0,0)");
+				                }
+                                totalscores.push({ x:x , y: points[0] });
+                                piecesoverscenarios.push({ x:x , y: piecesscored[0] });
+				                allinclusivescenariodata.push({ x:points[0] , y: piecesscored[0], scenario:x })
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        function checkforlinks(ifauton0ifteleop1){
+            if (links[0] && piecesscored[0] % links[1] === 0) { 
+                points[0] += links[2+ifauton0ifteleop1];
+                if (linkthresholdprogression.length>0){
+                    ++links[4];
+                    links[1]=linkthresholdprogression[links[4]];
+                }
+            }
+        }
+        function scorepiece(ifauton0ifteleop1,j,k,m,holdingpiecesatbeginningofteleop){
+	        piecesscored[0]+=holdingpiece[0];
+	        if(holdingpiecesatbeginningofteleop===1||ifauton0ifteleop1===0){ time[0] -= placetime[j]; }
+            else { time[0] -= placetime[j] + movepartofcycle[m] + pickuptime[k]; }
+	        if (piecesscored[0] <= limitforbestscorer) { points[0] += pointsforbestscorer[ifauton0ifteleop1] * holdingpiece[0]; pressure+=holdingpiece[0]*(!ifauton0ifteleop1)+holdingpiece[0]*(ifauton0ifteleop1)/3}
+            else { points[0] += pointsforokscorer[ifauton0ifteleop1] * holdingpiece[0]; }
+            holdingpiece[0]=0;
+	        checkforlinks(ifauton0ifteleop1);
+            scenariospoints.push({ x: 150 - time[0], y: points[0] });
+            piecesscoredovertime.push({ x: 150 - time[0], y: piecesscored[0] });
+        }
+        function balance(ifauton0ifteleop1,i){
+            points[0] += pointsforbalancing[ifauton0ifteleop1];
+            time[0] -= balancingtime[i];
+            scenariospoints.push({ x: 150 - time[0], y: points[0] });
+        }
+    </script>
 </body>
 </html>
