@@ -9,6 +9,7 @@
     div{display:inline-block}
     canvas{width:500px;height:500px;max-width:500px}
     ul{list-style:none;}
+    details{display: inline;}
 </style>
 <body>
     <h1>Charts:</h1>
@@ -43,13 +44,12 @@
     <script setup>
         //add in the limits
         //balance at end of auton instead of beggining
-        //add functions
-        //add tooltip for the tooltip
+        //add functions when relevant or needed
         //update other years using this updated code
         //add compatability for multiple game pieces at a time with the new const holdPieceLimit
         //need to add in table that give data about selcted variable
         //there is a glitch where the tooltip dissapears occasionally 
-
+        
         //Assumptions: We will always engage. We will score for high, then mid, then low, but because we never will get to the low grid, we don't have to account for it
         
 
@@ -235,18 +235,19 @@
                                     for(let i of groupsofpoints[zeroindices.indexOf(scenario)]){
                                         const detail = document.createElement("details");
                                         document.getElementById("tooltip").appendChild(detail);
+                                        //detail.style.display=inline;
                                         detail.innerHTML="<summary>"+i+"</summary>"+
-                                            "Balance (s): "+balancingtime[decodescenario(i).charAt(0)],
-                                            "Place (s): "+placetime[decodescenario(i).charAt(1)],
-                                            "Pickup (s): "+pickuptime[decodescenario(i).charAt(2)],
-                                            "Autonmovepartofcycle (s): "+autonmovepartofcycle[decodescenario(i).charAt(3)],
-                                            "Movepartofcycle (s): "+movepartofcycle[decodescenario(i).charAt(4)],
-                                            "Grabamount (pieces on average): "+grabamount[decodescenario(i).charAt(5)]
+                                            "Balance (s): "+balancingtime[i.charAt(0)]+"<br>"+
+                                            "Place (s): "+placetime[i.charAt(1)]+"<br>"+
+                                            "Pickup (s): "+pickuptime[i.charAt(2)]+"<br>"+
+                                            "Autonmovepartofcycle (s): "+autonmovepartofcycle[i.charAt(3)]+"<br>"+
+                                            "Movepartofcycle (s): "+movepartofcycle[i.charAt(4)]+"<br>"+
+                                            "Grabamount (pieces on average): "+grabamount[i.charAt(5)]
                                         ;
                                     }
                                 }
                             },
-                            //When points overlap, can only have one footer, but multiple labels. Also, a problem occurs b/c the color identification isn't accurate when the points overlap.
+                            //When points overlap, can only have one footer, but multiple labels.
                             footer: function (tooltipItems, data) {
                                 return [
 				                    "Total Score: "+allinclusivescenariodata[tooltipItems[0].index].x,
