@@ -46,7 +46,7 @@
     <script>
         //add functions when relevant or needed
         //update other years using this updated code
-        //add compatability for multiple game pieces at a time with the new const holdPieceLimit+link
+        //add compatability for multiple game pieces at a time with the new const holdPieceLimit
         //add compatability for rnkpnts
         //need to add in table that give data about selceted variable
         //there is a glitch where the tooltip dissapears occasionally
@@ -121,7 +121,7 @@
 
     //create a scenario tree, but start by defining variables to use during the iterations
     const scenario = {points:0,time:150};   
-    let piecesscored = [0,0], holdingpiece = [], links = [];
+    let piecesscored = [], holdingpiece = [], links = [];
         for (let i in balancingtime) {
             for (let j in placetime) {
                 for (let k in pickuptime) {
@@ -130,23 +130,22 @@
                             for (let n in grabamount) {
                                 //this loops through each scenario where the scenario is defined in string format as (""+i+j+k+l+m+n) 
                                 //initialize the variables
-                                links=[dolinkshappeninthisgame,3,5,5,0,0];//first value is to see if links exist, the second value is how many pieces one needs for a link, and the 3rd value is the points for getting a link during auton and the 4th value is the points during teleop; for the steamship game, the gears should should be the bestscoring method that makes 0 points, but this array will be [true,1,60,40], and whenever we get the threshold the game, we will have to update the second value
-                                //links[4] keeps track of what threshold the bot is up to && links[5] keeps track of what type of game piece is associated w/ links 
-                                
+                                links=[dolinkshappeninthisgame,3,5,5,0];//first value is to see if links exist, the second value is how many pieces one needs for a link, and the 3rd value is the points for getting a link during auton and the 4th value is the points during teleop; for the steamship game, the gears should should be the bestscoring method that makes 0 points, but this array will be [true,1,60,40], and whenever we get the threshold the game, we will have to update the second value
+                                //links has a fith value set to 0 to keep track of what threshold the bot is up to
                                 piecesscored[0] = 0;
                                 holdingpiece[0] = 1;//start w/ holding one piece
-                                //holdingpiece[1]=1;//For a 2nd game piece type. This is misleading: Only use this if the 2nd gamepiece type has different time constants or scoring constants, not if the game pieces look different.
+                                //holdingpiece[0]=1;//for a 2nd game piece
                                 scenario.time = 150; //seconds left in the game
                                 scenario.points = pointsformobility;//will always strive to make a robot that can get the mobility points
                         //auton
                                 //if(!startpreloaded){time-pickuptime[k]}
-                                //if(!startneargoal){time-autonmovepartofcycle[l]} this is unimplemented yet & may neve need to implement it
+                                //if(!startneargoal){time-autonmovepartofcycle[l]} this is unimplemented yet
                                 
                                 //if there's time to balance and score...
-                                if(scenario.time - placetime[j] - balancingtime[i]*(pointsforbalancing[0]>0) >= 135){
+                                if(scenario.time - placetime[j] - balancingtime[i]*(pointsforbalancing[0]>0)>= 135){
                                     //place pieces during auton
                                     while (scenario.time - placetime[j] - balancingtime[i]*(pointsforbalancing[0]>0)>= 135 && piecesscored[0] < autonPieceLimit) {
-                                        scorepiece(0,0,j,k,m);
+                                        scorepiece(0,j,k,m);
                                         if (scenario.time - autonmovepartofcycle[l] / 2 - pickuptime[k] >= 135) {//the autonmovepartofcycle[l] is divided by two b/c the bot only travels to pick up game pices, not also back 
                                             scenario.time -= autonmovepartofcycle[l] / 2 + pickuptime[k];
                                             holdingpiece[0] += grabamount[n];
@@ -164,12 +163,11 @@
                             //teleop
                             scenario.time = 135;
                                 // if holding pieces at beginning of teleop
-                                if (holdingpiece[0] > 0) {scorepiece(0,1,j,k,m,1);}//this doesn't count the time it takes to go from the charge station into the grid, which is bad for games when the place where mobility points are awarded is far away from a goal
-                                if (holdingpiece[1] > 0) {scorepiece(1,1,j,k,m,1);}
+                                if (holdingpiece[0] > 0) {scorepiece(1,j,k,m,1);}//this doesn't count the time it takes to go from the charge station into the grid, which is bad for games when the place where mobility points are awarded is far away from a goal
                                 //score high and mid
                                 while (scenario.time - pickuptime[k] - movepartofcycle[m] - placetime[j]-balancingtime[i]*(pointsforbalancing[1]>0) >= 0) {//if we want the program to see how much slower we can be w/out worsening score changing the 0 in ">=0" to some other number is a start.
                                     holdingpiece[0]+=grabamount[n];
-				                    scorepiece(0,1,j,k,m);
+				                    scorepiece(1,j,k,m);
                                 }
                                 //endgame
                                 if (pointsforbalancing[1] > 0) {balance(1,i);}
@@ -601,16 +599,16 @@
                 }
             }
         }
-        function scorepiece(piecetype,ifauton0ifteleop1,j,k,m,holdingpiecesatbeginningofteleop){
-	        piecesscored[piecetype]+=holdingpiece[piecetype];
+        function scorepiece(ifauton0ifteleop1,j,k,m,holdingpiecesatbeginningofteleop){
+	        piecesscored[0]+=holdingpiece[0];
 	        if(holdingpiecesatbeginningofteleop===1||ifauton0ifteleop1===0){ scenario.time -= placetime[j]; }
             else { scenario.time -= placetime[j] + movepartofcycle[m] + pickuptime[k]; }
-	        if (piecesscored[piecetype] <= limitforbestscorer) { scenario.points += pointsforbestscorer[ifauton0ifteleop1] * holdingpiece[piecetype]; }
-            else { scenario.points += pointsforokscorer[ifauton0ifteleop1] * holdingpiece[piecetype]; }
-            holdingpiece[piecetype]=0;
+	        if (piecesscored[0] <= limitforbestscorer) { scenario.points += pointsforbestscorer[ifauton0ifteleop1] * holdingpiece[0]; }
+            else { scenario.points += pointsforokscorer[ifauton0ifteleop1] * holdingpiece[0]; }
+            holdingpiece[0]=0;
 	        checkforlinks(ifauton0ifteleop1);
             scenariospoints.push({ x: 150 - scenario.time, y: scenario.points });
-            piecesscoredovertime.push({ x: 150 - scenario.time, y: piecesscored[0]+piecesscored[1] });
+            piecesscoredovertime.push({ x: 150 - scenario.time, y: piecesscored[0] });
         }
         function balance(ifauton0ifteleop1,i){
             scenario.points += pointsforbalancing[ifauton0ifteleop1];
