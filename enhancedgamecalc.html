@@ -5,53 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Page Title</title>
 </head>
-<style>
-    div{display:inline-block}
-    canvas{width:500px;height:500px;max-width:500px}
-    ul{list-style:none;}
-    details{display: block;}
-</style>
 <body>
-    <h1>Charts:</h1>
-    <!--makes a key for the graph colors-->
-    <h4>Key:</h4>
-    <ul>
-    	<pre>
-            <li><mark style="background-color:rgb(0,255,0);">  </mark> : 2 RNKPNT (not tracking this every year)</li>
-    		<li><mark style="background-color:rgb(255, 255, 0);">  </mark> : 1 RNKPNT</li>
-    		<li><mark style="background-color:rgb(255,0,0);">  </mark> : 0 RNKPNT</li>
-    	</pre>
-    </ul>
-    <div style="display:block;">
-        <p>Note that the color indicator is inaccurate b/c the points overlap. This year it's ok b/c the rnkpnt is given to for getting a y-value greater than a certain number</p>
-        <canvas id="scenarioChart"></canvas>
-	    <p id="tooltip"></p>
-    </div>
-    <hr>
-    <div style="display:block;">
-        <canvas id="rnkpntChart"></canvas>
-    </div>
-    <hr>
-    <div style="display:block">
-        <div><canvas id="psChart"></canvas></div>
-        <div><p>Note that the program balances on the 15th second no matter what, but doesn't balance no matter what on the last second of teleop, it actually shows the time left.</p><canvas id="myChart"></canvas></div>
-    </div>
-    <hr>
-    <div style="display:block">
-        <div><canvas id="piecesscoredchart"></canvas></div> 
-        <div><canvas id="psotchart"></canvas></div>
-    </div>
-    <script type="module" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
-    <!--<script type="text/javascript" src="http://code.jquery.com/jquery.min.js"></script>-->
+    <p id="id">Charts:</p>
     <script>
     //need to add in links
-    //want to create four calculations:  multiple gamepieces & goals, multiple gamepieces & one goal, one gamepiece & multiple goals, one gamepiece and one goal
-    class Scoringconfig{//[[auton,teleop,[howmanypiecesorpointsgoesto0thcounter,howmanypiecesorpointsgoesto1stcounter]],...],[[mintime,maxtime,intervals,limit,grabamount],...],[rankpointthreshold0,rankpointthreshold1]
-        constructor(points,pieces,rankpointthreshhold){
+    class Scoringconfig{//[[auton,teleop,[changetoCounter0,changetoCounter1],...],[[mintime,maxtime,limit,grabamount],...]],[rankpointthreshold0,rankpointthreshold1]
+        constructor(pieces,rankpointthreshhold){
             //3rd arg can be omitted, or entered like this: [#1] or #1 or [#1,#2] but not like this: #1,#2
+            //2nd arg grabamount can be omitted if it's 1'
             //points arg can be entered like this: [[auton,teleop,howManyPiecesGoesTo0thRnkPntCounter,howManyGoesTo1stRnkPntCounter],...], can also be entered like the alternate forms of the 3rd arg. if all of the indices in the points array have a one-point per piece scored contribution to rankpoints, the array can actually be omitted and it looks like this: [[auton,teleop],...]
-            if(pieces.length===1&&pieces[0][1].length===1){this.autonorendgame=true;}
-            else{
+            //this.limit=pieces[0][1];
+            this.points=pieces[0];
+            this.pieces=pieces[1];
+            if(pieces[1].length===1&&pieces[1][0][1].length===1){this.autonOrEndgame=true;}
+            /*else{
                 if(rankpointthreshhold.length>0||rankpointthreshhold>0){
                     this.rnkpnts=true;
                     this.rankpointthreshold=rankpointthreshhold;
@@ -80,13 +47,20 @@
                 }
                 else{this.rnkpnts=false; this.rankpointthreshold=rankpointthreshhold;} 
             }
-            this.points=points;
-            this.pieces=pieces;
+            this.intervals=[];
+            for(let i of pieces[1]){
+                for(let j=0;j<10;j++){this.intervals[i].push((pieces[1][0][i]-pieces[1][1][i])/10);}
+            }
+            if(pieces[1].length===3){}
+            //try to automate grabamount and limit*/
         }
     }
-    const grid = new Scoringconfig([[6,5],[4,3],[2,1]],[/*stuff*/],[3,3]);
-    const balance = new Scoringconfig([12,10],[3,7,3]);//not sure about the limit
-    const order=[grid];
+    //Scoringconfig(points,pieces,rankpoint piecesscored requirements) keeps track of multiple pieces being scored in goals where the only difference between the pieces is between the following factors: time,points,limit,grabamount.
+
+    const grid = new Scoringconfig([[[6,5],[4,3],[2,1]],[/*stuff*/]],[3,3]);
+    const balance = new Scoringconfig([[12,10],[3,7]]);//not sure about the limit
+    const orderOfImportance=[grid];
+    document.getElementById("id").innerHTML=balance.getOwnPropertyNames();
 </script>
 </body>
 </html>
