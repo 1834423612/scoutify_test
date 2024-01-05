@@ -357,7 +357,8 @@
                             footer: function (tooltipItems, data) {
                                 return [
                                     "Total Score: " + allinclusivescenariodata[tooltipItems[0].index].x,
-                                    "Pieces Scored: " + allinclusivescenariodata[tooltipItems[0].index].y
+                                    "Pieces Scored: " + allinclusivescenariodata[tooltipItems[0].index].y,
+                                    "Scenarios that exist: " + groupsofpoints[zeroindices.indexOf(decodescenario(tooltipItems[0].index))].length 
                                 ];
                             }
                         }
