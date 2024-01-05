@@ -228,7 +228,7 @@
                                 if (scenario.time - placetime[j] - balancingtime[i] * (pointsforbalancing[0] > 0) >= 135) {
                                     //place pieces during auton
                                     while (scenario.time - placetime[j] - balancingtime[i] * (pointsforbalancing[0] > 0) >= 135 && piecesscored[0] < autonPieceLimit) {
-                                        scorepiece(0, ,i, j, k,l, m,n,);
+                                        scorepiece(0, i, j, k, l, m, n);
                                         if (scenario.time - autonmovepartofcycle[l] / 2 - pickuptime[k] >= 135) {//the autonmovepartofcycle[l] is divided by two b/c the bot only travels to pick up game pices, not also back 
                                             scenario.time -= autonmovepartofcycle[l] / 2 + pickuptime[k];
                                             holdingpiece[0] += grabamount[n];
