@@ -76,6 +76,9 @@
         height: 100%;
         overflow-y: scroll;
     }
+
+    td {border: 1px solid black;}
+    td:first-child {background-color: yellow;}
 </style>
 
 <body>
@@ -117,8 +120,11 @@
                     <canvas id="psotchart"></canvas>
                     <p>Note: always balances at 15s but not necessarily at the end</p>
                     <canvas id="myChart"></canvas>
-                    <p id="scenarioaction"></p>
-
+                    <table>
+                        <tr><td>Elapsed Time</td></tr>
+                        <tr><td>Time Left</td></tr>
+                        <tr id="tr"><td>Event</td><td id="scenarioaction"></td></tr>
+                    </table>
                 </div>
             </div>
         </div>
@@ -251,7 +257,7 @@
                                 else if (pointsforbalancing[0] > 0) { balance(0, i,j,k,l,m,n); }//balance if auton-balance is allowed
                                 //teleop
                                 scenario.time = 135;
-                                scenarioaction[encodescenario(""+i+j+k+l+m+n)] = (scenarioaction[encodescenario(""+i+j+k+l+m+n)] ?? "") + " teleop:";
+                                scenarioaction[encodescenario(""+i+j+k+l+m+n)] = (scenarioaction[encodescenario(""+i+j+k+l+m+n)] ?? "") + "start of teleop;";
         
                                 // if holding pieces at beginning of teleop
                                 if (holdingpiece[0] > 0) { scorepiece(1,i, j, k,l, m,n, 1); }//this doesn't count the time it takes to go from the charge station into the grid, which is bad for games when the place where mobility points are awarded is far away from a goal
@@ -709,7 +715,14 @@
             //for each point in the given range, push a point to the xyValues array
             for (let i = startpoint; i < endpoint + 1; i++) { xyValues.push(scenariospoints[i]); }
             for (let i = startpointofpsotValues; i < endpointofpsotValues + 1; i++) { psotValues.push(piecesscoredovertime[i]); }
-            document.getElementById("scenarioaction").innerHTML=scenarioaction[scenario];
+            let string_copy ="";
+            for(let i of scenarioaction[scenario]){string_copy.concat(i);}
+            while(string_copy.length>0){
+                const td = document.createElement("td");
+                let i = string_copy.indexOf(";");
+                td.innerText = string_copy.splice(i,string_copy.length-i);
+                document.getElementById("tr").appendChild(td);
+            }    
         }
         function checkforlinks(ifauton0ifteleop1) {
             if (links[0] && piecesscored[0] % links[1] === 0) {
@@ -730,14 +743,13 @@
             checkforlinks(ifauton0ifteleop1);
             scenariospoints.push({ x: 150 - scenario.time, y: scenario.points });
             piecesscoredovertime.push({ x: 150 - scenario.time, y: piecesscored[0] });
-            scenarioaction[encodescenario(""+i+j+k+l+m+n)] = (scenarioaction[encodescenario(""+i+j+k+l+m+n)] ?? "") + " scoredpiece;"
+            scenarioaction[encodescenario(""+i+j+k+l+m+n)] = (scenarioaction[encodescenario(""+i+j+k+l+m+n)] ?? "") + "scoredpiece;"
         }
         function balance(ifauton0ifteleop1, i,j,k,l,m,n) {
             scenario.points += pointsforbalancing[ifauton0ifteleop1];
             scenario.time -= balancingtime[i];
             scenariospoints.push({ x: 150 - scenario.time, y: scenario.points });
-            scenarioaction[encodescenario(""+i+j+k+l+m+n)] = (scenarioaction[encodescenario(""+i+j+k+l+m+n)] ?? "") + " balance;"
-            
+            scenarioaction[encodescenario(""+i+j+k+l+m+n)] = (scenarioaction[encodescenario(""+i+j+k+l+m+n)] ?? "") + "balance;"
         }
     </script>
 
