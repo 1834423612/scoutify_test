@@ -369,7 +369,8 @@
                     },
                     onClick: function (evt) {
                         if (event.shiftKey) {
-                            const element = scenariochart.getElementAtEvent(evt);
+                            
+                            /*const element = scenariochart.getElementAtEvent(evt);
                             if (element.length > 0) {
                                 const ind = element[0]._index;
                                 if(!zeroindicespointsclicked.includes(ind)){//if not already included
@@ -387,7 +388,7 @@
                                     zeroindicespointsclicked.splice(zeroindicespointsclicked.indexOf(ind));
                                     document.getElementById("shiftkey").innerHTML=pointsclicked;
                                 }
-                            }
+                            }*/
                         }
                         else {//the else statement doesn't activate!
                             zeroindicespointsclicked.splice(0,zeroindicespointsclicked.length);
