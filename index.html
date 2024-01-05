@@ -717,12 +717,21 @@
             for (let i = startpointofpsotValues; i < endpointofpsotValues + 1; i++) { psotValues.push(piecesscoredovertime[i]); }
             let string_copy ="";
             for(let i of scenarioaction[scenario]){string_copy+=i;}
+            let loopcount=0;
             while(string_copy.length>0){
-                const td = document.createElement("td");
-                let i = string_copy.indexOf(";");
-                td.innerText = string_copy.substring(0, i);
-                string_copy = string_copy.substring(i + 1);
-                document.getElementById("tr2").appendChild(td);
+                if(loopcount===0){
+                    ++loopcount;
+                    let i = string_copy.indexOf(";");
+                    
+                    string_copy = string_copy.substring(i + 1);
+                }
+                else{
+                    const td = document.createElement("td");
+                    let i = string_copy.indexOf(";");
+                    td.innerText = string_copy.substring(0, i);
+                    string_copy = string_copy.substring(i + 1);
+                    document.getElementById("tr2").appendChild(td);
+                }
             }
             string_copy ="";
             for(let i of scenariotimes[scenario]){string_copy+=i;}
