@@ -176,7 +176,7 @@
         const xyValues = [];//this is for a single scenario & looks like this: [{x:score,y:time},...]
         const psotValues = [];//looks like xyValues except x-property is pieces scored
         const scenarioaction = [];
-        const pointsclicked = new Array(0).fill(new Array(0));
+        const pointsclicked = [];
         const zeroindicespointsclicked = [];
         //make a scenario to be represented by two data types, a string and integer
         //this needs to be done b/c the chart can't use a string for numbers on an axis & the human has no idea what the number is
@@ -375,11 +375,10 @@
                                 if(!zeroindicespointsclicked.includes(ind)){//if not already included
                                     zeroindicespointsclicked.push(ind);
                                     //somehow maybe highlight it?
-                                    if (!pointsclicked[pointsclicked.length]) {
-                                        pointsclicked[pointsclicked.length] = [];
-                                    }
+                                    
+                                    pointsclicked.push([]);
                                     for(let i of groupsofpoints[ind]){
-                                       pointsclicked[pointsclicked.length].push(i);
+                                       pointsclicked[pointsclicked.length-1].push(i);
                                     }
                                     document.getElementById("shiftkey").innerHTML=pointsclicked;
                                 }
