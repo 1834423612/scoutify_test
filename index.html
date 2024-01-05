@@ -103,7 +103,7 @@
                             it's ok b/c
                             the rnkpnt is given to for getting a y-value greater than a certain number</p>
                         <canvas id="scenarioChart"></canvas> <!--Pieces vs Total Score-->
-                        <p id="shiftkey">hello</p>
+                        <p id="shiftkey"></p>
                         <canvas id="rnkpntChart"></canvas> <!--Ranking points vs Scenario id-->
                     </div>
             </div>
@@ -118,6 +118,7 @@
                     <p>Note: always balances at 15s but not necessarily at the end</p>
                     <canvas id="myChart"></canvas>
                     <p id="scenarioaction"></p>
+
                 </div>
             </div>
         </div>
@@ -136,7 +137,8 @@
         //there is a glitch where the tooltip dissapears occasionally
         //The only rnkpnts that are possible to track are the ones achieved through scoring a number of game pieces in a certain way. All the other ones involve teamates doing good.
         //make a variable that contains all the estimated constants so less time updating for each year, all someone will have to do to add another estimation constant will be to put it into the the estimations variable instead of manually having to add in more letters in the for loops
-        
+        //the shiftclick logic is still broken
+
         //Assumptions: We will always engage. We will score for high, then mid, then low, but because we never will get to the low grid, we don't have to account for it
 
         //to read json:
@@ -390,7 +392,7 @@
                                 }
                             }*/
                         }
-                        else {//the else statement doesn't activate!
+                        else {
                             zeroindicespointsclicked.splice(0,zeroindicespointsclicked.length);
                             pointsclicked.splice(0,pointsclicked.length);
                             document.getElementById("shiftkey").innerHTML="";
@@ -737,7 +739,6 @@
             scenarioaction[encodescenario(""+i+j+k+l+m+n)] = (scenarioaction[encodescenario(""+i+j+k+l+m+n)] ?? "") + " balance;"
             
         }
-        //try and tell the length of the stuff
     </script>
 
 </body>
