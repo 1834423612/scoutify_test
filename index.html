@@ -103,6 +103,7 @@
                             it's ok b/c
                             the rnkpnt is given to for getting a y-value greater than a certain number</p>
                         <canvas id="scenarioChart"></canvas> <!--Pieces vs Total Score-->
+                        <p id="shiftkey">hello</p>
                         <canvas id="rnkpntChart"></canvas> <!--Ranking points vs Scenario id-->
                     </div>
             </div>
@@ -116,7 +117,7 @@
                     <canvas id="psotchart"></canvas>
                     <p>Note: always balances at 15s but not necessarily at the end</p>
                     <canvas id="myChart"></canvas>
-                    <p id="scenarioaction">hello</p>
+                    <p id="scenarioaction"></p>
                 </div>
             </div>
         </div>
@@ -174,6 +175,7 @@
         const xyValues = [];//this is for a single scenario & looks like this: [{x:score,y:time},...]
         const psotValues = [];//looks like xyValues except x-property is pieces scored
         const scenarioaction = [];
+        const pointsclicked = [];
         //make a scenario to be represented by two data types, a string and integer
         //this needs to be done b/c the chart can't use a string for numbers on an axis & the human has no idea what the number is
         //define some scenario related variables
@@ -364,15 +366,25 @@
                         }
                     },
                     onClick: function (evt) {
-                        var element = scenariochart.getElementAtEvent(evt);
-                        if (element.length > 0) {
-                            var ind = element[0]._index;
-                            if (confirm('Do you want to see this scenario?')) {
-                                updatedata(ind);
-                                psotchart.update();
-                                scoretimechart.update();
+                        if (evt.shiftKey) {
+                            pointsclicked.push(scenariochart.getElementAtEvent(evt));
+                            //somehow maybe highlight it?
+                            document.getElementById("shiftkey").innerHTML=pointsclicked;
+                        }
+                        else {
+                            pointsclicked = [];
+                            document.getElementById("shiftkey").innerHTML="";
+                            var element = scenariochart.getElementAtEvent(evt);
+                            if (element.length > 0) {
+                                var ind = element[0]._index;
+                                if (confirm('Do you want to see this scenario?')) {
+                                    updatedata(ind);
+                                    psotchart.update();
+                                    scoretimechart.update();
+                                }
                             }
                         }
+                        
                     },
                     legend: { display: false },
                     scales: {
@@ -703,7 +715,7 @@
             scenario.time -= balancingtime[i];
             scenariospoints.push({ x: 150 - scenario.time, y: scenario.points });
             scenarioaction[encodescenario(""+i+j+k+l+m+n)] = (scenarioaction[encodescenario(""+i+j+k+l+m+n)] ?? "") + " balance;"
-        
+            
         }
         //try and tell the length of the stuff
     </script>
