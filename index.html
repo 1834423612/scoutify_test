@@ -390,8 +390,8 @@
                             }
                         }
                         else {//the else statement doesn't activate!
-                            zeroindicespointsclicked = [];
-                            pointsclicked = [];
+                            zeroindicespointsclicked.splice(0,zeroindicespointsclicked.length);
+                            pointsclicked.splice(0,pointsclicked.length);
                             document.getElementById("shiftkey").innerHTML="";
                             const element = scenariochart.getElementAtEvent(evt);
                             if (element.length > 0) {
