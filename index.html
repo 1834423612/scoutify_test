@@ -126,7 +126,7 @@
 
 
     <script type="module" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
-    <script type="text/javascript" src="http://code.jquery.com/jquery.min.js"></script>
+    <!--<script type="text/javascript" src="http://code.jquery.com/jquery.min.js"></script>-->
     <script>
         //add functions when relevant or needed
         //update other years using this updated code
@@ -135,7 +135,8 @@
         //need to add in table that give data about selceted variable
         //there is a glitch where the tooltip dissapears occasionally
         //The only rnkpnts that are possible to track are the ones achieved through scoring a number of game pieces in a certain way. All the other ones involve teamates doing good.
-
+        //make a variable that contains all the estimated constants so less time updating for each year, all someone will have to do to add another estimation constant will be to put it into the the estimations variable instead of manually having to add in more letters in the for loops
+        
         //Assumptions: We will always engage. We will score for high, then mid, then low, but because we never will get to the low grid, we don't have to account for it
 
         //to read json:
@@ -176,6 +177,7 @@
         const psotValues = [];//looks like xyValues except x-property is pieces scored
         const scenarioaction = [];
         const pointsclicked = [];
+        const zeroindicespointsclicked = [];
         //make a scenario to be represented by two data types, a string and integer
         //this needs to be done b/c the chart can't use a string for numbers on an axis & the human has no idea what the number is
         //define some scenario related variables
@@ -317,7 +319,7 @@
 
         //load charts
         updatedata(0);
-        window.addEventListener("load", function (event) { //only initialize chart once window loads completely to avoid context issues
+        window.addEventListener("load", function (e) { //only initialize chart once window loads completely to avoid context issues
             const scenariochart = new Chart("scenarioChart", {
                 type: "scatter",
                 data: {
@@ -366,17 +368,30 @@
                         }
                     },
                     onClick: function (evt) {
-                        if (evt.shiftKey) {
-                            pointsclicked.push(scenariochart.getElementAtEvent(evt));
-                            //somehow maybe highlight it?
-                            document.getElementById("shiftkey").innerHTML=pointsclicked;
-                        }
-                        else {
-                            pointsclicked = [];
-                            document.getElementById("shiftkey").innerHTML="";
-                            var element = scenariochart.getElementAtEvent(evt);
+                        if (event.shiftKey) {
+                            const element = scenariochart.getElementAtEvent(evt);
                             if (element.length > 0) {
-                                var ind = element[0]._index;
+                                const ind = element[0]._index;
+                                if(!zeroindicespointsclicked.includes(ind)){//if not already included
+                                    zeroindicespointsclicked.push(ind);
+                                    //somehow maybe highlight it?
+                                    //for(let i of groupsofpoints[]){
+                                       //pointsclicked.push(i);
+                                    //}
+                                    document.getElementById("shiftkey").innerHTML=pointsclicked;
+                                }
+                                else{
+                                    zeroindicespointsclicked.splice(zeroindicespointsclicked.indexOf(ind));
+                                    document.getElementById("shiftkey").innerHTML=pointsclicked;
+                                }
+                            }
+                        }
+                        else {//the else statement doesn't activate!
+                            zeroindicespointsclicked = [];
+                            document.getElementById("shiftkey").innerHTML="";
+                            const element = scenariochart.getElementAtEvent(evt);
+                            if (element.length > 0) {
+                                const ind = element[0]._index;
                                 if (confirm('Do you want to see this scenario?')) {
                                     updatedata(ind);
                                     psotchart.update();
