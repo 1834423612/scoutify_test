@@ -375,6 +375,9 @@
                                 if(!zeroindicespointsclicked.includes(ind)){//if not already included
                                     zeroindicespointsclicked.push(ind);
                                     //somehow maybe highlight it?
+                                    if (!pointsclicked[pointsclicked.length]) {
+                                        pointsclicked[pointsclicked.length] = [];
+                                    }
                                     for(let i of groupsofpoints[ind]){
                                        pointsclicked[pointsclicked.length].push(i);
                                     }
