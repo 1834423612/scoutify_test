@@ -674,6 +674,7 @@
             //for each point in the given range, push a point to the xyValues array
             for (let i = startpoint; i < endpoint + 1; i++) { xyValues.push(scenariospoints[i]); }
             for (let i = startpointofpsotValues; i < endpointofpsotValues + 1; i++) { psotValues.push(piecesscoredovertime[i]); }
+            document.getElementById("actionscenario").innerHTML=actionscenario[scenario];
         }
         function checkforlinks(ifauton0ifteleop1) {
             if (links[0] && piecesscored[0] % links[1] === 0) {
