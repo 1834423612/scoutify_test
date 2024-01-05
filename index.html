@@ -227,7 +227,7 @@
                                 if (scenario.time - placetime[j] - balancingtime[i] * (pointsforbalancing[0] > 0) >= 135) {
                                     //place pieces during auton
                                     while (scenario.time - placetime[j] - balancingtime[i] * (pointsforbalancing[0] > 0) >= 135 && piecesscored[0] < autonPieceLimit) {
-                                        scorepiece(0, j, k, m);
+                                        scorepiece(0, ,i, j, k,l, m,n,);
                                         if (scenario.time - autonmovepartofcycle[l] / 2 - pickuptime[k] >= 135) {//the autonmovepartofcycle[l] is divided by two b/c the bot only travels to pick up game pices, not also back 
                                             scenario.time -= autonmovepartofcycle[l] / 2 + pickuptime[k];
                                             holdingpiece[0] += grabamount[n];
@@ -235,24 +235,25 @@
                                             if (scenario.time - autonmovepartofcycle[l] / 2 - placetime[j] - balancingtime[i] * (pointsforbalancing[0] > 0) >= 135) { scenario.time -= autonmovepartofcycle[l] / 2; }
                                             else if (pointsforbalancing[0] > 0) {//balance if auton-balance is allowed
                                                 scenario.time = 135 + balancingtime[i] * (pointsforbalancing[0] > 0);
-                                                balance(0, i);
+                                                balance(0, i,j,k,l,m,n);
                                             }
                                             else { scenario.time = 135; }
                                         }
                                     }
                                 }
-                                else if (pointsforbalancing[0] > 0) { balance(0, i); }//balance if auton-balance is allowed
+                                else if (pointsforbalancing[0] > 0) { balance(0, i,j,k,l,m,n); }//balance if auton-balance is allowed
                                 //teleop
                                 scenario.time = 135;
+                                scenarioaction[encodescenario(""+i+j+k+l+m+n)].push(" teleop: ");
                                 // if holding pieces at beginning of teleop
-                                if (holdingpiece[0] > 0) { scorepiece(1, j, k, m, 1); }//this doesn't count the time it takes to go from the charge station into the grid, which is bad for games when the place where mobility points are awarded is far away from a goal
+                                if (holdingpiece[0] > 0) { scorepiece(1,i, j, k,l, m,n, 1); }//this doesn't count the time it takes to go from the charge station into the grid, which is bad for games when the place where mobility points are awarded is far away from a goal
                                 //score high and mid
                                 while (scenario.time - pickuptime[k] - movepartofcycle[m] - placetime[j] - balancingtime[i] * (pointsforbalancing[1] > 0) >= 0) {//if we want the program to see how much slower we can be w/out worsening score changing the 0 in ">=0" to some other number is a start.
                                     holdingpiece[0] += grabamount[n];
-                                    scorepiece(1, j, k, m);
+                                    scorepiece(1,i, j, k,l, m,n,);
                                 }
                                 //endgame
-                                if (pointsforbalancing[1] > 0) { balance(1, i); }
+                                if (pointsforbalancing[1] > 0) { balance(1, i,j,k,l,m,n); }
                                 //push chart values that have scenarios as a dimension
                                 const x = encodescenario('' + i + j + k + l + m + n);
                                 if (piecesscored[0] >= piecesscoredforrnkpnt[0] && piecesscoredforrnkpnt[0] && piecesscored[1] >= piecesscoredforrnkpnt[1] && piecesscoredforrnkpnt[1]) {
@@ -681,7 +682,7 @@
                 }
             }
         }
-        function scorepiece(ifauton0ifteleop1, j, k, m, holdingpiecesatbeginningofteleop) {
+        function scorepiece(ifauton0ifteleop1,i, j, k,l, m,n, holdingpiecesatbeginningofteleop) {
             piecesscored[0] += holdingpiece[0];
             if (holdingpiecesatbeginningofteleop === 1 || ifauton0ifteleop1 === 0) { scenario.time -= placetime[j]; }
             else { scenario.time -= placetime[j] + movepartofcycle[m] + pickuptime[k]; }
@@ -691,11 +692,13 @@
             checkforlinks(ifauton0ifteleop1);
             scenariospoints.push({ x: 150 - scenario.time, y: scenario.points });
             piecesscoredovertime.push({ x: 150 - scenario.time, y: piecesscored[0] });
+            scenarioaction[encodescenario(""+i+j+k+l+m)].push(" scoredpiece; ");
         }
-        function balance(ifauton0ifteleop1, i) {
+        function balance(ifauton0ifteleop1, i,j,k,l,m,n) {
             scenario.points += pointsforbalancing[ifauton0ifteleop1];
             scenario.time -= balancingtime[i];
             scenariospoints.push({ x: 150 - scenario.time, y: scenario.points });
+            scenarioaction[encodescenario(""+i+j+k+l+m+n)].push(" balanced; ");
         }
     </script>
 
