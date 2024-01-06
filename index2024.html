@@ -149,9 +149,9 @@
         const linkthresholdprogression = [];//leave this empty unless the links[1] is changing (links[1] is in the for-loop and represents how many pieces makes a link) like in the game steamworks
         //for the steamship game, const linkthresholdprogression=[1,2,3,4,5];
         //for any of the following time arrays and the grabamount array, the first index must have the smallest value, and the last index must have the largest value
-        const balancingtime = [3, 5, 8, 12, 15];//trapping will automatically add time
+        const balancingtime = [3, 5, 8, 12, 15];//trapping will be added if pointsforbalancing==8
         const pointsforbalancing = [1, 3, 8];//auton and teleop (originally), now stands for park, climb, climb + trap
-        
+        const trappingTime = [3, 5, 7, 9]
         const placetime = [2, 4];
         const pointsforbestscorer = [6, 5];// high nodes: auton and teleop. the computer will do the pointsforbestscorer until it reaches the limit, and then switches to scoring w/ pointsforokscorer
         const limitforbestscorer = 9;
