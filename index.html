@@ -15,6 +15,7 @@
         width: 100%;
         text-align: center;
     }
+
     div {
         display: inline-block
     }
@@ -55,7 +56,7 @@
         width: 100vw;
         height: 80vh;
         overflow: hidden;
-        overflow-x:hidden;
+        overflow-x: hidden;
     }
 
     #split-view-divider {
@@ -77,8 +78,33 @@
         overflow-y: scroll;
     }
 
-    td {border: 1px solid black;}
-    td:first-child {background-color: yellow;}
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        display: flex;
+        flex-direction: column;
+    }
+
+    th,
+    td {
+        border: 1px solid black;
+        padding: 8px;
+        text-align: left;
+    }
+
+    th {
+        background-color: #88adf1;
+        /*cornflowerblue*/
+    }
+
+    .type {
+        background-color: #c5c5ff;
+    }
+
+    .data {
+        background-color: cornsilk;
+    }
 </style>
 
 <body>
@@ -88,17 +114,17 @@
     <div id="split-view-container">
         <div class="split-view">
             <h3>Strategy Comparison</h1>
-            <details>
-                <summary>Key:</summary>
-                <ul>
-                    <pre>
+                <details>
+                    <summary>Key:</summary>
+                    <ul>
+                        <pre>
                         <li><mark style="background-color:rgb(0,255,0);">  </mark> : 2 RNKPNT (not tracking this every year)</li>
                         <li><mark style="background-color:rgb(255, 255, 0);">  </mark> : 1 RNKPNT</li>
                         <li><mark style="background-color:rgb(255,0,0);">  </mark> : 0 RNKPNT</li>
                     </pre>
-                </ul>
-            </details>
-            <div class="scroller">
+                    </ul>
+                </details>
+                <div class="scroller">
                     <div style="display:block;">
                         <canvas id="psChart"></canvas>
                         <canvas id="piecesscoredchart"></canvas> <!--Total Score-Scenario Chart-->
@@ -109,7 +135,7 @@
                         <p id="shiftkey"></p>
                         <canvas id="rnkpntChart"></canvas> <!--Ranking points vs Scenario id-->
                     </div>
-            </div>
+                </div>
         </div>
         <div id="split-view-divider"></div>
         <div class="split-view">
@@ -120,10 +146,31 @@
                     <canvas id="psotchart"></canvas>
                     <p>Note: always balances at 15s but not necessarily at the end</p>
                     <canvas id="myChart"></canvas>
-                    <table>
-                        <tr id="tr0"><td>Elapsed Time</td></tr>
-                        <tr id="tr1"><td>Time Left</td></tr>
-                        <tr id="tr2"><td>Event</td><td id="scenarioaction"></td></tr>
+
+
+                    <p style="color: red; font-weight: bold;">Table</p>
+                    <table id="table">
+                        <tr>
+                            <th>Elapsed Time</th>
+                            <th>Time Left</th>
+                            <th>Event</th>
+                        </tr>
+
+                        <tr id="tr0">
+                            <td></td> <!-- Elapsed Time data will go here -->
+                            <td></td> <!-- Time Left data will go here -->
+                            <td></td> <!-- Event data will go here -->
+                        </tr>
+                        <tr id="tr1">
+                            <td></td> <!-- Elapsed Time data will go here -->
+                            <td></td> <!-- Time Left data will go here -->
+                            <td></td> <!-- Event data will go here -->
+                        </tr>
+                        <tr id="tr2">
+                            <td></td> <!-- Elapsed Time data will go here -->
+                            <td></td> <!-- Time Left data will go here -->
+                            <td id="scenarioaction"></td>
+                        </tr>
                     </table>
                 </div>
             </div>
@@ -248,26 +295,26 @@
                                             if (scenario.time - autonmovepartofcycle[l] / 2 - placetime[j] - balancingtime[i] * (pointsforbalancing[0] > 0) >= 135) { scenario.time -= autonmovepartofcycle[l] / 2; }
                                             else if (pointsforbalancing[0] > 0) {//balance if auton-balance is allowed
                                                 scenario.time = 135 + balancingtime[i] * (pointsforbalancing[0] > 0);
-                                                balance(0, i,j,k,l,m,n);
+                                                balance(0, i, j, k, l, m, n);
                                             }
                                             else { scenario.time = 135; }
                                         }
                                     }
                                 }
-                                else if (pointsforbalancing[0] > 0) { balance(0, i,j,k,l,m,n); }//balance if auton-balance is allowed
+                                else if (pointsforbalancing[0] > 0) { balance(0, i, j, k, l, m, n); }//balance if auton-balance is allowed
                                 //teleop
                                 scenario.time = 135;
-                                scenarioaction[encodescenario(""+i+j+k+l+m+n)] = (scenarioaction[encodescenario(""+i+j+k+l+m+n)] ?? "") + "start of teleop;";
-                                scenariotimes[encodescenario(""+i+j+k+l+m+n)] = (scenariotimes[encodescenario(""+i+j+k+l+m+n)] ?? "") + "135;";
+                                scenarioaction[encodescenario("" + i + j + k + l + m + n)] = (scenarioaction[encodescenario("" + i + j + k + l + m + n)] ?? "") + "start of teleop;";
+                                scenariotimes[encodescenario("" + i + j + k + l + m + n)] = (scenariotimes[encodescenario("" + i + j + k + l + m + n)] ?? "") + "135;";
                                 // if holding pieces at beginning of teleop
-                                if (holdingpiece[0] > 0) { scorepiece(1,i, j, k,l, m,n, 1); }//this doesn't count the time it takes to go from the charge station into the grid, which is bad for games when the place where mobility points are awarded is far away from a goal
+                                if (holdingpiece[0] > 0) { scorepiece(1, i, j, k, l, m, n, 1); }//this doesn't count the time it takes to go from the charge station into the grid, which is bad for games when the place where mobility points are awarded is far away from a goal
                                 //score high and mid
                                 while (scenario.time - pickuptime[k] - movepartofcycle[m] - placetime[j] - balancingtime[i] * (pointsforbalancing[1] > 0) >= 0) {//if we want the program to see how much slower we can be w/out worsening score changing the 0 in ">=0" to some other number is a start.
                                     holdingpiece[0] += grabamount[n];
-                                    scorepiece(1,i, j, k,l, m,n,);
+                                    scorepiece(1, i, j, k, l, m, n,);
                                 }
                                 //endgame
-                                if (pointsforbalancing[1] > 0) { balance(1, i,j,k,l,m,n); }
+                                if (pointsforbalancing[1] > 0) { balance(1, i, j, k, l, m, n); }
                                 //push chart values that have scenarios as a dimension
                                 const x = encodescenario('' + i + j + k + l + m + n);
                                 if (piecesscored[0] >= piecesscoredforrnkpnt[0] && piecesscoredforrnkpnt[0] && piecesscored[1] >= piecesscoredforrnkpnt[1] && piecesscoredforrnkpnt[1]) {
@@ -370,14 +417,14 @@
                                 return [
                                     "Total Score: " + allinclusivescenariodata[tooltipItems[0].index].x,
                                     "Pieces Scored: " + allinclusivescenariodata[tooltipItems[0].index].y,
-                                    "Scenarios that exist: " + groupsofpoints[zeroindices.indexOf(decodescenario(tooltipItems[0].index))].length 
+                                    "Scenarios that exist: " + groupsofpoints[zeroindices.indexOf(decodescenario(tooltipItems[0].index))].length
                                 ];
                             }
                         }
                     },
                     onClick: function (evt) {
                         if (event.shiftKey) {
-                            
+
                             /*const element = scenariochart.getElementAtEvent(evt);
                             if (element.length > 0) {
                                 const ind = element[0]._index;
@@ -399,9 +446,9 @@
                             }*/
                         }
                         else {
-                            zeroindicespointsclicked.splice(0,zeroindicespointsclicked.length);
-                            pointsclicked.splice(0,pointsclicked.length);
-                            document.getElementById("shiftkey").innerHTML="";
+                            zeroindicespointsclicked.splice(0, zeroindicespointsclicked.length);
+                            pointsclicked.splice(0, pointsclicked.length);
+                            document.getElementById("shiftkey").innerHTML = "";
                             const element = scenariochart.getElementAtEvent(evt);
                             if (element.length > 0) {
                                 const ind = element[0]._index;
@@ -412,7 +459,7 @@
                                 }
                             }
                         }
-                        
+
                     },
                     legend: { display: false },
                     scales: {
@@ -718,35 +765,44 @@
             let string_copy ="";
             for(let i of scenarioaction[scenario]){string_copy+=i;}
             let loopcount=0;
-            while(string_copy.length>0){
-                if(loopcount===0){
-                    ++loopcount;
-                    let i = string_copy.indexOf(";");
-                    
-                    string_copy = string_copy.substring(i + 1);
-                }
-                else{
-                    const td = document.createElement("td");
-                    let i = string_copy.indexOf(";");
-                    td.innerText = string_copy.substring(0, i);
-                    string_copy = string_copy.substring(i + 1);
-                    document.getElementById("tr2").appendChild(td);
-                }
+
+            let eventString = ""; // This will hold the event data
+            let timeString = ""; // This will hold the time data
+
+            // Assuming scenarioaction and scenariotimes are already defined arrays with the data for events and times
+            for (let i of scenarioaction[scenario]) { eventString += i; }
+            for (let i of scenariotimes[scenario]) { timeString += i; }
+
+            // Clear existing table rows except the header
+            let table = document.getElementById("table");
+            while (table.rows.length > 1) {
+                table.deleteRow(1);
             }
-            string_copy ="";
-            for(let i of scenariotimes[scenario]){string_copy+=i;}
-            while(string_copy.length>0){
-                const td0 = document.createElement("td");
-                let i = string_copy.indexOf(";");
-                td0.innerText = string_copy.substring(0, i);
-                string_copy = string_copy.substring(i + 1);
-                document.getElementById("tr0").appendChild(td0);
-                
-                const td1 = document.createElement("td");
-                td1.innerText = 150 - td0.innerText;
-                document.getElementById("tr1").appendChild(td1);
-            }   
+
+            // Split the string data into arrays and create table rows
+            let eventArray = eventString.split(';').filter(Boolean);
+            let timeArray = timeString.split(';').filter(Boolean);
+
+            // Ensure both arrays have the same length
+            if (eventArray.length === timeArray.length) {
+                for (let i = 0; i < eventArray.length; i++) {
+                    let row = table.insertRow(-1); // Insert a row at the end of the table
+                    let elapsedTimeCell = row.insertCell(0);
+                    let timeLeftCell = row.insertCell(1);
+                    let eventCell = row.insertCell(2);
+
+                    elapsedTimeCell.innerText = timeArray[i];
+                    timeLeftCell.innerText = 150 - timeArray[i]; // Assuming 150 is the total time
+                    eventCell.innerText = eventArray[i];
+                }
+            } else {
+                console.error("Data length mismatch between times and events.");
+            }
         }
+
+        // Call the function to update the table
+        updateTable();
+
         function checkforlinks(ifauton0ifteleop1) {
             if (links[0] && piecesscored[0] % links[1] === 0) {
                 scenario.points += links[2 + ifauton0ifteleop1];
@@ -756,7 +812,7 @@
                 }
             }
         }
-        function scorepiece(ifauton0ifteleop1,i, j, k,l, m,n, holdingpiecesatbeginningofteleop) {
+        function scorepiece(ifauton0ifteleop1, i, j, k, l, m, n, holdingpiecesatbeginningofteleop) {
             piecesscored[0] += holdingpiece[0];
             if (holdingpiecesatbeginningofteleop === 1 || ifauton0ifteleop1 === 0) { scenario.time -= placetime[j]; }
             else { scenario.time -= placetime[j] + movepartofcycle[m] + pickuptime[k]; }
@@ -766,17 +822,69 @@
             checkforlinks(ifauton0ifteleop1);
             scenariospoints.push({ x: 150 - scenario.time, y: scenario.points });
             piecesscoredovertime.push({ x: 150 - scenario.time, y: piecesscored[0] });
-            scenarioaction[encodescenario(""+i+j+k+l+m+n)] = (scenarioaction[encodescenario(""+i+j+k+l+m+n)] ?? "") + "scoredpiece;";
-            scenariotimes[encodescenario(""+i+j+k+l+m+n)] = (scenariotimes[encodescenario(""+i+j+k+l+m+n)] ?? "") + scenario.time+";";
-                                
+            scenarioaction[encodescenario("" + i + j + k + l + m + n)] = (scenarioaction[encodescenario("" + i + j + k + l + m + n)] ?? "") + "scoredpiece;";
+            scenariotimes[encodescenario("" + i + j + k + l + m + n)] = (scenariotimes[encodescenario("" + i + j + k + l + m + n)] ?? "") + scenario.time + ";";
+
         }
-        function balance(ifauton0ifteleop1, i,j,k,l,m,n) {
+        function balance(ifauton0ifteleop1, i, j, k, l, m, n) {
             scenario.points += pointsforbalancing[ifauton0ifteleop1];
             scenario.time -= balancingtime[i];
             scenariospoints.push({ x: 150 - scenario.time, y: scenario.points });
-            scenarioaction[encodescenario(""+i+j+k+l+m+n)] = (scenarioaction[encodescenario(""+i+j+k+l+m+n)] ?? "") + "balance;"
-            scenariotimes[encodescenario(""+i+j+k+l+m+n)] = (scenariotimes[encodescenario(""+i+j+k+l+m+n)] ?? "") + scenario.time+";";
+            scenarioaction[encodescenario("" + i + j + k + l + m + n)] = (scenarioaction[encodescenario("" + i + j + k + l + m + n)] ?? "") + "balance;"
+            scenariotimes[encodescenario("" + i + j + k + l + m + n)] = (scenariotimes[encodescenario("" + i + j + k + l + m + n)] ?? "") + scenario.time + ";";
         }
+
+
+
+
+
+        // old code
+        // function updatedata(scenario) {
+        //     let scenarioencoded = scenario;
+        //     if (typeof (scenario) === "string") { scenarioencoded = encodescenario(scenario); }//this will allow the "arg: scenario" to be entered in string format or integer format
+        //     const startpoint = endpoints[scenarioencoded] + 1;//an accessor
+        //     const endpoint = endpoints[scenarioencoded + 1];
+        //     const startpointofpsotValues = endpointsofpsotValues[scenarioencoded] + 1;//an accessor
+        //     const endpointofpsotValues = endpointsofpsotValues[scenarioencoded + 1];
+        //     //empty out the data arrays
+        //     xyValues.splice(0, xyValues.length);
+        //     psotValues.splice(0, psotValues.length);
+        //     //for each point in the given range, push a point to the xyValues array
+        //     for (let i = startpoint; i < endpoint + 1; i++) { xyValues.push(scenariospoints[i]); }
+        //     for (let i = startpointofpsotValues; i < endpointofpsotValues + 1; i++) { psotValues.push(piecesscoredovertime[i]); }
+        //     let string_copy ="";
+        //     for(let i of scenarioaction[scenario]){string_copy+=i;}
+        //     let loopcount=0;
+        //     while(string_copy.length>0){
+        //         if(loopcount===0){
+        //             ++loopcount;
+        //             let i = string_copy.indexOf(";");
+
+        //             string_copy = string_copy.substring(i + 1);
+        //         }
+        //         else{
+        //             const td = document.createElement("td");
+        //             let i = string_copy.indexOf(";");
+        //             td.innerText = string_copy.substring(0, i);
+        //             string_copy = string_copy.substring(i + 1);
+        //             document.getElementById("tr2").appendChild(td);
+        //         }
+        //     }
+        //     string_copy ="";
+        //     for(let i of scenariotimes[scenario]){string_copy+=i;}
+        //     while(string_copy.length>0){
+        //         const td0 = document.createElement("td");
+        //         let i = string_copy.indexOf(";");
+        //         td0.innerText = string_copy.substring(0, i);
+        //         string_copy = string_copy.substring(i + 1);
+        //         document.getElementById("tr0").appendChild(td0);
+
+        //         const td1 = document.createElement("td");
+        //         td1.innerText = 150 - td0.innerText;
+        //         document.getElementById("tr1").appendChild(td1);
+        //     }   
+        // }
+
     </script>
 
 </body>
