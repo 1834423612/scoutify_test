@@ -159,15 +159,15 @@
         const linkthresholdprogression = [];//leave this empty unless the links[1] is changing (links[1] is in the for-loop and represents how many pieces makes a link) like in the game steamworks
         //for the steamship game, const linkthresholdprogression=[1,2,3,4,5];
         //for any of the following time arrays and the grabamount array, the first index must have the smallest value, and the last index must have the largest value
-        const balancingtime = [3,4, 6, 8];
+        const balancingtime = [3, 5, 8];
         const pointsforbalancing = [0, 3];//auton and teleop
-        const placetime = [1, 2];
+        const placetime = [1,2];
         const pointsforbestscorer = [5, 2];//speaker
         //let limitforbestscorer = Infinity;//changes to piecesscored when teleop starts (in other words ends at start of teleop)
         const pointsforokscorer = [2, 1];//amp
-        const pickuptime = [1, 2, 3];
-        const autonmovepartofcycle = [2,3,4];//of closer pieces (not the ones on the centerline since the robot won't be that fast anyways)
-        const movepartofcycle = [9, 10,11, 12];//if the game is pick & place and the goals take different times to travel to, estimate the average travel time
+        const pickuptime = [1,2,3];
+        const autonmovepartofcycle = [4, 6];//of closer pieces (not the ones on the centerline since the robot won't be that fast anyways)
+        const movepartofcycle = [9, 11,12];//if the game is pick & place and the goals take different times to travel to, estimate the average travel time
         const autonPieceLimit = 8;
         const pointsformobility = 2;
         const grabamount = [1];//for games where you can grab more than one piece, this is the estimated average pieces grabbed. this must be a whole number
@@ -222,7 +222,7 @@
 //score high until, balance (and traps), then score amps (until it can't),
 
         //create a scenario tree, but start by defining variables to use during the iterations
-        const scenario = { text:"speaker", points: 0, time: 150, piecesscoredinamps: -1, mode: "enough" };
+        const scenario = { points: 0, time: 150, piecesscoredinamps: -1, mode: "enough" };
         let piecesscored = [], holdingpiece = [], links = [];
         for (let i in balancingtime) {
             for (let j in placetime) {
@@ -241,7 +241,6 @@
                                 scenario.time = 150; //seconds left in the game
                                 scenario.points = pointsformobility;//will always strive to make a robot that can get the mobility points
                                 scenario.mode = "enough";
-                                scenario.mode = "speaker";
                                 //auton
                                 
                                 //if there's time to balance and score...
@@ -271,11 +270,10 @@
                                 // if holding pieces at beginning of teleop
                                 if (holdingpiece[0] > 0) { scorepiece(1,i, j, k,l, m,n,o, 1); ++scenario.piecesscoredinamps;}//this doesn't count the time it takes to go from the charge station into the grid, which is bad for games when the place where mobility points are awarded is far away from a goal
                                 //score high and mid
-                                while (scenario.time - 2*(pickuptime[k] +movepartofcycle[m]+placetime[j]) - balancingtime[i]>= 0) {//if we want the program to see how much slower we can be w/out worsening score changing the 0 in ">=0" to some other number is a start.
-                                    if(scenario.piecesscoredinamps===0 && scenario.time - 3*(pickuptime[k] + movepartofcycle[m]+placetime[j]) - balancingtime[i] < 0) {scenario.mode="not enough";}
+                                while (scenario.time - 2*pickuptime[k] -2*movepartofcycle[m] - placetime[j] - balancingtime[i] - traptimes[o]>= 0) {//if we want the program to see how much slower we can be w/out worsening score changing the 0 in ">=0" to some other number is a start.
+                                    if(scenario.piecesscoredinamps===0 && scenario.time - 3*(pickuptime[k] + movepartofcycle[m])- 2*placetime[j] - balancingtime[i] - traptimes[o] <= 0) {scenario.mode="not enough";}
                                     ++scenario.piecesscoredinamps;
                                     holdingpiece[0] += grabamount[n];
-                                    document.write(scenario.mode);
                                     if(scenario.piecesscoredinamps===3||scenario.mode==="not enough"){scenario.text="speaker";}
                                     else{scenario.text="amp";}
                                     scorepiece(1,i, j, k,l, m,n,o);
@@ -283,7 +281,7 @@
                                 }
                                 //endgame
                                 if (pointsforbalancing[1] > 0) { balance(1, i,j,k,l,m,n,o); }
-                                scenario.time-=placetime[j]+pickuptime[k] + movepartofcycle[m];
+                                scenario.time-=traptimes[o]+pickuptime[k] + movepartofcycle[m];
                                 scenario.points+=pointsfortrap[1];
                                 scenariospoints.push({ x: 150 - scenario.time, y: scenario.points });
                                 scenarioaction[encodescenario(""+i+j+k+l+m+n+o)] = (scenarioaction[encodescenario(""+i+j+k+l+m+n+o)] ?? "") + "scoredtrap;";
@@ -742,7 +740,6 @@
             for (let i = startpoint; i < endpoint + 1; i++) { xyValues.push(scenariospoints[i]); }
             for (let i = startpointofpsotValues; i < endpointofpsotValues + 1; i++) { psotValues.push(piecesscoredovertime[i]); }
             let string_copy ="";
-             /*let table = document.getElementById("table_id");             table.innerHTML="";             const tr0 = document.createElement("tr");             const tr1 = document.createElement("tr");             const tr2 = document.createElement("tr");             const td00 = document.createElement("td");             const td01 = document.createElement("td");             const td02 = document.createElement("td");                          td00.innerText = "Time Left";             td01.innerText = "Time Elapsed";             td02.innerText = "Event";                          document.table.appendChild(tr0);             document.table.appendChild(tr1);             document.table.appendChild(tr2);             //document.tr0.appendChild(td00);             //document.tr1.appendChild(td01);             //document.tr2.appendChild(td02);             */
             for(let i of scenarioaction[scenario]){string_copy+=i;}
             let loopcount=0;
             while(string_copy.length>0){
