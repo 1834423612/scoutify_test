@@ -287,13 +287,13 @@
                                 
                                 while (scenario.z >= 3) {
                                     for(let d=0;d<2;d++){
-                                        scenario.points+=1;
+                                        scenario.points+=1; scenario.time-=pickuptime[k]+placetime[j];
                                         scenario.z-=1;
                                         scenariospoints.push({ x: 150 - scenario.time, y: scenario.points });
                                         piecesscoredovertime.push({ x: 150 - scenario.time, y: piecesscored[0] });
                                         scenarioaction[encodescenario(""+i+j+k+l+m+n+o)] = (scenarioaction[encodescenario(""+i+j+k+l+m+n+o)] ?? "") + `scored ${scenario.text};`;
                                         scenariotimes[encodescenario(""+i+j+k+l+m+n+o)] = (scenariotimes[encodescenario(""+i+j+k+l+m+n+o)] ?? "") + scenario.time+";";         
-                                        scenario.time-=pickuptime[k]+placetime[j];
+                                       
                                     }
                                     for(let d=0;d<Math.floor(10/(pickuptime[k]+placetime[j]));d++){
                                         scenario.points+=5;
