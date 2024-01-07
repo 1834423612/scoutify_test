@@ -155,15 +155,15 @@
 
         //will need to not score for amps and stuff closer to endgame
 
-        const dolinkshappeninthisgame = true;//pretend scores a speaker point simply by adding 4 points on every 3rd amp scorer (except for the first time that requires 4 and accounts for the coop piece)
-        const linkthresholdprogression = [4,3];//leave this empty unless the links[1] is changing (links[1] is in the for-loop and represents how many pieces makes a link) like in the game steamworks
+        const dolinkshappeninthisgame = false;//pretend scores a speaker point simply by adding 4 points on every 3rd amp scorer (except for the first time that requires 4 and accounts for the coop piece)
+        const linkthresholdprogression = [];//leave this empty unless the links[1] is changing (links[1] is in the for-loop and represents how many pieces makes a link) like in the game steamworks
         //for the steamship game, const linkthresholdprogression=[1,2,3,4,5];
         //for any of the following time arrays and the grabamount array, the first index must have the smallest value, and the last index must have the largest value
         const balancingtime = [3, 5, 8, 12, 15];
         const pointsforbalancing = [0, 3];//auton and teleop
         const placetime = [2, 4];
         const pointsforbestscorer = [5, 2];//speaker
-        let limitforbestscorer = Infinity;//changes to piecesscored when teleop starts (in other words ends at start of teleop)
+        //let limitforbestscorer = Infinity;//changes to piecesscored when teleop starts (in other words ends at start of teleop)
         const pointsforokscorer = [2, 1];//amp
         const pickuptime = [2, 4];
         const autonmovepartofcycle = [4, 6];//of closer pieces (not the ones on the centerline since the robot won't be that fast anyways)
@@ -189,6 +189,7 @@
         const scenariotimes = [];
         const pointsclicked = [];
         const zeroindicespointsclicked = [];
+        //let text = "Speaker";
         //make a scenario to be represented by two data types, a string and integer
         //this needs to be done b/c the chart can't use a string for numbers on an axis & the human has no idea what the number is
         //define some scenario related variables
@@ -221,7 +222,7 @@
 //score high until, balance (and traps), then score amps (until it can't),
 
         //create a scenario tree, but start by defining variables to use during the iterations
-        const scenario = { points: 0, time: 150, piecesscoredinamps: -1 };
+        const scenario = { points: 0, time: 150, piecesscoredinamps: -1, mode: "enough" };
         let piecesscored = [], holdingpiece = [], links = [];
         for (let i in balancingtime) {
             for (let j in placetime) {
@@ -230,7 +231,6 @@
                         for (let m in movepartofcycle) {
                             for (let n in grabamount) {
                             for (let o in traptimes) {
-                                limitforbestscorer=Infinity;
                                 //this loops through each scenario where the scenario is defined in string format as (""+i+j+k+l+m+n) 
                                 //initialize the variables
                                 links = [dolinkshappeninthisgame, 4, 4, 4, 0];//first value is to see if links exist, the second value is how many pieces one needs for a link, and the 3rd value is the points for getting a link during auton and the 4th value is the points during teleop; for the steamship game, the gears should should be the bestscoring method that makes 0 points, but this array will be [true,1,60,40], and whenever we get the threshold the game, we will have to update the second value
@@ -240,11 +240,9 @@
                                 //holdingpiece[0]=1;//for a 2nd game piece
                                 scenario.time = 150; //seconds left in the game
                                 scenario.points = pointsformobility;//will always strive to make a robot that can get the mobility points
-                                scenario.piecesscoredinamps = -1;
+                                scenario.mode = "enough";
                                 //auton
-                                //if(!startpreloaded){time-pickuptime[k]}
-                                //if(!startneargoal){time-autonmovepartofcycle[l]} this is unimplemented yet
-
+                                
                                 //if there's time to balance and score...
                                 if (scenario.time - placetime[j] - balancingtime[i] * (pointsforbalancing[0] > 0) >= 135) {
                                     //place pieces during auton
@@ -265,7 +263,7 @@
                                 }
                                 else if (pointsforbalancing[0] > 0) { balance(0, i,j,k,l,m,n,o); }//balance if auton-balance is allowed
                                 //teleop
-                                limitforbestscorer=piecesscored[0];
+                                scenario.text="amp";
                                 scenario.time = 135;
                                 scenarioaction[encodescenario(""+i+j+k+l+m+n+o)] = (scenarioaction[encodescenario(""+i+j+k+l+m+n+o)] ?? "") + "start of teleop;";
                                 scenariotimes[encodescenario(""+i+j+k+l+m+n+o)] = (scenariotimes[encodescenario(""+i+j+k+l+m+n+o)] ?? "") + "135;";
@@ -273,24 +271,20 @@
                                 if (holdingpiece[0] > 0) { scorepiece(1,i, j, k,l, m,n,o, 1); ++scenario.piecesscoredinamps;}//this doesn't count the time it takes to go from the charge station into the grid, which is bad for games when the place where mobility points are awarded is far away from a goal
                                 //score high and mid
                                 while (scenario.time - 2*(pickuptime[k] + movepartofcycle[m]) - placetime[j] - balancingtime[i] - traptimes[o]>= 0) {//if we want the program to see how much slower we can be w/out worsening score changing the 0 in ">=0" to some other number is a start.
-                                    if(
-                                        scenario.piecesscoredinamps===0&&(
-                                            (scenario.time - 4*(pickuptime[k] + movepartofcycle[m])- 3*placetime[j] - balancingtime[i] - traptimes[o]>= 0)||
-                                            (scenario.time - 3*(pickuptime[k] + movepartofcycle[m])- 2*placetime[j] - balancingtime[i] - traptimes[o]>= 0)||
-                                            (scenario.time - 2*(pickuptime[k] + movepartofcycle[m])- placetime[j] - balancingtime[i] - traptimes[o]>= 0)
-                                        )
-                                    ) {limitforbestscorer=Infinity;}
+                                    if(scenario.piecesscoredinamps===0&& scenario.time - 2*(pickuptime[k] + movepartofcycle[m])- placetime[j] - balancingtime[i] - traptimes[o] < 0) {scenario.mode="not enough";}
                                     ++scenario.piecesscoredinamps;
-                                    if(scenario.piecesscoredinamps===3){scenario.piecesscoredinamps=0;}
                                     holdingpiece[0] += grabamount[n];
+                                    if(scenario.piecesscoredinamps===3||scenario.mode==="not enough"){scenario.text="speaker";}
+                                    else{scenario.text="amp";}
                                     scorepiece(1,i, j, k,l, m,n,o);
+                                    if(scenario.piecesscoredinamps===3){scenario.piecesscoredinamps=0;}
                                 }
                                 //endgame
                                 if (pointsforbalancing[1] > 0) { balance(1, i,j,k,l,m,n,o); }
                                 scenario.time-=traptimes[o]+pickuptime[k] + movepartofcycle[m];
                                 scenario.points+=pointsfortrap[1];
                                 scenariospoints.push({ x: 150 - scenario.time, y: scenario.points });
-                                scenarioaction[encodescenario(""+i+j+k+l+m+n+o)] = (scenarioaction[encodescenario(""+i+j+k+l+m+n+o)] ?? "") + "scoredpiece;";
+                                scenarioaction[encodescenario(""+i+j+k+l+m+n+o)] = (scenarioaction[encodescenario(""+i+j+k+l+m+n+o)] ?? "") + "scoredtrap;";
                                 scenariotimes[encodescenario(""+i+j+k+l+m+n+o)] = (scenariotimes[encodescenario(""+i+j+k+l+m+n+o)] ?? "") + scenario.time+";";
 
                                 //push chart values that have scenarios as a dimension
@@ -777,29 +771,29 @@
                 document.getElementById("tr1").appendChild(td1);
             }   
         }
-        function checkforlinks(ifauton0ifteleop1) {
-            if (links[0]&& ifauton0ifteleop1&& (piecesscored[0]-limitforbestscorer) % links[1] === 0) {
-                scenario.points += links[2 + ifauton0ifteleop1];
-                if (linkthresholdprogression.length > 0) {
-                    if(links[4]!==linkthresholdprogression.length){
-                        ++links[4];
-                        links[1] = linkthresholdprogression[links[4]]; 
-                    }
-                }
-            }
-        }
         function scorepiece(ifauton0ifteleop1,i, j, k,l, m,n,o, holdingpiecesatbeginningofteleop) {
             piecesscored[0] += holdingpiece[0];
-            if (holdingpiecesatbeginningofteleop === 1 || ifauton0ifteleop1 === 0) { scenario.time -= placetime[j]; }
-            else { scenario.time -= placetime[j] + movepartofcycle[m] + pickuptime[k]; }
-            if (piecesscored[0] <= limitforbestscorer) { scenario.points += pointsforbestscorer[ifauton0ifteleop1] * holdingpiece[0]; }
-            else { scenario.points += pointsforokscorer[ifauton0ifteleop1] * holdingpiece[0]; }
-            holdingpiece[0] = 0;
-            checkforlinks(ifauton0ifteleop1);
-            scenariospoints.push({ x: 150 - scenario.time, y: scenario.points });
-            piecesscoredovertime.push({ x: 150 - scenario.time, y: piecesscored[0] });
-            scenarioaction[encodescenario(""+i+j+k+l+m+n+o)] = (scenarioaction[encodescenario(""+i+j+k+l+m+n+o)] ?? "") + "scoredpiece;";
+            if(!ifauton0ifteleop1){
+                scenario.time -= placetime[j];
+                scenario.points += pointsforbestscorer[0] * holdingpiece[0]; 
+                holdingpiece[0] = 0;
+                scenariospoints.push({ x: 150 - scenario.time, y: scenario.points });
+                piecesscoredovertime.push({ x: 150 - scenario.time, y: piecesscored[0] });
+                scenarioaction[encodescenario(""+i+j+k+l+m+n+o)] = (scenarioaction[encodescenario(""+i+j+k+l+m+n+o)] ?? "") + `scored ${scenario.text};`;
+            }
+            else{
+                if (holdingpiecesatbeginningofteleop === 1) { scenario.time -= placetime[j]; }
+                else { scenario.time -= placetime[j] + movepartofcycle[m] + pickuptime[k]; }
+                if (scenario.piecesscoredinamps===3) { scenario.points += pointsforbestscorer[0] * holdingpiece[0];}
+                else if(scenario.mode==="not enough"){scenario.points += pointsforbestscorer[1] * holdingpiece[0];}
+                else { scenario.points += pointsforokscorer[1] * holdingpiece[0]; }
+                holdingpiece[0] = 0;
+                scenariospoints.push({ x: 150 - scenario.time, y: scenario.points });
+                piecesscoredovertime.push({ x: 150 - scenario.time, y: piecesscored[0] });
+                scenarioaction[encodescenario(""+i+j+k+l+m+n+o)] = (scenarioaction[encodescenario(""+i+j+k+l+m+n+o)] ?? "") + `scored ${scenario.text};`;
+            }
             scenariotimes[encodescenario(""+i+j+k+l+m+n+o)] = (scenariotimes[encodescenario(""+i+j+k+l+m+n+o)] ?? "") + scenario.time+";";         
+            
         }
         function balance(ifauton0ifteleop1, i,j,k,l,m,n,o) {
             scenario.points += pointsforbalancing[ifauton0ifteleop1];
