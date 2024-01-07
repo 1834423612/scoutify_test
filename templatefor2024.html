@@ -132,23 +132,23 @@
     <!--<script type="text/javascript" src="http://code.jquery.com/jquery.min.js"></script>-->
     <script>
         //qual version w/ traps, balance, atain co-op, and includes amplifications
-        //non-qual version will priooritize traps over amp speaker things and won't have co-op
+        //non-qual version (if made) will prioritize traps over amp speaker things and won't have co-op
 
         //program lacks the fact that there will be game pieces in the center of the field that are closer at the begginging of teleop
 
-        //problem w/ checkforlinks function
         //If you want to add in another time estimation array look at lines 172-194, and all the uses of the following functions: balance, scorepiece, plus all the uses of scenarioaction and scenariotimes.
         //Also, will need to look up all the tooltip functions for the strategy comparison charts.
         
+        //whenever everything is zero rnkpoints, for some reason, the rnkpoint chart doesn't display
+        
         //to get rnkpoint for 10 onstage points, must get one note in trap and balance
         
-        //need to add in trapping time
         //might need to add in seperate times for the different scoring locations
 
         //when to go for amp and when not to?
         //If one piece can be scored in the 10 seconds (automatic b/c you only have to press the button when you're ready), the robot will be able to score 2 amps and a speaker in the time it takes to score three speakers (assumption w/out proof). This turns out to be seven points versus six points, and could be more b/c the alliance members also have to score. This means it is worth it to score the two amps and then the speaker assuming there is enough time
+        //if amp count is 0 and don't have enough time for  3 amps, go for speaker
 
-        //may need to change the portion the charts show
         //may need to change the auton move part of cycle into two different types
         
         //piecesscored doesn't count the trap piece as that doesn't contribute to a rnkpoint
@@ -270,9 +270,18 @@
                                 scenarioaction[encodescenario(""+i+j+k+l+m+n+o)] = (scenarioaction[encodescenario(""+i+j+k+l+m+n+o)] ?? "") + "start of teleop;";
                                 scenariotimes[encodescenario(""+i+j+k+l+m+n+o)] = (scenariotimes[encodescenario(""+i+j+k+l+m+n+o)] ?? "") + "135;";
                                 // if holding pieces at beginning of teleop
-                                if (holdingpiece[0] > 0) { scorepiece(1,i, j, k,l, m,n,o, 1); }//this doesn't count the time it takes to go from the charge station into the grid, which is bad for games when the place where mobility points are awarded is far away from a goal
+                                if (holdingpiece[0] > 0) { scorepiece(1,i, j, k,l, m,n,o, 1); ++scenario.piecesscoredinamps;}//this doesn't count the time it takes to go from the charge station into the grid, which is bad for games when the place where mobility points are awarded is far away from a goal
                                 //score high and mid
-                                while (scenario.time - 2*(pickuptime[k] - movepartofcycle[m]) - placetime[j] - balancingtime[i] - traptimes[o]>= 0) {//if we want the program to see how much slower we can be w/out worsening score changing the 0 in ">=0" to some other number is a start.
+                                while (scenario.time - 2*(pickuptime[k] + movepartofcycle[m]) - placetime[j] - balancingtime[i] - traptimes[o]>= 0) {//if we want the program to see how much slower we can be w/out worsening score changing the 0 in ">=0" to some other number is a start.
+                                    if(
+                                        scenario.piecesscoredinamps===0&&(
+                                            (scenario.time - 4*(pickuptime[k] + movepartofcycle[m])- 3*placetime[j] - balancingtime[i] - traptimes[o]>= 0)||
+                                            (scenario.time - 3*(pickuptime[k] + movepartofcycle[m])- 2*placetime[j] - balancingtime[i] - traptimes[o]>= 0)||
+                                            (scenario.time - 2*(pickuptime[k] + movepartofcycle[m])- placetime[j] - balancingtime[i] - traptimes[o]>= 0)
+                                        )
+                                    ) {limitforbestscorer=Infinity;}
+                                    ++scenario.piecesscoredinamps;
+                                    if(scenario.piecesscoredinamps===3){scenario.piecesscoredinamps=0;}
                                     holdingpiece[0] += grabamount[n];
                                     scorepiece(1,i, j, k,l, m,n,o);
                                 }
@@ -283,7 +292,7 @@
                                 scenariospoints.push({ x: 150 - scenario.time, y: scenario.points });
                                 scenarioaction[encodescenario(""+i+j+k+l+m+n+o)] = (scenarioaction[encodescenario(""+i+j+k+l+m+n+o)] ?? "") + "scoredpiece;";
                                 scenariotimes[encodescenario(""+i+j+k+l+m+n+o)] = (scenariotimes[encodescenario(""+i+j+k+l+m+n+o)] ?? "") + scenario.time+";";
-                 
+
                                 //push chart values that have scenarios as a dimension
                                 const x = encodescenario('' + i + j + k + l + m + n+o);
                                 if (piecesscored[0] >= piecesscoredforrnkpnt[0] && piecesscoredforrnkpnt[0] && piecesscored[1] >= piecesscoredforrnkpnt[1] && piecesscoredforrnkpnt[1]) {
@@ -469,7 +478,7 @@
                 options: {
                     title: {
                         display: true,
-                        text: 'RANK POINTS FROM LINKS - SCENARIO'
+                        text: 'RANK POINTS FROM PIECESSCORED - SCENARIO'
                     },
                     tooltips: {
                         bodyFontStyle: "bold",
@@ -790,8 +799,7 @@
             scenariospoints.push({ x: 150 - scenario.time, y: scenario.points });
             piecesscoredovertime.push({ x: 150 - scenario.time, y: piecesscored[0] });
             scenarioaction[encodescenario(""+i+j+k+l+m+n+o)] = (scenarioaction[encodescenario(""+i+j+k+l+m+n+o)] ?? "") + "scoredpiece;";
-            scenariotimes[encodescenario(""+i+j+k+l+m+n+o)] = (scenariotimes[encodescenario(""+i+j+k+l+m+n+o)] ?? "") + scenario.time+";";
-                                
+            scenariotimes[encodescenario(""+i+j+k+l+m+n+o)] = (scenariotimes[encodescenario(""+i+j+k+l+m+n+o)] ?? "") + scenario.time+";";         
         }
         function balance(ifauton0ifteleop1, i,j,k,l,m,n,o) {
             scenario.points += pointsforbalancing[ifauton0ifteleop1];
@@ -800,7 +808,6 @@
             scenarioaction[encodescenario(""+i+j+k+l+m+n+o)] = (scenarioaction[encodescenario(""+i+j+k+l+m+n+o)] ?? "") + "balance;"
             scenariotimes[encodescenario(""+i+j+k+l+m+n+o)] = (scenariotimes[encodescenario(""+i+j+k+l+m+n+o)] ?? "") + scenario.time+";";
         }
-        //still need to debug game logic: the last while loop and checkforlinks function
     </script>
 
 </body>
