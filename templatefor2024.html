@@ -769,7 +769,7 @@
             }   
         }
         function checkforlinks(ifauton0ifteleop1) {
-            if (links[0] && piecesscored[0]-limitforbestscorer % links[1] === 0&&ifauton0ifteleop1) {
+            if (links[0]&& ifauton0ifteleop1&& (piecesscored[0]-limitforbestscorer) % links[1] === 0) {
                 scenario.points += links[2 + ifauton0ifteleop1];
                 if (linkthresholdprogression.length > 0) {
                     if(links[4]!==linkthresholdprogression.length){
@@ -800,6 +800,7 @@
             scenarioaction[encodescenario(""+i+j+k+l+m+n+o)] = (scenarioaction[encodescenario(""+i+j+k+l+m+n+o)] ?? "") + "balance;"
             scenariotimes[encodescenario(""+i+j+k+l+m+n+o)] = (scenariotimes[encodescenario(""+i+j+k+l+m+n+o)] ?? "") + scenario.time+";";
         }
+        //still need to debug game logic: the last while loop and checkforlinks function
     </script>
 
 </body>
