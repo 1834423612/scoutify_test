@@ -127,43 +127,36 @@
     <script type="module" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
     <script type="text/javascript" src="http://code.jquery.com/jquery.min.js"></script>
     <script>
-        //add functions when relevant or needed
-        //update other years using this updated code
-        //add compatability for multiple game pieces at a time with the new const holdPieceLimit
-        //add compatability for rnkpnts
-        //need to add in table that give data about selceted variable
-        //there is a glitch where the tooltip dissapears occasionally
-        //The only rnkpnts that are possible to track are the ones achieved through scoring a number of game pieces in a certain way. All the other ones involve teamates doing good.
+        //qual version w/ traps, balance, atain co-op, and includes amplifications
 
-        //Assumptions: We will always engage. We will score for high, then mid, then low, but because we never will get to the low grid, we don't have to account for it
+        //to get rnkpoint for 10 onstage points, must get one note in trap and balance
+        //add logic to score in the amp as soon as teleop starts once
+        //need to add in trapping time
+        //need to add in seperate times for the different scoring locations
 
-        //to read json:
-        /*
-            $.getJSON('names.json',function(data){
-                globalData = data
-            })
-        */
-        //intitialize variable
-        //There are two common types of arrays: points and time. Whenever there is a points array, it will look like this: [pointsAwardedForScoringThisWayInAuton,pointsAwardedForScoringThisWayInTeleop]. Whenever there is a time array, it will look like this [guess#1forHowLongThisTaskWillTake,...other guesses]. The guesses must be arranged in order from least to greatest time and can contain no more than 10 guesses. The grabamount array is like the time arrays in that it must be arranged the same way and can't be longer than 10 values. It will look like this: [1stguessForAveragePiecesGrabbedWhileTryingToPickup,other guesses]
+        //when to go for amp and when not to?
+        //If one piece can be scored in the 10 seconds (automatic b/c you only have to press the button when you're ready), the robot will be able to score 2 amps and a speaker in the time it takes to score three speakers (assumption w/out proof). This turns out to be seven points versus six points, and could be more b/c the alliance members also have to score. This means it is worth it to score the two amps and then the speaker assuming there is enough time
+
+        //may need to change the portion the charts show
         const dolinkshappeninthisgame = false;
         const linkthresholdprogression = [];//leave this empty unless the links[1] is changing (links[1] is in the for-loop and represents how many pieces makes a link) like in the game steamworks
         //for the steamship game, const linkthresholdprogression=[1,2,3,4,5];
         //for any of the following time arrays and the grabamount array, the first index must have the smallest value, and the last index must have the largest value
         const balancingtime = [3, 5, 8, 12, 15];//trapping will be added if pointsforbalancing==8
-        const pointsforbalancing = [1, 3, 8];//auton and teleop (originally), now stands for park, climb, climb + trap
-        const trappingTime = [3, 5, 7, 9]
+        const pointsforbalancing = [0,3];//auton and teleop
+        const trappingTime = [3, 5, 7, 9];
         const placetime = [2, 4];
-        const pointsforbestscorer = [6, 5];// high nodes: auton and teleop. the computer will do the pointsforbestscorer until it reaches the limit, and then switches to scoring w/ pointsforokscorer
-        const limitforbestscorer = 9;
-        const pointsforokscorer = [4, 3];//mid nodes
+        const pointsforbestscorer = [5, 2];//speaker
+        const limitforbestscorer = Infinity;
+        const pointsforokscorer = [2, 1];//amp
         const pickuptime = [2, 4];
-        const autonmovepartofcycle = [4, 6];
+        const autonmovepartofcycle = [4, 6];//of closer pieces (not the ones on the centerline since the robot won't be that fast anyways)
         const movepartofcycle = [7, 9, 11];//if the game is pick & place and the goals take different times to travel to, estimate the average travel time
-        const autonPieceLimit = 5;
-        const pointsformobility = 3;
+        const autonPieceLimit = 8;
+        const pointsformobility = 2;
         const grabamount = [1];//for games where you can grab more than one piece, this is the estimated average pieces grabbed. this must be a whole number
         const holdPieceLimit = 1;
-        const piecesscoredforrnkpnt = [4 * 3, 0];//assuming coop; must set this to 0 or Infinity in games where this doesn't exist
+        const piecesscoredforrnkpnt = [15, 0];
         //for charts
         const scenariospoints = [];//looks like this: [{x:time,y:points},...] & this contains multiple coordinate pairs for each scenario
         const piecesscoredovertime = [];//like the scenariospoints array except the y-values track the pieces scored instead
@@ -204,7 +197,7 @@
 
 
         //create a scenario tree, but start by defining variables to use during the iterations
-        const scenario = { points: 0, time: 150 };
+        const scenario = { points: 0, time: 150, piecesscoredinamp:0 };
         let piecesscored = [], holdingpiece = [], links = [];
         for (let i in balancingtime) {
             for (let j in placetime) {
@@ -221,6 +214,7 @@
                                 //holdingpiece[0]=1;//for a 2nd game piece
                                 scenario.time = 150; //seconds left in the game
                                 scenario.points = pointsformobility;//will always strive to make a robot that can get the mobility points
+                                scenario.piecesscoredinamp = -1;//b/c of coop
                                 //auton
                                 //if(!startpreloaded){time-pickuptime[k]}
                                 //if(!startneargoal){time-autonmovepartofcycle[l]} this is unimplemented yet
