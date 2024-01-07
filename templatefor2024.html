@@ -161,11 +161,11 @@
         //for any of the following time arrays and the grabamount array, the first index must have the smallest value, and the last index must have the largest value
         const balancingtime = [3,4, 6, 8];
         const pointsforbalancing = [0, 3];//auton and teleop
-        const placetime = [1, 2];
+        const placetime = [0];
         const pointsforbestscorer = [5, 2];//speaker
         //let limitforbestscorer = Infinity;//changes to piecesscored when teleop starts (in other words ends at start of teleop)
         const pointsforokscorer = [2, 1];//amp
-        const pickuptime = [1, 2, 3];
+        const pickuptime = [2, 2.5, 3,3.5,4];
         const autonmovepartofcycle = [2,3,4];//of closer pieces (not the ones on the centerline since the robot won't be that fast anyways)
         const movepartofcycle = [9, 10,11, 12];//if the game is pick & place and the goals take different times to travel to, estimate the average travel time
         const autonPieceLimit = 8;
@@ -293,7 +293,7 @@
                                     
                                     scenario.z -= Math.floor(10/(pickuptime[k]+placetime[j]))
                                 }
-                                
+
                                 scenario.points += scenario.z*2
 
                                 if (pointsforbalancing[1] > 0) { balance(1, i,j,k,l,m,n,o); }
