@@ -116,7 +116,6 @@
                 <p id="tooltip"></p>
                 <div style="display:block">
                     <canvas id="psotchart"></canvas>
-                    <p>Note: program always balances at 15s but doesn't always balance at 150 seconds</p>
                     <canvas id="myChart"></canvas>
                     <table>
                         <tr id="tr0"><td>Elapsed Time</td></tr>
@@ -773,8 +772,10 @@
             if (links[0] && piecesscored[0]-limitforbestscorer % links[1] === 0&&ifauton0ifteleop1) {
                 scenario.points += links[2 + ifauton0ifteleop1];
                 if (linkthresholdprogression.length > 0) {
-                    ++links[4];
-                    links[1] = linkthresholdprogression[links[4]];
+                    if(links[4]!==linkthresholdprogression.length){
+                        ++links[4];
+                        links[1] = linkthresholdprogression[links[4]]; 
+                    }
                 }
             }
         }
