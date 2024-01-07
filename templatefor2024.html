@@ -132,27 +132,43 @@
     <script type="module" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
     <!--<script type="text/javascript" src="http://code.jquery.com/jquery.min.js"></script>-->
     <script>
-        //This template changed dolinkshappeninthisgame & got rid of getting rnkpoints through scoring 12 pieces & removed some irrelevant text
+        //qual version w/ traps, balance, atain co-op, and includes amplifications
+        //non-qual version will priooritize traps over amp speaker things and won't have co-op
+
         //If you want to add in another time estimation array look at lines 172-194, and all the uses of the following functions: balance, scorepiece, plus all the uses of scenarioaction and scenariotimes.
         //Also, will need to look up all the tooltip functions for the strategy comparison charts.
-        const dolinkshappeninthisgame = false;
-        const linkthresholdprogression = [];//leave this empty unless the links[1] is changing (links[1] is in the for-loop and represents how many pieces makes a link) like in the game steamworks
+        
+        //to get rnkpoint for 10 onstage points, must get one note in trap and balance
+        
+        //need to add in trapping time
+        //might need to add in seperate times for the different scoring locations
+
+        //when to go for amp and when not to?
+        //If one piece can be scored in the 10 seconds (automatic b/c you only have to press the button when you're ready), the robot will be able to score 2 amps and a speaker in the time it takes to score three speakers (assumption w/out proof). This turns out to be seven points versus six points, and could be more b/c the alliance members also have to score. This means it is worth it to score the two amps and then the speaker assuming there is enough time
+
+        //may need to change the portion the charts show
+        //may need to change the auton move part of cycle into two different types
+        
+//will need to not score for amps and stuff closer to endgame
+
+        const dolinkshappeninthisgame = true;//pretend scores a speaker point simply by adding 4 points on every 3rd amp scorer (except for the first time that requires 4 and accounts for the coop piece)
+        const linkthresholdprogression = [4,3];//leave this empty unless the links[1] is changing (links[1] is in the for-loop and represents how many pieces makes a link) like in the game steamworks
         //for the steamship game, const linkthresholdprogression=[1,2,3,4,5];
         //for any of the following time arrays and the grabamount array, the first index must have the smallest value, and the last index must have the largest value
-        const balancingtime = [3, 5, 7];//it can take either 3 seconds, 5 seconds, or 7 seconds. this includes the time it takes to get to the balancing area.
-        const pointsforbalancing = [12, 10];//auton and teleop
+        const balancingtime = [3, 5, 8, 12, 15];
+        const pointsforbalancing = [0, 3];//auton and teleop
         const placetime = [2, 4];
-        const pointsforbestscorer = [6, 5];// high nodes: auton and teleop. the computer will do the pointsforbestscorer until it reaches the limit, and then switches to scoring w/ pointsforokscorer
-        const limitforbestscorer = 9;
-        const pointsforokscorer = [4, 3];//mid nodes
+        const pointsforbestscorer = [5, 2];//speaker
+        let limitforbestscorer = Infinity;//changes to piecesscored when teleop starts (in other words ends at start of teleop)
+        const pointsforokscorer = [2, 1];//amp
         const pickuptime = [2, 4];
-        const autonmovepartofcycle = [4, 6];
+        const autonmovepartofcycle = [4, 6];//of closer pieces (not the ones on the centerline since the robot won't be that fast anyways)
         const movepartofcycle = [7, 9, 11];//if the game is pick & place and the goals take different times to travel to, estimate the average travel time
-        const autonPieceLimit = 5;
-        const pointsformobility = 3;
+        const autonPieceLimit = 8;
+        const pointsformobility = 2;
         const grabamount = [1];//for games where you can grab more than one piece, this is the estimated average pieces grabbed. this must be a whole number
         const holdPieceLimit = 1;
-        const piecesscoredforrnkpnt = [0, 0];//assuming coop; must set this to 0 or Infinity in games where this doesn't exist
+        const piecesscoredforrnkpnt = [15, 0];//assuming coop; must set this to 0 or Infinity in games where this doesn't exist
         //for charts
         const scenariospoints = [];//looks like this: [{x:time,y:points},...] & this contains multiple coordinate pairs for each scenario
         const piecesscoredovertime = [];//like the scenariospoints array except the y-values track the pieces scored instead
@@ -193,10 +209,10 @@
             Math.floor(a % allthelengthsbesidesbalance % allthelengthsbesidesbalanceandplace % allthelengthsbesidesbalanceandplaceandpickup % lengthsofmovepartofcycleandgrabamount / grabamount.length) +
             a % allthelengthsbesidesbalance % allthelengthsbesidesbalanceandplace % allthelengthsbesidesbalanceandplaceandpickup % lengthsofmovepartofcycleandgrabamount % grabamount.length
             ;
-
+//score high until, balance (and traps), then score amps (until it can't),
 
         //create a scenario tree, but start by defining variables to use during the iterations
-        const scenario = { points: 0, time: 150 };
+        const scenario = { points: 0, time: 150, piecesscoredinamps: -1 };
         let piecesscored = [], holdingpiece = [], links = [];
         for (let i in balancingtime) {
             for (let j in placetime) {
@@ -204,15 +220,17 @@
                     for (let l in autonmovepartofcycle) {
                         for (let m in movepartofcycle) {
                             for (let n in grabamount) {
+                                limitforbestscorer=Infinity;
                                 //this loops through each scenario where the scenario is defined in string format as (""+i+j+k+l+m+n) 
                                 //initialize the variables
-                                links = [dolinkshappeninthisgame, 3, 5, 5, 0];//first value is to see if links exist, the second value is how many pieces one needs for a link, and the 3rd value is the points for getting a link during auton and the 4th value is the points during teleop; for the steamship game, the gears should should be the bestscoring method that makes 0 points, but this array will be [true,1,60,40], and whenever we get the threshold the game, we will have to update the second value
+                                links = [dolinkshappeninthisgame, 4, 0, 4, 0];//first value is to see if links exist, the second value is how many pieces one needs for a link, and the 3rd value is the points for getting a link during auton and the 4th value is the points during teleop; for the steamship game, the gears should should be the bestscoring method that makes 0 points, but this array will be [true,1,60,40], and whenever we get the threshold the game, we will have to update the second value
                                 //links has a fith value set to 0 to keep track of what threshold the bot is up to
                                 piecesscored[0] = 0;
                                 holdingpiece[0] = 1;//start w/ holding one piece
                                 //holdingpiece[0]=1;//for a 2nd game piece
                                 scenario.time = 150; //seconds left in the game
                                 scenario.points = pointsformobility;//will always strive to make a robot that can get the mobility points
+                                scenario.piecesscoredinamps = -1;
                                 //auton
                                 //if(!startpreloaded){time-pickuptime[k]}
                                 //if(!startneargoal){time-autonmovepartofcycle[l]} this is unimplemented yet
@@ -237,6 +255,7 @@
                                 }
                                 else if (pointsforbalancing[0] > 0) { balance(0, i,j,k,l,m,n); }//balance if auton-balance is allowed
                                 //teleop
+                                limitforbestscorer=piecesscored[0];
                                 scenario.time = 135;
                                 scenarioaction[encodescenario(""+i+j+k+l+m+n)] = (scenarioaction[encodescenario(""+i+j+k+l+m+n)] ?? "") + "start of teleop;";
                                 scenariotimes[encodescenario(""+i+j+k+l+m+n)] = (scenariotimes[encodescenario(""+i+j+k+l+m+n)] ?? "") + "135;";
@@ -729,7 +748,7 @@
             }   
         }
         function checkforlinks(ifauton0ifteleop1) {
-            if (links[0] && piecesscored[0] % links[1] === 0) {
+            if (links[0] && piecesscored[0]-limitforbestscorer % links[1] === 0) {
                 scenario.points += links[2 + ifauton0ifteleop1];
                 if (linkthresholdprogression.length > 0) {
                     ++links[4];
@@ -744,7 +763,7 @@
             if (piecesscored[0] <= limitforbestscorer) { scenario.points += pointsforbestscorer[ifauton0ifteleop1] * holdingpiece[0]; }
             else { scenario.points += pointsforokscorer[ifauton0ifteleop1] * holdingpiece[0]; }
             holdingpiece[0] = 0;
-            checkforlinks(ifauton0ifteleop1);
+            if(ifauton0ifteleop1){checkforlinks(ifauton0ifteleop1);}
             scenariospoints.push({ x: 150 - scenario.time, y: scenario.points });
             piecesscoredovertime.push({ x: 150 - scenario.time, y: piecesscored[0] });
             scenarioaction[encodescenario(""+i+j+k+l+m+n)] = (scenarioaction[encodescenario(""+i+j+k+l+m+n)] ?? "") + "scoredpiece;";
