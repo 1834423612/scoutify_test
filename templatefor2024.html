@@ -222,7 +222,7 @@
 //score high until, balance (and traps), then score amps (until it can't),
 
         //create a scenario tree, but start by defining variables to use during the iterations
-        const scenario = { text:"speaker", points: 0, time: 150, piecesscoredinamps: -1, mode: "enough" };
+        const scenario = { text:"speaker", points: 0, time: 150, piecesscoredinamps: -1, mode: "enough",z:0 };
         let piecesscored = [], holdingpiece = [], links = [];
         for (let i in balancingtime) {
             for (let j in placetime) {
@@ -242,6 +242,7 @@
                                 scenario.points = pointsformobility;//will always strive to make a robot that can get the mobility points
                                 scenario.mode = "enough";
                                 scenario.mode = "speaker";
+                                scenario.z = 0;
                                 //auton
                                 
                                 //if there's time to balance and score...
@@ -271,17 +272,30 @@
                                 // if holding pieces at beginning of teleop
                                 if (holdingpiece[0] > 0) { scorepiece(1,i, j, k,l, m,n,o, 1); ++scenario.piecesscoredinamps;}//this doesn't count the time it takes to go from the charge station into the grid, which is bad for games when the place where mobility points are awarded is far away from a goal
                                 //score high and mid
-                                while (scenario.time - 2*(pickuptime[k] +movepartofcycle[m]+placetime[j]) - balancingtime[i]>= 0) {//if we want the program to see how much slower we can be w/out worsening score changing the 0 in ">=0" to some other number is a start.
+                                while (scenario.time -movepartofcycle[m] - scenario.z*(placetime[j]+pickuptime[k]) - balancingtime[i]>= 0) {//if we want the program to see how much slower we can be w/out worsening score changing the 0 in ">=0" to some other number is a start.
                                     if(scenario.piecesscoredinamps===0 && scenario.time - 3*(pickuptime[k] + movepartofcycle[m]+placetime[j]) - balancingtime[i] < 0) {scenario.mode="not enough";}
                                     ++scenario.piecesscoredinamps;
                                     holdingpiece[0] += grabamount[n];
-                                    document.write(scenario.mode);
                                     if(scenario.piecesscoredinamps===3||scenario.mode==="not enough"){scenario.text="speaker";}
                                     else{scenario.text="amp";}
                                     scorepiece(1,i, j, k,l, m,n,o);
                                     if(scenario.piecesscoredinamps===3&&scenario.mode==="enough"){scenario.piecesscoredinamps=0;}
                                 }
                                 //endgame
+                                scenario.z-=2;
+                                scenario.time-=scenario.z*(pickuptime[k]+placetime[j]);
+                                
+                                while (scenario.z >= 3) {
+                                    scenario.points+=2;
+                                    scenario.z-=2;
+                                    //let z=scenario.z;
+                                    scenario.points += 5*Math.floor(10/(pickuptime[k]+placetime[j]))
+                                    
+                                    scenario.z -= Math.floor(10/(pickuptime[k]+placetime[j]))
+                                }
+                                
+                                scenario.points += scenario.z*2
+
                                 if (pointsforbalancing[1] > 0) { balance(1, i,j,k,l,m,n,o); }
                                 scenario.time-=placetime[j]+pickuptime[k] + movepartofcycle[m];
                                 scenario.points+=pointsfortrap[1];
@@ -786,10 +800,7 @@
             }
             else{
                 if (holdingpiecesatbeginningofteleop === 1) { scenario.time -= placetime[j]; }
-                else { scenario.time -= placetime[j] + movepartofcycle[m] + pickuptime[k]; }
-                if (scenario.piecesscoredinamps===3) { scenario.points += pointsforbestscorer[0] * holdingpiece[0];}
-                else if(scenario.mode==="not enough"){scenario.points += pointsforbestscorer[1] * holdingpiece[0];}
-                else { scenario.points += pointsforokscorer[1] * holdingpiece[0]; }
+                else { scenario.time -= placetime[j] + movepartofcycle[m]/2 + pickuptime[k]; ++scenario.z;}
                 holdingpiece[0] = 0;
                 scenariospoints.push({ x: 150 - scenario.time, y: scenario.points });
                 piecesscoredovertime.push({ x: 150 - scenario.time, y: piecesscored[0] });
