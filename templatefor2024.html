@@ -222,7 +222,7 @@
 //score high until, balance (and traps), then score amps (until it can't),
 
         //create a scenario tree, but start by defining variables to use during the iterations
-        const scenario = { points: 0, time: 150, piecesscoredinamps: -1, mode: "enough" };
+        const scenario = { text:"speaker", points: 0, time: 150, piecesscoredinamps: -1, mode: "enough" };
         let piecesscored = [], holdingpiece = [], links = [];
         for (let i in balancingtime) {
             for (let j in placetime) {
@@ -241,6 +241,7 @@
                                 scenario.time = 150; //seconds left in the game
                                 scenario.points = pointsformobility;//will always strive to make a robot that can get the mobility points
                                 scenario.mode = "enough";
+                                scenario.mode = "speaker";
                                 //auton
                                 
                                 //if there's time to balance and score...
@@ -270,14 +271,14 @@
                                 // if holding pieces at beginning of teleop
                                 if (holdingpiece[0] > 0) { scorepiece(1,i, j, k,l, m,n,o, 1); ++scenario.piecesscoredinamps;}//this doesn't count the time it takes to go from the charge station into the grid, which is bad for games when the place where mobility points are awarded is far away from a goal
                                 //score high and mid
-                                while (scenario.time - 2*(pickuptime[k] + movepartofcycle[m]) - placetime[j] - balancingtime[i] - traptimes[o]>= 0) {//if we want the program to see how much slower we can be w/out worsening score changing the 0 in ">=0" to some other number is a start.
-                                    if(scenario.piecesscoredinamps===0&& scenario.time - 2*(pickuptime[k] + movepartofcycle[m])- placetime[j] - balancingtime[i] - traptimes[o] < 0) {scenario.mode="not enough";}
+                                while (scenario.time - 2*pickuptime[k] -2*movepartofcycle[m] - placetime[j] - balancingtime[i] - traptimes[o]>= 0) {//if we want the program to see how much slower we can be w/out worsening score changing the 0 in ">=0" to some other number is a start.
+                                    if(scenario.piecesscoredinamps===0 && scenario.time - 3*(pickuptime[k] + movepartofcycle[m])- 2*placetime[j] - balancingtime[i] - traptimes[o] <= 0) {scenario.mode="not enough";}
                                     ++scenario.piecesscoredinamps;
                                     holdingpiece[0] += grabamount[n];
                                     if(scenario.piecesscoredinamps===3||scenario.mode==="not enough"){scenario.text="speaker";}
                                     else{scenario.text="amp";}
                                     scorepiece(1,i, j, k,l, m,n,o);
-                                    if(scenario.piecesscoredinamps===3){scenario.piecesscoredinamps=0;}
+                                    if(scenario.piecesscoredinamps===3&&scenario.mode==="enough"){scenario.piecesscoredinamps=0;}
                                 }
                                 //endgame
                                 if (pointsforbalancing[1] > 0) { balance(1, i,j,k,l,m,n,o); }
@@ -740,6 +741,7 @@
             for (let i = startpoint; i < endpoint + 1; i++) { xyValues.push(scenariospoints[i]); }
             for (let i = startpointofpsotValues; i < endpointofpsotValues + 1; i++) { psotValues.push(piecesscoredovertime[i]); }
             let string_copy ="";
+             /*let table = document.getElementById("table_id");             table.innerHTML="";             const tr0 = document.createElement("tr");             const tr1 = document.createElement("tr");             const tr2 = document.createElement("tr");             const td00 = document.createElement("td");             const td01 = document.createElement("td");             const td02 = document.createElement("td");                          td00.innerText = "Time Left";             td01.innerText = "Time Elapsed";             td02.innerText = "Event";                          document.table.appendChild(tr0);             document.table.appendChild(tr1);             document.table.appendChild(tr2);             //document.tr0.appendChild(td00);             //document.tr1.appendChild(td01);             //document.tr2.appendChild(td02);             */
             for(let i of scenarioaction[scenario]){string_copy+=i;}
             let loopcount=0;
             while(string_copy.length>0){
