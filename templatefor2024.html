@@ -161,14 +161,14 @@
         //for any of the following time arrays and the grabamount array, the first index must have the smallest value, and the last index must have the largest value
         const balancingtime = [3,4, 6, 8];
         const pointsforbalancing = [0, 3];//auton and teleop
-        const placetime = [0];
+        const placetime = [ 2.5, 3,3.5,4];
         const pointsforbestscorer = [5, 2];//speaker
         //let limitforbestscorer = Infinity;//changes to piecesscored when teleop starts (in other words ends at start of teleop)
         const pointsforokscorer = [2, 1];//amp
-        const pickuptime = [2, 2.5, 3,3.5,4];
+        const pickuptime = [0];
         const autonmovepartofcycle = [2,3,4];//of closer pieces (not the ones on the centerline since the robot won't be that fast anyways)
         const movepartofcycle = [9, 10,11, 12];//if the game is pick & place and the goals take different times to travel to, estimate the average travel time
-        const autonPieceLimit = 8;
+        const autonPieceLimit = 1;
         const pointsformobility = 2;
         const grabamount = [1];//for games where you can grab more than one piece, this is the estimated average pieces grabbed. this must be a whole number
         const holdPieceLimit = 1;
@@ -283,15 +283,28 @@
                                 }
                                 //endgame
                                 scenario.z-=2;
-                                scenario.time-=scenario.z*(pickuptime[k]+placetime[j]);
+                                //scenario.time-=scenario.z*(pickuptime[k]+placetime[j]);
                                 
                                 while (scenario.z >= 3) {
-                                    scenario.points+=2;
-                                    scenario.z-=2;
-                                    //let z=scenario.z;
-                                    scenario.points += 5*Math.floor(10/(pickuptime[k]+placetime[j]))
-                                    
-                                    scenario.z -= Math.floor(10/(pickuptime[k]+placetime[j]))
+                                    for(let d=0;d<2;d++){
+                                        scenario.points+=1;
+                                        scenario.z-=1;
+                                        scenariospoints.push({ x: 150 - scenario.time, y: scenario.points });
+                                        piecesscoredovertime.push({ x: 150 - scenario.time, y: piecesscored[0] });
+                                        scenarioaction[encodescenario(""+i+j+k+l+m+n+o)] = (scenarioaction[encodescenario(""+i+j+k+l+m+n+o)] ?? "") + `scored ${scenario.text};`;
+                                        scenariotimes[encodescenario(""+i+j+k+l+m+n+o)] = (scenariotimes[encodescenario(""+i+j+k+l+m+n+o)] ?? "") + scenario.time+";";         
+                                        scenario.time-=pickuptime[k]+placetime[j];
+                                    }
+                                    for(let d=0;d<Math.floor(10/(pickuptime[k]+placetime[j]));d++){
+                                        scenario.points+=5;
+                                        scenario.time-=pickuptime[k]+placetime[j];
+                                        scenario.z-=1;
+                                        scenariospoints.push({ x: 150 - scenario.time, y: scenario.points });
+                                        piecesscoredovertime.push({ x: 150 - scenario.time, y: piecesscored[0] });
+                                        scenarioaction[encodescenario(""+i+j+k+l+m+n+o)] = (scenarioaction[encodescenario(""+i+j+k+l+m+n+o)] ?? "") + `scored ${scenario.text};`;
+                                        scenariotimes[encodescenario(""+i+j+k+l+m+n+o)] = (scenariotimes[encodescenario(""+i+j+k+l+m+n+o)] ?? "") + scenario.time+";";         
+                                    }
+                                   
                                 }
 
                                 scenario.points += scenario.z*2
