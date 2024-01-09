@@ -276,19 +276,27 @@
                                 //gather z pieces
                                 //one of z is for trap the other is the already holding one
                                 //time it takes to shoot all z pieces is movepartofcycle[m]/2 + scenario.z*placetime[j]+(scenario.z-1)*pickuptime[k]
-                                while (scenario.time - movepartofcycle[m]/2 - (scenario.z+1)*placetime[j]-scenario.z*pickuptime[k] - balancingtime[i]>= 0) {//if we want the program to see how much slower we can be w/out worsening score changing the 0 in ">=0" to some other number is a start.
+                                while (scenario.time - movepartofcycle[m]/2 - (scenario.z+2)*placetime[j]-(scenario.z+1)*pickuptime[k] - balancingtime[i]>= 0) {//if we want the program to see how much slower we can be w/out worsening score changing the 0 in ">=0" to some other number is a start.
                                     ++scenario.piecesscoredinamps;
                                     holdingpiece[0] += grabamount[n];
                                     scorepiece(1,i, j, k,l, m,n,o);
                                 }
                                 //endgame
                                 //remove trap
+                                //if coop, need to remove the coop note
                                 scenario.z-=1;
+                                
+                                //check for negatives//why is there multiplicity in the scenarios and why are trap places undefined (also undefined charts aren't responsive)
+                                
                                 //already holding one
-                                scenario.time+=pickuptime[k];
+                                scenario.time+=pickuptime[k]-movepartofcycle[m]/2;
+                                //piecesscored wrongly includes the trap piece
+                                //doesn't score coop yet
+                                
                                 while (scenario.z >= 3) {
                                     for(let d=0;d<2;d++){
-                                        scenario.points+=1; scenario.time-=pickuptime[k]+placetime[j];
+                                        scenario.points+=1;
+                                        scenario.time-=pickuptime[k]+placetime[j];
                                         scenario.z-=1;
                                         scenariospoints.push({ x: 150 - scenario.time, y: scenario.points });
                                         piecesscoredovertime.push({ x: 150 - scenario.time, y: piecesscored[0] });
@@ -307,7 +315,7 @@
                                 }
                                 while(scenario.z>0){
                                     --scenario.z;
-                                    ++scenario.points;
+                                    scenario.points+=pointsforbestscorer[1];
                                     scenario.time-=pickuptime[k]+placetime[j];
                                     scenariospoints.push({ x: 150 - scenario.time, y: scenario.points });
                                     piecesscoredovertime.push({ x: 150 - scenario.time, y: piecesscored[0] });
@@ -832,6 +840,7 @@
             scenarioaction[encodescenario(""+i+j+k+l+m+n+o)] = (scenarioaction[encodescenario(""+i+j+k+l+m+n+o)] ?? "") + "balance;"
             scenariotimes[encodescenario(""+i+j+k+l+m+n+o)] = (scenariotimes[encodescenario(""+i+j+k+l+m+n+o)] ?? "") + scenario.time+";";
         }
+        //for next year, add a gamelogic var that tells what to score in what order e.g. [[methodone,limit],...] where the limit can be triggered upon teleop begin or piecesscored[0] or piecesscored[1]
     </script>
 
 </body>
