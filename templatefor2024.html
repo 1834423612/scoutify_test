@@ -83,6 +83,7 @@
 
 <body>
     <h1>Charts</h1>
+    <p>Note that the robot actually uses placetime instead of trap time b/c I think their the same system of scoring, so they should take the same time</p>
 
 
     <div id="split-view-container">
@@ -155,7 +156,7 @@
 
         //will need to not score for amps and stuff closer to endgame
 
-        const dolinkshappeninthisgame = false;//pretend scores a speaker point simply by adding 4 points on every 3rd amp scorer (except for the first time that requires 4 and accounts for the coop piece)
+        const dolinkshappeninthisgame = false;
         const linkthresholdprogression = [];//leave this empty unless the links[1] is changing (links[1] is in the for-loop and represents how many pieces makes a link) like in the game steamworks
         //for the steamship game, const linkthresholdprogression=[1,2,3,4,5];
         //for any of the following time arrays and the grabamount array, the first index must have the smallest value, and the last index must have the largest value
@@ -163,7 +164,6 @@
         const pointsforbalancing = [0, 3];//auton and teleop
         const placetime = [ 1.5, 2,2.5,3];
         const pointsforbestscorer = [5, 2];//speaker
-        //let limitforbestscorer = Infinity;//changes to piecesscored when teleop starts (in other words ends at start of teleop)
         const pointsforokscorer = [2, 1];//amp
         const pickuptime = [1];
         const autonmovepartofcycle = [2,3,4];//of closer pieces (not the ones on the centerline since the robot won't be that fast anyways)
@@ -173,7 +173,7 @@
         const grabamount = [1];//for games where you can grab more than one piece, this is the estimated average pieces grabbed. this must be a whole number
         const holdPieceLimit = 1;
         const piecesscoredforrnkpnt = [15, 0];//assuming coop; must set this to 0 or Infinity in games where this doesn't exist
-        const traptimes = [3,5,7];
+        const traptimes = [0];
         const pointsfortrap = [5,5];
         //for charts
         const scenariospoints = [];//looks like this: [{x:time,y:points},...] & this contains multiple coordinate pairs for each scenario
@@ -271,29 +271,29 @@
                                 scenariotimes[encodescenario(""+i+j+k+l+m+n+o)] = (scenariotimes[encodescenario(""+i+j+k+l+m+n+o)] ?? "") + "135;";
                                 // if holding pieces at beginning of teleop
                                 if (holdingpiece[0] > 0) { scorepiece(1,i, j, k,l, m,n,o, 1); ++scenario.piecesscoredinamps;}//this doesn't count the time it takes to go from the charge station into the grid, which is bad for games when the place where mobility points are awarded is far away from a goal
-                                //score high and mid
-                                while (scenario.time -movepartofcycle[m] - scenario.z*(placetime[j]+pickuptime[k]) - balancingtime[i]>= 0) {//if we want the program to see how much slower we can be w/out worsening score changing the 0 in ">=0" to some other number is a start.
-                                    if(scenario.piecesscoredinamps===0 && scenario.time - 3*(pickuptime[k] + movepartofcycle[m]+placetime[j]) - balancingtime[i] < 0) {scenario.mode="not enough";}
+                                //subtract time to get next note
+                                scenario.time-=movepartofcycle[m]/4;
+                                //gather z pieces
+                                //one of z is for trap the other is the already holding one
+                                //time it takes to shoot all z pieces is movepartofcycle[m]/2 + scenario.z*placetime[j]+(scenario.z-1)*pickuptime[k]
+                                while (scenario.time - movepartofcycle[m]/2 - (scenario.z+1)*placetime[j]-scenario.z*pickuptime[k] - balancingtime[i]>= 0) {//if we want the program to see how much slower we can be w/out worsening score changing the 0 in ">=0" to some other number is a start.
                                     ++scenario.piecesscoredinamps;
                                     holdingpiece[0] += grabamount[n];
-                                    if(scenario.piecesscoredinamps===3||scenario.mode==="not enough"){scenario.text="speaker";}
-                                    else{scenario.text="amp";}
                                     scorepiece(1,i, j, k,l, m,n,o);
-                                    if(scenario.piecesscoredinamps===3&&scenario.mode==="enough"){scenario.piecesscoredinamps=0;}
                                 }
                                 //endgame
-                                scenario.z-=2;
-                                //scenario.time-=scenario.z*(pickuptime[k]+placetime[j]);
-                                
+                                //remove trap
+                                scenario.z-=1;
+                                //already holding one
+                                scenario.time+=pickuptime[k];
                                 while (scenario.z >= 3) {
                                     for(let d=0;d<2;d++){
                                         scenario.points+=1; scenario.time-=pickuptime[k]+placetime[j];
                                         scenario.z-=1;
                                         scenariospoints.push({ x: 150 - scenario.time, y: scenario.points });
                                         piecesscoredovertime.push({ x: 150 - scenario.time, y: piecesscored[0] });
-                                        scenarioaction[encodescenario(""+i+j+k+l+m+n+o)] = (scenarioaction[encodescenario(""+i+j+k+l+m+n+o)] ?? "") + `scored ${scenario.text};`;
-                                        scenariotimes[encodescenario(""+i+j+k+l+m+n+o)] = (scenariotimes[encodescenario(""+i+j+k+l+m+n+o)] ?? "") + scenario.time+";";         
-                                       
+                                        scenarioaction[encodescenario(""+i+j+k+l+m+n+o)] = (scenarioaction[encodescenario(""+i+j+k+l+m+n+o)] ?? "") + "scored amp;";
+                                        scenariotimes[encodescenario(""+i+j+k+l+m+n+o)] = (scenariotimes[encodescenario(""+i+j+k+l+m+n+o)] ?? "") + scenario.time+";";
                                     }
                                     for(let d=0;d<Math.floor(10/(pickuptime[k]+placetime[j]));d++){
                                         scenario.points+=5;
@@ -301,16 +301,22 @@
                                         scenario.z-=1;
                                         scenariospoints.push({ x: 150 - scenario.time, y: scenario.points });
                                         piecesscoredovertime.push({ x: 150 - scenario.time, y: piecesscored[0] });
-                                        scenarioaction[encodescenario(""+i+j+k+l+m+n+o)] = (scenarioaction[encodescenario(""+i+j+k+l+m+n+o)] ?? "") + `scored ${scenario.text};`;
+                                        scenarioaction[encodescenario(""+i+j+k+l+m+n+o)] = (scenarioaction[encodescenario(""+i+j+k+l+m+n+o)] ?? "") + "scored speaker;";
                                         scenariotimes[encodescenario(""+i+j+k+l+m+n+o)] = (scenariotimes[encodescenario(""+i+j+k+l+m+n+o)] ?? "") + scenario.time+";";         
                                     }
-                                   
+                                }
+                                while(scenario.z>0){
+                                    --scenario.z;
+                                    ++scenario.points;
+                                    scenario.time-=pickuptime[k]+placetime[j];
+                                    scenariospoints.push({ x: 150 - scenario.time, y: scenario.points });
+                                    piecesscoredovertime.push({ x: 150 - scenario.time, y: piecesscored[0] });
+                                    scenarioaction[encodescenario(""+i+j+k+l+m+n+o)] = (scenarioaction[encodescenario(""+i+j+k+l+m+n+o)] ?? "") + "scored speaker;";
+                                    scenariotimes[encodescenario(""+i+j+k+l+m+n+o)] = (scenariotimes[encodescenario(""+i+j+k+l+m+n+o)] ?? "") + scenario.time+";";
                                 }
 
-                                scenario.points += scenario.z*2
-
                                 if (pointsforbalancing[1] > 0) { balance(1, i,j,k,l,m,n,o); }
-                                scenario.time-=placetime[j]+pickuptime[k] + movepartofcycle[m];
+                                scenario.time-=placetime[j]+pickuptime[k];
                                 scenario.points+=pointsfortrap[1];
                                 scenariospoints.push({ x: 150 - scenario.time, y: scenario.points });
                                 scenarioaction[encodescenario(""+i+j+k+l+m+n+o)] = (scenarioaction[encodescenario(""+i+j+k+l+m+n+o)] ?? "") + "scoredtrap;";
@@ -807,20 +813,17 @@
                 scenario.time -= placetime[j];
                 scenario.points += pointsforbestscorer[0] * holdingpiece[0]; 
                 holdingpiece[0] = 0;
-                scenariospoints.push({ x: 150 - scenario.time, y: scenario.points });
-                piecesscoredovertime.push({ x: 150 - scenario.time, y: piecesscored[0] });
                 scenarioaction[encodescenario(""+i+j+k+l+m+n+o)] = (scenarioaction[encodescenario(""+i+j+k+l+m+n+o)] ?? "") + `scored ${scenario.text};`;
             }
             else{
                 if (holdingpiecesatbeginningofteleop === 1) { scenario.time -= placetime[j]; }
                 else { scenario.time -= placetime[j] + movepartofcycle[m]/2 + pickuptime[k]; ++scenario.z;}
                 holdingpiece[0] = 0;
-                scenariospoints.push({ x: 150 - scenario.time, y: scenario.points });
-                piecesscoredovertime.push({ x: 150 - scenario.time, y: piecesscored[0] });
                 scenarioaction[encodescenario(""+i+j+k+l+m+n+o)] = (scenarioaction[encodescenario(""+i+j+k+l+m+n+o)] ?? "") + `collected piece;`;
             }
-            scenariotimes[encodescenario(""+i+j+k+l+m+n+o)] = (scenariotimes[encodescenario(""+i+j+k+l+m+n+o)] ?? "") + scenario.time+";";         
-            
+            scenariospoints.push({ x: 150 - scenario.time, y: scenario.points });
+            piecesscoredovertime.push({ x: 150 - scenario.time, y: piecesscored[0] });
+            scenariotimes[encodescenario(""+i+j+k+l+m+n+o)] = (scenariotimes[encodescenario(""+i+j+k+l+m+n+o)] ?? "") + scenario.time+";";
         }
         function balance(ifauton0ifteleop1, i,j,k,l,m,n,o) {
             scenario.points += pointsforbalancing[ifauton0ifteleop1];
