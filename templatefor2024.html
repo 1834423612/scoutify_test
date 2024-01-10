@@ -118,7 +118,7 @@
                 <div style="display:block">
                     <canvas id="psotchart"></canvas>
                     <canvas id="myChart"></canvas>
-                    <table>
+                    <table id="table_id">
                         <tr id="tr0"><td>Elapsed Time</td></tr>
                         <tr id="tr1"><td>Time Left</td></tr>
                         <tr id="tr2"><td>Event</td></tr>
@@ -799,15 +799,12 @@
             for (let i = startpoint; i < endpoint + 1; i++) { xyValues.push(scenariospoints[i]); }
             for (let i = startpointofpsotValues; i < endpointofpsotValues + 1; i++) { psotValues.push(piecesscoredovertime[i]); }
             let string_copy ="";
-             /*let table = document.getElementById("table_id");             table.innerHTML="";             const tr0 = document.createElement("tr");             const tr1 = document.createElement("tr");             const tr2 = document.createElement("tr");             const td00 = document.createElement("td");             const td01 = document.createElement("td");             const td02 = document.createElement("td");                          td00.innerText = "Time Left";             td01.innerText = "Time Elapsed";             td02.innerText = "Event";                          document.table.appendChild(tr0);             document.table.appendChild(tr1);             document.table.appendChild(tr2);             //document.tr0.appendChild(td00);             //document.tr1.appendChild(td01);             //document.tr2.appendChild(td02);             */
-            //delete the td's besides the first td
             
+            //delete the td's besides the first td
             let table = document.getElementById("table_id");
             
             for(let i in table.rows){
-                while (table.rows[i].cells.length > 1) {
-                    table.rows[i].deleteCell(1);
-                }
+                for(let j in table.rows.cells){table.rows[i].deleteCell(1);}
             }
 
             for(let i in scenarioaction[scenarioencoded]){string_copy+=scenarioaction[scenarioencoded][i];}
