@@ -213,7 +213,7 @@
             a.charAt(4) * lengthsofmovepartofcycleandgrabamount +
             a.charAt(5) * grabamount.length +
             a.charAt(6) * 1//the multiplication by one switches the type from string to number so that the a.charAt(4) is added instead of concatenated
-        ;document.write(encodescenario("000000"));
+        ;
         //the following function undoes the encodescenario function by converting a scenario from the number format into the string format
         const decodescenario = (a) =>
             "" +
@@ -284,11 +284,13 @@
                                 //when scoring pieces, time it will take is move/4 + pickup*(z-1)+place*z
                                 //time it will take to score z+1 pieces is move/2 + pickup*(z)+place*(z+1)+gather time
                                 //that equals move/2 + pickup*(z+1)+place*(z+1) + & shoot and move/2
-                                while (scenario.time - movepartofcycle[m]/4-movepartofcycle[m]/2 - (scenario.z+1)*(placetime[j]+pickuptime[k]) - balancingtime[i]>= 0) {//if we want the program to see how much slower we can be w/out worsening score changing the 0 in ">=0" to some other number is a start.
+                                //either neglected move or place
+                                while (scenario.time - movepartofcycle[m]/4-movepartofcycle[m]/2 - (scenario.z+1)*(placetime[j]+pickuptime[k]) - balancingtime[i]>=0) {//if we want the program to see how much slower we can be w/out worsening score changing the 0 in ">=0" to some other number is a start.
                                     ++scenario.piecesscoredinamps;
                                     holdingpiece[0] += grabamount[n];
                                     scorepiece(1,i, j, k,l, m,n,o);
                                 }
+                                //if(scenario.time-movepartofcycle[m]/4+balancingtime[i]+(pickuptime[k]-1)*scenario.z+placetime[j]*scenario.z<20.0){document.write("problem detected");}
                                 //endgame
                                 //remove trap
                                 //if coop, need to remove the coop note
@@ -800,12 +802,6 @@
             for (let i = startpointofpsotValues; i < endpointofpsotValues + 1; i++) { psotValues.push(piecesscoredovertime[i]); }
             let string_copy ="";
             
-            //delete the td's besides the first td
-            let table = document.getElementById("table_id");
-            
-            for(let i in table.rows){
-                for(let j in table.rows.cells){table.rows[i].deleteCell(1);}
-            }
 
             for(let i in scenarioaction[scenarioencoded]){string_copy+=scenarioaction[scenarioencoded][i];}
             let loopcount=0;
@@ -813,7 +809,6 @@
                 if(loopcount===0){
                     ++loopcount;
                     let i = string_copy.indexOf(";");
-                    
                     string_copy = string_copy.substring(i + 1);
                 }
                 else{
@@ -822,6 +817,14 @@
                     td.innerText = string_copy.substring(0, i);
                     string_copy = string_copy.substring(i + 1);
                     document.getElementById("tr2").appendChild(td);
+                }
+            }
+            //delete the td's besides the first td
+            let table = document.getElementById("table_id");
+            for(let i in table.rows){
+                for(let j in table.rows.cells){
+                    table.rows[i].deleteCell(1);
+                    document.getElementById("tooltip").innerHTML+="it worked";
                 }
             }
             string_copy ="";
