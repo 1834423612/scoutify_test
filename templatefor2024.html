@@ -179,7 +179,7 @@
         const grabamount = [1];//for games where you can grab more than one piece, this is the estimated average pieces grabbed. this must be a whole number
         const holdPieceLimit = 1;
         const piecesscoredforrnkpnt = [15, 0];//assuming coop; must set this to 0 or Infinity in games where this doesn't exist
-        const fractionofmovementtorestock = [0];
+        const fractionofmovementtorestock = [1/2,3/4];
         const pointsfortrap = [5,5];
         //for charts
         const scenariospoints = [];//looks like this: [{x:time,y:points},...] & this contains multiple coordinate pairs for each scenario
@@ -278,28 +278,26 @@
                                 // if holding pieces at beginning of teleop
                                 if (holdingpiece[0] > 0) { scorepiece(1,i, j, k,l, m,n,o, 1); ++scenario.piecesscoredinamps;}//this doesn't count the time it takes to go from the charge station into the grid, which is bad for games when the place where mobility points are awarded is far away from a goal
                                 //subtract time to go to centerfield
-                                scenario.time-=movepartofcycle[m]/4;
+                                scenario.time-=movepartofcycle[m]*(1-fractionofmovementtorestock[o])/2;
                                 //subtract pickup & shoot and move/2 when gather a piece
                                 //when score a piece, subtract pickup & shoot besides the first piece which is already held and
                                 //when scoring pieces, time it will take is move/4 + pickup*(z-1)+place*z
                                 //time it will take to score z+1 pieces is move/2 + pickup*(z)+place*(z+1)+gather time
                                 //that equals move/2 + pickup*(z+1)+place*(z+1) + & shoot and move/2
                                 //either neglected move or place
-                                while (scenario.time - movepartofcycle[m]/4-movepartofcycle[m]/2 - (scenario.z+1)*(placetime[j]+pickuptime[k]) - balancingtime[i]>=movepartofcycle[m]/4) {//if we want the program to see how much slower we can be w/out worsening score changing the 0 in ">=0" to some other number is a start.
+                                while (scenario.time - movepartofcycle[m]*(1-fractionofmovementtorestock[o])/2-movepartofcycle[m]*fractionofmovementtorestock[o] - (scenario.z+1)*(placetime[j]+pickuptime[k]) - balancingtime[i]>=movepartofcycle[m]*(fractionofmovementtorestock[o])/2) {//if we want the program to see how much slower we can be w/out worsening score changing the 0 in ">=0" to some other number is a start.
                                     ++scenario.piecesscoredinamps;
                                     holdingpiece[0] += grabamount[n];
                                     scorepiece(1,i, j, k,l, m,n,o);
                                 }
-                                //if(scenario.time-movepartofcycle[m]/4+balancingtime[i]+(pickuptime[k]-1)*scenario.z+placetime[j]*scenario.z>=0.0){document.getElementById("tooltip").innerHTML="ouhoiu";}
                                 //endgame
                                 //remove trap
                                 //if coop, need to remove the coop note
                                 scenario.z-=1;
                                 
-                                //check for negatives//why is there multiplicity in the scenarios and why are fractionofmovementtorestocks undefined (also undefined charts aren't responsive)
                                 
                                 //already holding one and need to move back
-                                scenario.time+=pickuptime[k]-movepartofcycle[m]/4;
+                                scenario.time+=pickuptime[k]-movepartofcycle[m]*(1-fractionofmovementtorestock[o])/2;
                                 //piecesscored wrongly includes the trap piece
                                 //doesn't score coop yet
                                 
@@ -851,7 +849,7 @@
             }
             else{
                 if (holdingpiecesatbeginningofteleop === 1) { scenario.time -= placetime[j]; }
-                else { scenario.time -= placetime[j] + movepartofcycle[m]/2 + pickuptime[k]; ++scenario.z;}
+                else { scenario.time -= placetime[j] + movepartofcycle[m]*fractionofmovementtorestock[o] + pickuptime[k]; ++scenario.z;}
                 holdingpiece[0] = 0;
                 scenarioaction[encodescenario("" + i + j + k + l + o + m + n)] = (scenarioaction[encodescenario("" + i + j + k + l + o + m + n)] ?? "") + `collected piece;`;
             }
