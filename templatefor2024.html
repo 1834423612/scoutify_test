@@ -83,8 +83,7 @@
 
 <body>
     <h1>Charts</h1>
-    <p>Note that the robot actually uses placetime instead of trap time b/c I think their the same system of scoring, so they should take the same time</p>
-
+    
 
     <div id="split-view-container">
         <div class="split-view">
@@ -195,7 +194,6 @@
         const scenariotimes = [];
         const pointsclicked = [];
         const zeroindicespointsclicked = [];
-        //let text = "Speaker";
         //make a scenario to be represented by two data types, a string and integer
         //this needs to be done b/c the chart can't use a string for numbers on an axis & the human has no idea what the number is
         //define some scenario related variables
@@ -229,136 +227,135 @@
         
         //create a scenario tree, but start by defining variables to use during the iterations
         const scenario = { text:"speaker", points: 0, time: 150, piecesscoredinamps: -1, mode: "enough",z:0 };
-        let piecesscored = [], holdingpiece = [], links = [];
-        for (let i in balancingtime) {
-            for (let j in placetime) {
-                for (let k in pickuptime) {
-                    for (let l in autonmovepartofcycle) {
-                        for (let m in movepartofcycle) {
-                            for (let n in grabamount) {
-                            for (let o in fractionofmovementtorestock) {
-                                //this loops through each scenario where the scenario is defined in string format as (""+i+j+k+l+m+n) 
-                                //initialize the variables
-                                links = [dolinkshappeninthisgame, 4, 4, 4, 0];//first value is to see if links exist, the second value is how many pieces one needs for a link, and the 3rd value is the points for getting a link during auton and the 4th value is the points during teleop; for the steamship game, the gears should should be the bestscoring method that makes 0 points, but this array will be [true,1,60,40], and whenever we get the threshold the game, we will have to update the second value
-                                //links has a fith value set to 0 to keep track of what threshold the bot is up to
-                                piecesscored[0] = 0;
-                                holdingpiece[0] = 1;//start w/ holding one piece
-                                //holdingpiece[0]=1;//for a 2nd game piece
-                                scenario.time = 150; //seconds left in the game
-                                scenario.points = pointsformobility;//will always strive to make a robot that can get the mobility points
-                                scenario.mode = "enough";
-                                scenario.mode = "speaker";
-                                scenario.z = 0;
-                                //auton
-                                
-                                //if there's time to balance and score...
-                                if (scenario.time - placetime[j] - balancingtime[i] * (pointsforbalancing[0] > 0) >= 135) {
-                                    //place pieces during auton
-                                    while (scenario.time - placetime[j] - balancingtime[i] * (pointsforbalancing[0] > 0) >= 135 && piecesscored[0] < autonPieceLimit) {
-                                        scorepiece(0, i, j, k, l, m, n,o);
-                                        if (scenario.time - autonmovepartofcycle[l] / 2 - pickuptime[k] >= 135) {//the autonmovepartofcycle[l] is divided by two b/c the bot only travels to pick up game pices, not also back 
-                                            scenario.time -= autonmovepartofcycle[l] / 2 + pickuptime[k];
-                                            holdingpiece[0] += grabamount[n];
-                                            if (piecesscored[0] + holdingpiece[0] > autonPieceLimit) { holdingpiece[0] = autonPieceLimit - piecesscored[0] }//prevents holding more pieces than allowed given the autonPieceLimit and the pieces already scored: this is needed in a game where you can pick up more than one piece at a time
-                                            if (scenario.time - autonmovepartofcycle[l] / 2 - placetime[j] - balancingtime[i] * (pointsforbalancing[0] > 0) >= 135) { scenario.time -= autonmovepartofcycle[l] / 2; }
-                                            else if (pointsforbalancing[0] > 0) {//balance if auton-balance is allowed
-                                                scenario.time = 135 + balancingtime[i] * (pointsforbalancing[0] > 0);
-                                                balance(0, i,j,k,l,m,n,o);
+            let piecesscored = [], holdingpiece = [], links = [];
+            for (let i in balancingtime) {
+                for (let j in placetime) {
+                    for (let k in pickuptime) {
+                        for (let l in autonmovepartofcycle) {
+                            for (let o in fractionofmovementtorestock) {      
+                                for (let m in movepartofcycle) {
+                                    for (let n in grabamount) {
+                                    //initialize the variables
+                                    links = [dolinkshappeninthisgame, 4, 4, 4, 0];//first value is to see if links exist, the second value is how many pieces one needs for a link, and the 3rd value is the points for getting a link during auton and the 4th value is the points during teleop; for the steamship game, the gears should should be the bestscoring method that makes 0 points, but this array will be [true,1,60,40], and whenever we get the threshold the game, we will have to update the second value
+                                    //links has a fith value set to 0 to keep track of what threshold the bot is up to
+                                    piecesscored[0] = 0;
+                                    holdingpiece[0] = 1;//start w/ holding one piece
+                                    //holdingpiece[0]=1;//for a 2nd game piece
+                                    scenario.time = 150; //seconds left in the game
+                                    scenario.points = pointsformobility;//will always strive to make a robot that can get the mobility points
+                                    scenario.mode = "enough";
+                                    scenario.mode = "speaker";
+                                    scenario.z = 0;
+                                    //auton
+                                    
+                                    //if there's time to balance and score...
+                                    if (scenario.time - placetime[j] - balancingtime[i] * (pointsforbalancing[0] > 0) >= 135) {
+                                        //place pieces during auton
+                                        while (scenario.time - placetime[j] - balancingtime[i] * (pointsforbalancing[0] > 0) >= 135 && piecesscored[0] < autonPieceLimit) {
+                                            scorepiece(0, i, j, k, l, m, n,o);
+                                            if (scenario.time - autonmovepartofcycle[l] / 2 - pickuptime[k] >= 135) {//the autonmovepartofcycle[l] is divided by two b/c the bot only travels to pick up game pices, not also back 
+                                                scenario.time -= autonmovepartofcycle[l] / 2 + pickuptime[k];
+                                                holdingpiece[0] += grabamount[n];
+                                                if (piecesscored[0] + holdingpiece[0] > autonPieceLimit) { holdingpiece[0] = autonPieceLimit - piecesscored[0] }//prevents holding more pieces than allowed given the autonPieceLimit and the pieces already scored: this is needed in a game where you can pick up more than one piece at a time
+                                                if (scenario.time - autonmovepartofcycle[l] / 2 - placetime[j] - balancingtime[i] * (pointsforbalancing[0] > 0) >= 135) { scenario.time -= autonmovepartofcycle[l] / 2; }
+                                                else if (pointsforbalancing[0] > 0) {//balance if auton-balance is allowed
+                                                    scenario.time = 135 + balancingtime[i] * (pointsforbalancing[0] > 0);
+                                                    balance(0, i,j,k,l,m,n,o);
+                                                }
+                                                else { scenario.time = 135; }
                                             }
-                                            else { scenario.time = 135; }
                                         }
                                     }
-                                }
-                                else if (pointsforbalancing[0] > 0) { balance(0, i,j,k,l,m,n,o); }//balance if auton-balance is allowed
-                                //teleop
-                                scenario.text="amp";
-                                scenario.time = 135;
-                                scenarioaction[encodescenario("" + i + j + k + l + o + m + n)] = (scenarioaction[encodescenario("" + i + j + k + l + o + m + n)] ?? "") + "start of teleop;";
-                                scenariotimes[encodescenario("" + i + j + k + l + o + m + n)] = (scenariotimes[encodescenario("" + i + j + k + l + o + m + n)] ?? "") + "135;";
-                                // if holding pieces at beginning of teleop
-                                if (holdingpiece[0] > 0) { scorepiece(1,i, j, k,l, m,n,o, 1); ++scenario.piecesscoredinamps;}//this doesn't count the time it takes to go from the charge station into the grid, which is bad for games when the place where mobility points are awarded is far away from a goal
-                                //subtract time to go to centerfield
-                                scenario.time-=movepartofcycle[m]*(1-fractionofmovementtorestock[o])/2;
-                                //subtract pickup & shoot and move/2 when gather a piece
-                                //when score a piece, subtract pickup & shoot besides the first piece which is already held and
-                                //when scoring pieces, time it will take is move/4 + pickup*(z-1)+place*z
-                                //time it will take to score z+1 pieces is move/2 + pickup*(z)+place*(z+1)+gather time
-                                //that equals move/2 + pickup*(z+1)+place*(z+1) + & shoot and move/2
-                                //either neglected move or place
-                                while (scenario.time - movepartofcycle[m]*(1-fractionofmovementtorestock[o])/2-movepartofcycle[m]*fractionofmovementtorestock[o] - (scenario.z+1)*(placetime[j]+pickuptime[k]) - balancingtime[i]>=movepartofcycle[m]*(fractionofmovementtorestock[o])/2) {//if we want the program to see how much slower we can be w/out worsening score changing the 0 in ">=0" to some other number is a start.
-                                    ++scenario.piecesscoredinamps;
-                                    holdingpiece[0] += grabamount[n];
-                                    scorepiece(1,i, j, k,l, m,n,o);
-                                }
-                                //endgame
-                                //remove trap
-                                //if coop, need to remove the coop note
-                                scenario.z-=1;
-                                
-                                
-                                //already holding one and need to move back
-                                scenario.time+=pickuptime[k]-movepartofcycle[m]*(1-fractionofmovementtorestock[o])/2;
-                                //piecesscored wrongly includes the trap piece
-                                //doesn't score coop yet
-                                
-                                while (scenario.z >= 3) {
-                                    for(let d=0;d<2;d++){
-                                        scenario.points+=1;
-                                        scenario.time-=pickuptime[k]+placetime[j];
-                                        scenario.z-=1;
-                                        scenariospoints.push({ x: 150 - scenario.time, y: scenario.points });
-                                        piecesscoredovertime.push({ x: 150 - scenario.time, y: piecesscored[0] });
-                                        scenarioaction[encodescenario("" + i + j + k + l + o + m + n)] = (scenarioaction[encodescenario("" + i + j + k + l + o + m + n)] ?? "") + "scored amp;";
-                                        scenariotimes[encodescenario("" + i + j + k + l + o + m + n)] = (scenariotimes[encodescenario("" + i + j + k + l + o + m + n)] ?? "") + scenario.time+";";
+                                    else if (pointsforbalancing[0] > 0) { balance(0, i,j,k,l,m,n,o); }//balance if auton-balance is allowed
+                                    //teleop
+                                    scenario.text="amp";
+                                    scenario.time = 135;
+                                    scenarioaction[encodescenario("" + i + j + k + l + o + m + n)] = (scenarioaction[encodescenario("" + i + j + k + l + o + m + n)] ?? "") + "start of teleop;";
+                                    scenariotimes[encodescenario("" + i + j + k + l + o + m + n)] = (scenariotimes[encodescenario("" + i + j + k + l + o + m + n)] ?? "") + "135;";
+                                    // if holding pieces at beginning of teleop
+                                    if (holdingpiece[0] > 0) { scorepiece(1,i, j, k,l, m,n,o, 1); ++scenario.piecesscoredinamps;}//this doesn't count the time it takes to go from the charge station into the grid, which is bad for games when the place where mobility points are awarded is far away from a goal
+                                    //subtract time to go to centerfield
+                                    scenario.time-=movepartofcycle[m]*(1-fractionofmovementtorestock[o])/2;
+                                    //subtract pickup & shoot and move/2 when gather a piece
+                                    //when score a piece, subtract pickup & shoot besides the first piece which is already held and
+                                    //when scoring pieces, time it will take is move/4 + pickup*(z-1)+place*z
+                                    //time it will take to score z+1 pieces is move/2 + pickup*(z)+place*(z+1)+gather time
+                                    //that equals move/2 + pickup*(z+1)+place*(z+1) + & shoot and move/2
+                                    //either neglected move or place
+                                    while (scenario.time - movepartofcycle[m]*(1-fractionofmovementtorestock[o])/2-movepartofcycle[m]*fractionofmovementtorestock[o] - (scenario.z+1)*(placetime[j]+pickuptime[k]) - balancingtime[i]>=movepartofcycle[m]*(fractionofmovementtorestock[o])/2) {//if we want the program to see how much slower we can be w/out worsening score changing the 0 in ">=0" to some other number is a start.
+                                        ++scenario.piecesscoredinamps;
+                                        holdingpiece[0] += grabamount[n];
+                                        scorepiece(1,i, j, k,l, m,n,o);
                                     }
-                                    for(let d=0;d<Math.floor(10/(pickuptime[k]+placetime[j]));d++){
-                                        if(scenario.z){
-                                            scenario.points+=5;
+                                    //endgame
+                                    //remove trap
+                                    //if coop, need to remove the coop note
+                                    scenario.z-=1;
+                                    
+                                    
+                                    //already holding one and need to move back
+                                    scenario.time+=pickuptime[k]-movepartofcycle[m]*(1-fractionofmovementtorestock[o])/2;
+                                    //piecesscored wrongly includes the trap piece
+                                    //doesn't score coop yet
+                                    
+                                    while (scenario.z >= 3) {
+                                        for(let d=0;d<2;d++){
+                                            scenario.points+=1;
                                             scenario.time-=pickuptime[k]+placetime[j];
-                                            --scenario.z;
+                                            scenario.z-=1;
                                             scenariospoints.push({ x: 150 - scenario.time, y: scenario.points });
                                             piecesscoredovertime.push({ x: 150 - scenario.time, y: piecesscored[0] });
-                                            scenarioaction[encodescenario("" + i + j + k + l + o + m + n)] = (scenarioaction[encodescenario("" + i + j + k + l + o + m + n)] ?? "") + "scored speaker;";
-                                            scenariotimes[encodescenario("" + i + j + k + l + o + m + n)] = (scenariotimes[encodescenario("" + i + j + k + l + o + m + n)] ?? "") + scenario.time+";";         
+                                            scenarioaction[encodescenario("" + i + j + k + l + o + m + n)] = (scenarioaction[encodescenario("" + i + j + k + l + o + m + n)] ?? "") + "scored amp;";
+                                            scenariotimes[encodescenario("" + i + j + k + l + o + m + n)] = (scenariotimes[encodescenario("" + i + j + k + l + o + m + n)] ?? "") + scenario.time+";";
+                                        }
+                                        for(let d=0;d<Math.floor(10/(pickuptime[k]+placetime[j]));d++){
+                                            if(scenario.z){
+                                                scenario.points+=5;
+                                                scenario.time-=pickuptime[k]+placetime[j];
+                                                --scenario.z;
+                                                scenariospoints.push({ x: 150 - scenario.time, y: scenario.points });
+                                                piecesscoredovertime.push({ x: 150 - scenario.time, y: piecesscored[0] });
+                                                scenarioaction[encodescenario("" + i + j + k + l + o + m + n)] = (scenarioaction[encodescenario("" + i + j + k + l + o + m + n)] ?? "") + "scored speaker;";
+                                                scenariotimes[encodescenario("" + i + j + k + l + o + m + n)] = (scenariotimes[encodescenario("" + i + j + k + l + o + m + n)] ?? "") + scenario.time+";";         
+                                            }
                                         }
                                     }
-                                }
-                                while(scenario.z>0){
-                                    --scenario.z;
-                                    scenario.points+=pointsforbestscorer[1];
-                                    scenario.time-=pickuptime[k]+placetime[j];
+                                    while(scenario.z>0){
+                                        --scenario.z;
+                                        scenario.points+=pointsforbestscorer[1];
+                                        scenario.time-=pickuptime[k]+placetime[j];
+                                        scenariospoints.push({ x: 150 - scenario.time, y: scenario.points });
+                                        piecesscoredovertime.push({ x: 150 - scenario.time, y: piecesscored[0] });
+                                        scenarioaction[encodescenario("" + i + j + k + l + o + m + n)] = (scenarioaction[encodescenario("" + i + j + k + l + o + m + n)] ?? "") + "scored speaker;";
+                                        scenariotimes[encodescenario("" + i + j + k + l + o + m + n)] = (scenariotimes[encodescenario("" + i + j + k + l + o + m + n)] ?? "") + scenario.time+";";
+                                    }
+
+                                    balance(1, i,j,k,l,m,n,o);
+                                    scenario.time-=placetime[j]+pickuptime[k];
+                                    scenario.points+=pointsfortrap[1];
                                     scenariospoints.push({ x: 150 - scenario.time, y: scenario.points });
-                                    piecesscoredovertime.push({ x: 150 - scenario.time, y: piecesscored[0] });
-                                    scenarioaction[encodescenario("" + i + j + k + l + o + m + n)] = (scenarioaction[encodescenario("" + i + j + k + l + o + m + n)] ?? "") + "scored speaker;";
+                                    scenarioaction[encodescenario("" + i + j + k + l + o + m + n)] = (scenarioaction[encodescenario("" + i + j + k + l + o + m + n)] ?? "") + "scoredtrap;";
                                     scenariotimes[encodescenario("" + i + j + k + l + o + m + n)] = (scenariotimes[encodescenario("" + i + j + k + l + o + m + n)] ?? "") + scenario.time+";";
-                                }
 
-                                balance(1, i,j,k,l,m,n,o);
-                                scenario.time-=placetime[j]+pickuptime[k];
-                                scenario.points+=pointsfortrap[1];
-                                scenariospoints.push({ x: 150 - scenario.time, y: scenario.points });
-                                scenarioaction[encodescenario("" + i + j + k + l + o + m + n)] = (scenarioaction[encodescenario("" + i + j + k + l + o + m + n)] ?? "") + "scoredtrap;";
-                                scenariotimes[encodescenario("" + i + j + k + l + o + m + n)] = (scenariotimes[encodescenario("" + i + j + k + l + o + m + n)] ?? "") + scenario.time+";";
-
-                                //push chart values that have scenarios as a dimension
-                                const x = encodescenario("" + i + j + k + l + o + m + n);
-                                if (piecesscored[0] >= piecesscoredforrnkpnt[0] && piecesscoredforrnkpnt[0] && piecesscored[1] >= piecesscoredforrnkpnt[1] && piecesscoredforrnkpnt[1]) {
-                                    rnkValues.push({ x: x, y: 2 });
-                                    color.push("rgb(0,255,0)");
+                                    //push chart values that have scenarios as a dimension
+                                    const x = encodescenario("" + i + j + k + l + o + m + n);
+                                    if (piecesscored[0] >= piecesscoredforrnkpnt[0] && piecesscoredforrnkpnt[0] && piecesscored[1] >= piecesscoredforrnkpnt[1] && piecesscoredforrnkpnt[1]) {
+                                        rnkValues.push({ x: x, y: 2 });
+                                        color.push("rgb(0,255,0)");
+                                    }
+                                    else if ((piecesscored[0] >= piecesscoredforrnkpnt[0] && piecesscoredforrnkpnt[0]) || (piecesscored[1] >= piecesscoredforrnkpnt[1] && piecesscoredforrnkpnt[1])) {
+                                        rnkValues.push({ x: x, y: 1 });
+                                        color.push("rgb(255,255,0)");
+                                    }
+                                    else {
+                                        rnkValues.push({ x: x, y: 0 });
+                                        color.push("rgb(255,0,0)");
+                                    }
+                                    
+                                    totalscores.push({ x: x, y: scenario.points });
+                                    piecesoverscenarios.push({ x: x, y: piecesscored[0] });
+                                    allinclusivescenariodata.push({ x: scenario.points, y: piecesscored[0], scenario: x })
                                 }
-                                else if ((piecesscored[0] >= piecesscoredforrnkpnt[0] && piecesscoredforrnkpnt[0]) || (piecesscored[1] >= piecesscoredforrnkpnt[1] && piecesscoredforrnkpnt[1])) {
-                                    rnkValues.push({ x: x, y: 1 });
-                                    color.push("rgb(255,255,0)");
-                                }
-                                else {
-                                    rnkValues.push({ x: x, y: 0 });
-                                    color.push("rgb(255,0,0)");
-                                }
-                                
-                                totalscores.push({ x: x, y: scenario.points });
-                                piecesoverscenarios.push({ x: x, y: piecesscored[0] });
-                                allinclusivescenariodata.push({ x: scenario.points, y: piecesscored[0], scenario: x })
-                            }
                             }
                         }
                     }
@@ -433,9 +430,9 @@
                                             "Place (s): " + placetime[i.charAt(1)] + "<br>" +
                                             "Pickup (s): " + pickuptime[i.charAt(2)] + "<br>" +
                                             "Autonmovepartofcycle (s): " + autonmovepartofcycle[i.charAt(3)] + "<br>" +
+                                            "fractionofmovementtorestock (s) " + fractionofmovementtorestock[i.charAt(4)] + "<br>" +                                            
                                             "Movepartofcycle (s): " + movepartofcycle[i.charAt(5)] + "<br>" +
-                                            "Grabamount (pieces on average): " + grabamount[i.charAt(6)]+"<br>" +
-                                            "fractionofmovementtorestock (s) " + fractionofmovementtorestock[i.charAt(4)]
+                                            "Grabamount (pieces on average): " + grabamount[i.charAt(6)]
                                             ;
                                     }
                                 }
@@ -543,9 +540,9 @@
                                     "Place (s): " + placetime[decodescenario(tooltipItems[0].index).charAt(1)],
                                     "Pickup (s): " + pickuptime[decodescenario(tooltipItems[0].index).charAt(2)],
                                     "Autonmovepartofcycle (s): " + autonmovepartofcycle[decodescenario(tooltipItems[0].index).charAt(3)],
+                                    "fractionofmovementtorestock (s) " + fractionofmovementtorestock[decodescenario(tooltipItems[0].index).charAt(4)],
                                     "Movepartofcycle (s): " + movepartofcycle[decodescenario(tooltipItems[0].index).charAt(5)],
-                                    "Grabamount (pieces on average): " + grabamount[decodescenario(tooltipItems[0].index).charAt(6)],
-                                    "fractionofmovementtorestock (s) " + fractionofmovementtorestock[decodescenario(tooltipItems[0].index).charAt(4)]
+                                    "Grabamount (pieces on average): " + grabamount[decodescenario(tooltipItems[0].index).charAt(6)]
                                 ];
                             }
                         }
@@ -608,9 +605,9 @@
                                     "Place (s): " + placetime[decodescenario(tooltipItems[0].index).charAt(1)],
                                     "Pickup (s): " + pickuptime[decodescenario(tooltipItems[0].index).charAt(2)],
                                     "Autonmovepartofcycle (s): " + autonmovepartofcycle[decodescenario(tooltipItems[0].index).charAt(3)],
+                                    "fractionofmovementtorestock (s) " + fractionofmovementtorestock[decodescenario(tooltipItems[0].index).charAt(4)],
                                     "Movepartofcycle (s): " + movepartofcycle[decodescenario(tooltipItems[0].index).charAt(5)],
-                                    "Grabamount (pieces on average): " + grabamount[decodescenario(tooltipItems[0].index).charAt(6)],
-                                    "fractionofmovementtorestock (s) " + fractionofmovementtorestock[decodescenario(tooltipItems[0].index).charAt(4)]
+                                    "Grabamount (pieces on average): " + grabamount[decodescenario(tooltipItems[0].index).charAt(6)]
                                 ];
                             }
 
@@ -674,9 +671,9 @@
                                     "Place (s): " + placetime[decodescenario(tooltipItems[0].index).charAt(1)],
                                     "Pickup (s): " + pickuptime[decodescenario(tooltipItems[0].index).charAt(2)],
                                     "Autonmovepartofcycle (s): " + autonmovepartofcycle[decodescenario(tooltipItems[0].index).charAt(3)],
+                                    "fractionofmovementtorestock (s) " + fractionofmovementtorestock[decodescenario(tooltipItems[0].index).charAt(4)],
                                     "Movepartofcycle (s): " + movepartofcycle[decodescenario(tooltipItems[0].index).charAt(5)],
-                                    "Grabamount (pieces on average): " + grabamount[decodescenario(tooltipItems[0].index).charAt(6)],
-                                    "fractionofmovementtorestock (s) " + fractionofmovementtorestock[decodescenario(tooltipItems[0].index).charAt(4)]
+                                    "Grabamount (pieces on average): " + grabamount[decodescenario(tooltipItems[0].index).charAt(6)]
                                 ];
                             }
 
@@ -806,7 +803,6 @@
                 for (let j = table.rows[i].cells.length - 1; j > 0; j--) {
                     table.rows[i].deleteCell(j);
                 }
-                document.getElementById("tooltip").innerHTML += "it worked ";
             }
 
             for(let i in scenarioaction[scenarioencoded]){string_copy+=scenarioaction[scenarioencoded][i];}
