@@ -393,7 +393,28 @@
             }
         }
         const zeroindices = [];
-        for (let i of groupsofpoints) { zeroindices.push(i[0]); }
+        const maxs = [];
+        const mins = [];
+
+        for (let i of groupsofpoints) {
+            zeroindices.push(i[0]);
+            const min = [Infinity, Infinity, Infinity, Infinity, Infinity, Infinity, Infinity];
+            const max = [-Infinity, -Infinity, -Infinity, -Infinity, -Infinity, -Infinity, -Infinity];
+            
+            for (let j of i) {
+                for (let scenarioattribute = 0; scenarioattribute < 6; ++scenarioattribute) {
+                    if (j[scenarioattribute] < min[scenarioattribute]) {
+                        min[scenarioattribute] = j[scenarioattribute];
+                    }
+                    if (j[scenarioattribute] > max[scenarioattribute]) {
+                        max[scenarioattribute] = j[scenarioattribute];
+                    }
+                }
+            }
+            maxs.push(max);
+            mins.push(min);
+        }
+//document.write(maxs);
 
 
         //load charts
