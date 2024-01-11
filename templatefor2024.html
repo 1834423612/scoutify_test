@@ -179,7 +179,7 @@
         const grabamount = [1];//for games where you can grab more than one piece, this is the estimated average pieces grabbed. this must be a whole number
         const holdPieceLimit = 1;
         const piecesscoredforrnkpnt = [15, 0];//assuming coop; must set this to 0 or Infinity in games where this doesn't exist
-        const traptimes = [0];
+        const fractionofmovementtorestock = [0];
         const pointsfortrap = [5,5];
         //for charts
         const scenariospoints = [];//looks like this: [{x:time,y:points},...] & this contains multiple coordinate pairs for each scenario
@@ -199,10 +199,10 @@
         //make a scenario to be represented by two data types, a string and integer
         //this needs to be done b/c the chart can't use a string for numbers on an axis & the human has no idea what the number is
         //define some scenario related variables
-        const allthelengthsbesidesbalance = placetime.length * pickuptime.length * autonmovepartofcycle.length * movepartofcycle.length * grabamount.length* traptimes.length;
-        const allthelengthsbesidesbalanceandplace = pickuptime.length * autonmovepartofcycle.length * movepartofcycle.length * grabamount.length* traptimes.length;
-        const allthelengthsbesidesbalanceandplaceandpickup = autonmovepartofcycle.length * movepartofcycle.length * grabamount.length* traptimes.length;
-        const lengthsofmovepartofcycleandgrabamountandtraps = movepartofcycle.length * grabamount.length * traptimes.length;
+        const allthelengthsbesidesbalance = placetime.length * pickuptime.length * autonmovepartofcycle.length * movepartofcycle.length * grabamount.length* fractionofmovementtorestock.length;
+        const allthelengthsbesidesbalanceandplace = pickuptime.length * autonmovepartofcycle.length * movepartofcycle.length * grabamount.length* fractionofmovementtorestock.length;
+        const allthelengthsbesidesbalanceandplaceandpickup = autonmovepartofcycle.length * movepartofcycle.length * grabamount.length* fractionofmovementtorestock.length;
+        const lengthsofmovepartofcycleandgrabamountandtraps = movepartofcycle.length * grabamount.length * fractionofmovementtorestock.length;
         const lengthsofmovepartofcycleandgrabamount = movepartofcycle.length * grabamount.length;
         //turn a string that represents the indices in the scenario tree below into a number
         const encodescenario = (a) =>
@@ -236,7 +236,7 @@
                     for (let l in autonmovepartofcycle) {
                         for (let m in movepartofcycle) {
                             for (let n in grabamount) {
-                            for (let o in traptimes) {
+                            for (let o in fractionofmovementtorestock) {
                                 //this loops through each scenario where the scenario is defined in string format as (""+i+j+k+l+m+n) 
                                 //initialize the variables
                                 links = [dolinkshappeninthisgame, 4, 4, 4, 0];//first value is to see if links exist, the second value is how many pieces one needs for a link, and the 3rd value is the points for getting a link during auton and the 4th value is the points during teleop; for the steamship game, the gears should should be the bestscoring method that makes 0 points, but this array will be [true,1,60,40], and whenever we get the threshold the game, we will have to update the second value
@@ -296,7 +296,7 @@
                                 //if coop, need to remove the coop note
                                 scenario.z-=1;
                                 
-                                //check for negatives//why is there multiplicity in the scenarios and why are trap places undefined (also undefined charts aren't responsive)
+                                //check for negatives//why is there multiplicity in the scenarios and why are fractionofmovementtorestocks undefined (also undefined charts aren't responsive)
                                 
                                 //already holding one and need to move back
                                 scenario.time+=pickuptime[k]-movepartofcycle[m]/4;
@@ -437,7 +437,7 @@
                                             "Autonmovepartofcycle (s): " + autonmovepartofcycle[i.charAt(3)] + "<br>" +
                                             "Movepartofcycle (s): " + movepartofcycle[i.charAt(5)] + "<br>" +
                                             "Grabamount (pieces on average): " + grabamount[i.charAt(6)]+"<br>" +
-                                            "Trap Place (s) " + traptimes[i.charAt(4)]
+                                            "fractionofmovementtorestock (s) " + fractionofmovementtorestock[i.charAt(4)]
                                             ;
                                     }
                                 }
@@ -547,7 +547,7 @@
                                     "Autonmovepartofcycle (s): " + autonmovepartofcycle[decodescenario(tooltipItems[0].index).charAt(3)],
                                     "Movepartofcycle (s): " + movepartofcycle[decodescenario(tooltipItems[0].index).charAt(5)],
                                     "Grabamount (pieces on average): " + grabamount[decodescenario(tooltipItems[0].index).charAt(6)],
-                                    "Trap Place (s) " + traptimes[decodescenario(tooltipItems[0].index).charAt(4)]
+                                    "fractionofmovementtorestock (s) " + fractionofmovementtorestock[decodescenario(tooltipItems[0].index).charAt(4)]
                                 ];
                             }
                         }
@@ -612,7 +612,7 @@
                                     "Autonmovepartofcycle (s): " + autonmovepartofcycle[decodescenario(tooltipItems[0].index).charAt(3)],
                                     "Movepartofcycle (s): " + movepartofcycle[decodescenario(tooltipItems[0].index).charAt(5)],
                                     "Grabamount (pieces on average): " + grabamount[decodescenario(tooltipItems[0].index).charAt(6)],
-                                    "Trap Place (s) " + traptimes[decodescenario(tooltipItems[0].index).charAt(4)]
+                                    "fractionofmovementtorestock (s) " + fractionofmovementtorestock[decodescenario(tooltipItems[0].index).charAt(4)]
                                 ];
                             }
 
@@ -678,7 +678,7 @@
                                     "Autonmovepartofcycle (s): " + autonmovepartofcycle[decodescenario(tooltipItems[0].index).charAt(3)],
                                     "Movepartofcycle (s): " + movepartofcycle[decodescenario(tooltipItems[0].index).charAt(5)],
                                     "Grabamount (pieces on average): " + grabamount[decodescenario(tooltipItems[0].index).charAt(6)],
-                                    "Trap Place (s) " + traptimes[decodescenario(tooltipItems[0].index).charAt(4)]
+                                    "fractionofmovementtorestock (s) " + fractionofmovementtorestock[decodescenario(tooltipItems[0].index).charAt(4)]
                                 ];
                             }
 
