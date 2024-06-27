@@ -132,7 +132,8 @@
     <!--<script type="text/javascript" src="http://code.jquery.com/jquery.min.js"></script>-->
     <script>
         //even w/out counting stealing (if the opponent robots don't have ground intake), heavy defense will occur during scoring and will be able to drop the number of points scored in the amp to be at max two only when the opponents give a 5-second pin assuming we manage to score a piece each 2.5 seconds
-        
+        //needs automated intervals and itterating object
+        //automated intervals can be a function
         //add score into table
         
         //qual version w/ traps, balance, atain co-op, and includes amplifications
@@ -180,6 +181,15 @@
         const piecesscoredforrnkpnt = [15, 0];//assuming coop; must set this to 0 or Infinity in games where this doesn't exist
         const fractionofmovementtorestock = [1/2];
         const pointsfortrap = [5,5];
+        const itteratingArrays={
+            balancingtime:[5,6,7,8],
+            placetime:[1.5, 2,2.5,3],
+            pickuptime:[1],
+            autonmovepartofcycle:[2,3,4],
+            movepartofcycle:[7.5, 10,11, 12],
+            fractionofmovementtorestock:[1/2],
+            grabamount:[1],
+        }
         //for charts
         const scenariospoints = [];//looks like this: [{x:time,y:points},...] & this contains multiple coordinate pairs for each scenario
         const piecesscoredovertime = [];//like the scenariospoints array except the y-values track the pieces scored instead
