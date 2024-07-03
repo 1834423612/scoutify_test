@@ -129,6 +129,12 @@
     <!--<script type="text/javascript" src="http://code.jquery.com/jquery.min.js"></script>-->
     <script>        
         //working on:
+
+        //isn't accurate?
+        //fix chart-only shows charts w/ at least one rnkpnt
+        //why charts not display?
+        //check loop logic
+
         //for more than 10 scenarios, need to convert to two digit identification
         //program lacks the fact that there will be game pieces in the center of the field that are closer at the begginging of teleop
         //automated intervals can be a function
@@ -206,8 +212,8 @@
             const startpointofspecificPieceCountVsTime = endpointsofspecificPieceCountVsTime[scenarioDecoded] + 1;//an accessor
             const endpointofspecificPieceCountVsTime = endpointsofspecificPieceCountVsTime[scenarioDecoded + 1];
             //empty out the data arrays
-            specificPointsVsTime.splice(0, specificPointsVsTime.length);
-            specificPieceCountVsTime.splice(0, specificPieceCountVsTime.length);
+            specificPointsVsTime.splice(0, this.length);
+            specificPieceCountVsTime.splice(0, this.length);
             //for each point in the given range, push a point to the specificPointsVsTime array
             for (let i = startpoint; i < endpoint + 1; i++) { specificPointsVsTime.push(allPointsVsTime[i]); }
             for (let i = startpointofspecificPieceCountVsTime; i < endpointofspecificPieceCountVsTime + 1; i++) { specificPieceCountVsTime.push(allPieceCountVsTime[i]); }
@@ -484,15 +490,11 @@
                                     for (let i of groupsofpoints[zeroindices.indexOf(scenario)]) {
                                         const detail = document.createElement("details");
                                         document.getElementById("tooltip").appendChild(detail);
-                                        detail.innerHTML = "<summary>" + i + "</summary>" +
-                                            "Balance (s): " + balancingTime[i.charAt(0)] + "<br>" +
-                                            "Place (s): " + placeTime[i.charAt(1)] + "<br>" +
-                                            "Pickup (s): " + pickupTime[i.charAt(2)] + "<br>" +
-                                            "autonMovement (s): " + autonMovement[i.charAt(3)] + "<br>" +
-                                            "stockpileMovementFraction (s) " + stockpileMovementFraction[i.charAt(4)] + "<br>" +                                            
-                                            "movement (s): " + movement[i.charAt(5)] + "<br>" +
-                                            "grabAmount (pieces on average): " + grabAmount[i.charAt(6)]
-                                            ;
+                                        let details="<summary>" + i + "</summary>"
+                                        for(let j in iteratingArrays){
+                                            details+=iteratingArrays[j][0]+": "+iteratingArrays[j][Number(i.charAt(j))+1]+"<br>"
+                                        }
+                                        detail.innerHTML = details
                                     }
                                 }
                             },
@@ -529,8 +531,8 @@
                             }*/
                         }
                         else {
-                            zeroIndicesPointsClicked.splice(0,zeroIndicesPointsClicked.length);
-                            pointsClicked.splice(0,pointsClicked.length);
+                            zeroIndicesPointsClicked.splice(0,this.length);
+                            pointsClicked.splice(0,this.length);
                             document.getElementById("shiftkey").innerHTML="";
                             const element = scenariochart.getElementAtEvent(evt);
                             if (element.length > 0) {
@@ -595,12 +597,8 @@
                             footer: function (tooltipItems, data) {
                                 return iteratingArrays.map(
                                     ([key, ...values],indexOfMap) =>
-                                        [
-                                            key,
-                                            key[value[ decodeScenario(tooltipItems[0].index).charAt(indexOfMap) ]+": "]
-                                        ]
-                                    )
-                                ;
+                                        key+": "+values[ decodeScenario(tooltipItems[0].index).charAt(indexOfMap) ]
+                                );
                             }
                         }
                     },
@@ -659,12 +657,9 @@
                             footer: function (tooltipItems, data) {
                                 return iteratingArrays.map(
                                     ([key, ...values],indexOfMap) =>
-                                        [
-                                            key,
-                                            key[value[ decodeScenario(tooltipItems[0].index).charAt(indexOfMap) ]+": "]
-                                        ]
-                                    )
-                                ;
+                                        key+": "+values[ decodeScenario(tooltipItems[0].index).charAt(indexOfMap) ]
+
+                                );
                             }
                         }
                     },
@@ -723,12 +718,8 @@
                             footer: function (tooltipItems, data) {
                                 return iteratingArrays.map(
                                     ([key, ...values],indexOfMap) =>
-                                        [
-                                            key,
-                                            key[value[ decodeScenario(tooltipItems[0].index).charAt(indexOfMap) ]+": "]
-                                        ]
-                                    )
-                                ;
+                                        key+": "+values[ decodeScenario(tooltipItems[0].index).charAt(indexOfMap) ]
+                                );
                             }
 
                         }
