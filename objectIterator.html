@@ -15,6 +15,7 @@
         width: 100%;
         text-align: center;
     }
+
     div {
         display: inline-block
     }
@@ -55,7 +56,7 @@
         width: 100vw;
         height: 80vh;
         overflow: hidden;
-        overflow-x:hidden;
+        overflow-x: hidden;
     }
 
     #split-view-divider {
@@ -77,8 +78,13 @@
         overflow-y: scroll;
     }
 
-    td {border: 1px solid black;}
-    td:first-child {background-color: yellow;}
+    td {
+        border: 1px solid black;
+    }
+
+    td:first-child {
+        background-color: yellow;
+    }
 </style>
 
 <body>
@@ -87,26 +93,26 @@
     <div id="split-view-container">
         <div class="split-view">
             <h3>Strategy Comparison</h1>
-            <details>
-                <summary>Key:</summary>
-                <ul>
-                    <pre>
+                <details>
+                    <summary>Key:</summary>
+                    <ul>
+                        <pre>
                         <li><mark style="background-color:rgb(0,255,0);">  </mark> : 2 RNKPNT (not tracking this every year)</li>
                         <li><mark style="background-color:rgb(255, 255, 0);">  </mark> : 1 RNKPNT</li>
                         <li><mark style="background-color:rgb(255,0,0);">  </mark> : 0 RNKPNT</li>
                     </pre>
-                </ul>
-            </details>
-            <div class="scroller">
+                    </ul>
+                </details>
+                <div class="scroller">
                     <div style="display:block;">
                         <canvas id="psChart"></canvas>
                         <canvas id="piecesScoredchart"></canvas> <!--Total Score-Scenario Chart-->
                         <p>Note that the color indicator for this graph is inaccurate b/c the points overlap.
-                        <canvas id="scenarioChart"></canvas> <!--Pieces vs Total Score-->
+                            <canvas id="scenarioChart"></canvas> <!--Pieces vs Total Score-->
                         <p id="shiftkey"></p>
                         <canvas id="rnkpntChart"></canvas> <!--Ranking points vs Scenario id-->
                     </div>
-            </div>
+                </div>
         </div>
         <div id="split-view-divider"></div>
         <div class="split-view">
@@ -117,9 +123,15 @@
                     <canvas id="psotchart"></canvas>
                     <canvas id="myChart"></canvas>
                     <table id="table_id">
-                        <tr id="tr0"><td>Elapsed Time</td></tr>
-                        <tr id="tr1"><td>Time Left</td></tr>
-                        <tr id="tr2"><td>Event</td></tr>
+                        <tr id="tr0">
+                            <td>Time Left</td>
+                        </tr>
+                        <tr id="tr1">
+                            <td>Elapsed Time</td>
+                        </tr>
+                        <tr id="tr2">
+                            <td>Event</td>
+                        </tr>
                     </table>
                 </div>
             </div>
@@ -127,14 +139,16 @@
     </div>
     <script type="module" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
     <!--<script type="text/javascript" src="http://code.jquery.com/jquery.min.js"></script>-->
-    <script>        
+    <script>
         //working on:
 
         //isn't accurate?
         //fix chart-only shows charts w/ at least one rnkpnt
         //why charts not display?
         //check loop logic
+        //add back in links like 2023 file
 
+        //add scoring multiple piece type logic
         //for more than 10 scenarios, need to convert to two digit identification
         //program lacks the fact that there will be game pieces in the center of the field that are closer at the begginging of teleop
         //automated intervals can be a function
@@ -142,66 +156,73 @@
         //add in the shift select function
         //whenever everything is zero rnkpoints, for some reason, the rnkpoint chart doesn't display
         //program lacks the fact that there will be game pieces in the center of the field that are closer at the begginging of teleop
-                        
+
         const doLinksExist = false;
         const linkProgression = [];//leave this empty unless the links[1] is changing (links[1] is in the for-loop and represents how many pieces makes a link) like in the game steamworks
         //for the steamship game, linkProgression=[1,2,3,4,5];
         //points arrays are structured as [points for auton, points for teleop]
-        const linkPoints=[0,0]
+        const linkPoints = [0, 0]
         const pointsForBalancing = [0, 3];
         const pointsForBestScorer = [5, 2];//speaker
         const pointsForOkScorer = [2, 1];//amp
-        const pointsForTrap = [5,5];
+        const pointsForTrap = [5, 5];
         const pointsForMobility = 2;
         const autonPieceLimit = 1;
         const holdPieceLimit = 1;
         //structure of piecesScoredForRnkPnt: [# of piecesScored[0] for RnkPnt,# of piecesScored[1] for RnkPnt]
         const piecesScoredForRnkPnt = [15, 0];//assuming coop; can set to 0 in games this doesn't exist
-        const iteratingArrays=[//order possible times from smallest to largest
-            ["Balance (s)",5,6,7,8],
+        const iteratingArrays = [//order possible times from smallest to largest
+            /*["Balance (s)",5,6,7,8],
             ["Output (s)",1.5,2,2.5,3],
             ["Intake (s)",.75,1,1.25,1.5],
             ["Auton Movement (s)",2,3,3.5,4],
             ["Teleop Movement (s)",7.5, 10, 11, 12],
             ["Stockpile Movement Fraction",1/2],
-            ["Grab Amount (on average)",1],
+            ["Grab Amount (on average)",1],*/
+            ["Balance (s)", 3, 5, 8, 12, 15],
+            ["Output (s)", 2, 4],
+            ["Intake (s)", .75, 1, 1.25, 1.5],
+            ["Auton Movement (s)", 4, 6],
+            ["Teleop Movement (s)", 7, 9, 11],
+            ["Stockpile Movement Fraction", 1 / 2],
+            ["Grab Amount (on average)", 1],
         ];
         //charts are structured as [{x:x1,y:y1},{x:x2,y:y2}...] 
         const allPointsVsTime = [], allPieceCountVsTime = [], rnkValueVsScenario = [], pieceCountVsScenario = [], totalScoreVsScenario = [], pieceCountVsTotalScore = [], specificPointsVsTime = [], specificPieceCountVsTime = [];
         //structured as ["rgb(1st scenario's color)","rgb(2nd scenario's color)"...]
         const color = [];
         const scenarioAction = [], scenarioTimes = [], pointsClicked = [], zeroIndicesPointsClicked = [];
-        var scenario = { text:"speaker", points: 0, time: 150, piecesScoredInAmps: -1, mode: "enough",z:0 };
+        var scenario = { text: "speaker", points: 0, time: 150, piecesScoredInAmps: -1, mode: "enough", z: 0 };
         let piecesScored = [], holdingPiece = [], links = [];
-        let numberOfScenarios=1
-        for(let i of iteratingArrays){numberOfScenarios*=i.length-1}
+        let numberOfScenarios = 1
+        for (let i of iteratingArrays) { numberOfScenarios *= i.length - 1 }
 
         //turn a string that represents the indices in the scenario tree below into a number
-        function encodeScenario (a){
-            let result=0;
-            let multiplier=1;
-            for(let i=a.length-1;i>=0;--i){
-                result+=a.charAt(i) *multiplier
-                multiplier*=iteratingArrays[i].length-1
+        function encodeScenario(a) {
+            let result = 0;
+            let multiplier = 1;
+            for (let i = a.length - 1; i >= 0; --i) {
+                result += a.charAt(i) * multiplier
+                multiplier *= iteratingArrays[i].length - 1
             }
             return result;
         }
         //undo the encodeScenario function by converting a scenario from the number format into the string format
-        function decodeScenario (a){
-            let divisor=numberOfScenarios/(iteratingArrays[0].length-1)
-            let result=""
-            let remainder=a
-            for(let i in iteratingArrays){
-                result +=Math.floor(remainder / divisor);
-                remainder-=Math.floor(remainder / divisor)*divisor;
-                if(iteratingArrays[Number(i)+1]) divisor /= iteratingArrays[Number(i)+1].length-1;
+        function decodeScenario(a) {
+            let divisor = numberOfScenarios / (iteratingArrays[0].length - 1)
+            let result = ""
+            let remainder = a
+            for (let i in iteratingArrays) {
+                result += Math.floor(remainder / divisor);
+                remainder -= Math.floor(remainder / divisor) * divisor;
+                if (iteratingArrays[Number(i) + 1]) divisor /= iteratingArrays[Number(i) + 1].length - 1;
             }
             return result
         }
-        
+
         function updatedata(scenario) {
-            for(let i in scenarioTimes){
-                if(scenarioTimes[i].includes("-")){
+            for (let i in scenarioTimes) {
+                if (scenarioTimes[i].includes("-")) {
                     document.write("problem: a scenario takes longer than 2:30");
                 }
             }
@@ -217,8 +238,8 @@
             //for each point in the given range, push a point to the specificPointsVsTime array
             for (let i = startpoint; i < endpoint + 1; i++) { specificPointsVsTime.push(allPointsVsTime[i]); }
             for (let i = startpointofspecificPieceCountVsTime; i < endpointofspecificPieceCountVsTime + 1; i++) { specificPieceCountVsTime.push(allPieceCountVsTime[i]); }
-            let string_copy ="";
-            
+            let string_copy = "";
+
             //delete the td's besides the first td
             let table = document.getElementById("table_id");
             for (let i = 0; i < table.rows.length; i++) {
@@ -227,14 +248,14 @@
                 }
             }
 
-            for(let i in scenarioAction[scenarioDecoded]){string_copy+=scenarioAction[scenarioDecoded][i];}
-            let loopcount=0;
-            while(string_copy.length>0){
-                if(loopcount===0){
+            for (let i in scenarioAction[scenarioDecoded]) { string_copy += scenarioAction[scenarioDecoded][i]; }
+            let loopcount = 0;
+            while (string_copy.length > 0) {
+                if (loopcount === 0) {
                     ++loopcount;
                     let i = string_copy.indexOf(";");
                     string_copy = string_copy.substring(i + 1);
-                }else{
+                } else {
                     const td = document.createElement("td");
                     let i = string_copy.indexOf(";");
                     td.innerText = string_copy.substring(0, i);
@@ -242,55 +263,63 @@
                     document.getElementById("tr2").appendChild(td);
                 }
             }
-            string_copy ="";
-            for(let i in scenarioTimes[scenarioDecoded]){string_copy+=scenarioTimes[scenarioDecoded][i];}
-            while(string_copy.length>0){
+            string_copy = "";
+            for (let i in scenarioTimes[scenarioDecoded]) {
+                string_copy += scenarioTimes[scenarioDecoded][i];
+            }
+            while (string_copy.length > 0) {
                 const td0 = document.createElement("td");
                 let i = string_copy.indexOf(";");
                 td0.innerText = string_copy.substring(0, i);
                 string_copy = string_copy.substring(i + 1);
                 document.getElementById("tr0").appendChild(td0);
-                
+
                 const td1 = document.createElement("td");
                 td1.innerText = 150 - td0.innerText;
                 document.getElementById("tr1").appendChild(td1);
             }
         }
-        function autonScorePiece(scenarioEncoded){
+        function autonScorePiece(scenarioEncoded) {
             piecesScored[0] += holdingPiece[0];
             scenario.time -= scenario["Output (s)"];
-            scenario.points += pointsForBestScorer[0] * holdingPiece[0]; 
+            scenario.points += pointsForBestScorer[0] * holdingPiece[0];
             holdingPiece[0] = 0;
-            addPlotData(scenarioEncoded,"scored piece")
+            addPlotData(scenarioEncoded, "scored speaker")
         }
         //do: addPlotData(scenarioEncoded,`scored ${ring} into ${target}")
-        function scorePiece(scenarioEncoded, alreadyHoldingAndPositioned) {
+        function collectPiece(scenarioEncoded, alreadyHoldingAndPositioned) {
             piecesScored[0] += holdingPiece[0];
             holdingPiece[0] = 0;
             scenario.time -= scenario["Output (s)"];
-            if(!alreadyHoldingAndPositioned){
-                scenario.time -=scenario["Teleop Movement (s)"]*scenario["Stockpile Movement Fraction"] + scenario["Intake (s)"];
+            if (!alreadyHoldingAndPositioned) {
+                scenario.time -= scenario["Teleop Movement (s)"] * scenario["Stockpile Movement Fraction"] + scenario["Intake (s)"];
                 ++scenario.z;
+                addPlotData(scenarioEncoded, "collected piece")
+                return
             }
-            addPlotData(scenarioEncoded,"scored piece")
+            addPlotData(scenarioEncoded, "scored piece")
         }
-        //text for action must include "score" if action increases piecesScored 
-        function addPlotData(scenarioEncoded,action){
+        //text for action must include "score" or "collect" if action increases piecesScored
+        //"collect increases piecesScored b/c that would be too hard to track otherwise"
+        function addPlotData(scenarioEncoded, action) {
             allPointsVsTime.push({ x: 150 - scenario.time, y: scenario.points });
-            scenarioAction[scenarioEncoded] = (scenarioAction[scenarioEncoded] ?? "") +action+";"
-            scenarioTimes[scenarioEncoded] = (scenarioTimes[scenarioEncoded] ?? "") + scenario.time+";";
-            if(action.includes("score")) allPieceCountVsTime.push({ x: 150 - scenario.time, y: piecesScored[0] });
+            scenarioAction[scenarioEncoded] = (scenarioAction[scenarioEncoded] ?? "") + action + ";"
+            scenarioTimes[scenarioEncoded] = (scenarioTimes[scenarioEncoded] ?? "") + scenario.time + ";";
+            if (action.includes("score") || action.includes("collect")) allPieceCountVsTime.push({ x: 150 - scenario.time, y: piecesScored[0] });
         }
 
         //create a scenario tree, but start by defining variables to use during the iterations
-        for (let i=0;i<numberOfScenarios;++i) {
-           //change all inclusive 
-            const scenarioDecoded=decodeScenario(i)
-            for(let j of iteratingArrays){
-                scenario[j[0]]=j[Number(scenarioDecoded.charAt(j))+1]
+        for (let i = 0; i < numberOfScenarios; ++i) {
+
+            const scenarioDecoded = decodeScenario(i)
+            for (let j in iteratingArrays) {
+                scenario[iteratingArrays[j][0]] = iteratingArrays[j][Number(scenarioDecoded.charAt(j))+1]
             }
+            // for (let j of iteratingArrays) {
+            //     scenario[j[0]] = j[Number(scenarioDecoded.charAt(j)) + 1]
+            // }
             //initialize the variables
-            links = [doLinksExist,4,...linkPoints,0];//1st index is # of piecesScored needed for link and is subject to change as game progresses based on linkProgression
+            links = [doLinksExist, 4, ...linkPoints, 0];//1st index is # of piecesScored needed for link and is subject to change as game progresses based on linkProgression
             //last value set to 0 to keep track of what threshold the bot is up to
             piecesScored[0] = 0;
             holdingPiece[0] = 1;//start w/ holding one piece
@@ -301,112 +330,111 @@
             scenario.text = "speaker";
             scenario.z = 3;
             piecesScored[0] = 3;
-            const trueBalancingTime=scenario["Balance (s)"] * (pointsForBalancing[0] > 0)
-            
+            const trueBalancingTime = scenario["Balance (s)"] * (pointsForBalancing[0] > 0)
+
             //auton
             //if there's time to balance and score
-            if (scenario.time - scenario["Output (s)"] - trueBalancingTime >=135) {
+            if (scenario.time - scenario["Output (s)"] - trueBalancingTime >= 135) {
                 //place pieces during auton
-                while (scenario.time - scenario["Output (s)"] - trueBalancingTime >=135 && piecesScored[0] < autonPieceLimit) {
+                while (scenario.time - scenario["Output (s)"] - trueBalancingTime >= 135 && piecesScored[0] < autonPieceLimit) {
                     autonScorePiece(i);
-                    if(scenario.time - scenario["Auton Movement (s)"]/2 - scenario["Intake (s)"] >=135){//autonMovement is cut in half b/c the bot only travels to pick up game pices, not also back 
-                        scenario.time -= scenario["Auton Movement (s)"]/2 + scenario["Intake (s)"];
+                    if (scenario.time - scenario["Auton Movement (s)"] / 2 - scenario["Intake (s)"] >= 135) {//autonMovement is cut in half b/c the bot only travels to pick up game pices, not also back 
+                        scenario.time -= scenario["Auton Movement (s)"] / 2 + scenario["Intake (s)"];
                         holdingPiece[0] += scenario["Grab Amount (on average)"];
-                        if(piecesScored[0] + holdingPiece[0] > autonPieceLimit){
-//need to reduce the time to grab since grabbing less than the grabAmount
+                        if (piecesScored[0] + holdingPiece[0] > autonPieceLimit) {
+                            //need to reduce the time to grab since grabbing less than the grabAmount
                             holdingPiece[0] = autonPieceLimit - piecesScored[0]
                         }//prevents holding more pieces than allowed given the autonPieceLimit and the pieces already scored: this is needed in a game where you can pick up more than one piece at a time
-                        if(scenario.time - scenario["Auton Movement (s)"]/2 - scenario["Output (s)"] - trueBalancingTime >=135){ 
-                            scenario.time -= scenario["Auton Movement (s)"]/2;
-                        }else if(pointsForBalancing[0] > 0){//balance if auton-balance is allowed
+                        if (scenario.time - scenario["Auton Movement (s)"] / 2 - scenario["Output (s)"] - trueBalancingTime >= 135) {
+                            scenario.time -= scenario["Auton Movement (s)"] / 2;
+                        } else if (pointsForBalancing[0] > 0) {//balance if auton-balance is allowed
                             scenario.time = 135 + trueBalancingTime;
                             scenario.points += pointsForBalancing[0];
                             scenario.time -= scenario["Balance (s)"];
-                            addPlotData(i,"balance");
-                        }else{ scenario.time = 135; }
+                            addPlotData(i, "balance");
+                        } else { scenario.time = 135; }
                     }
                 }
-            }else if (scenario.time-trueBalancingTime>=135) {//balance if auton-balance is allowed
-                scenario.points += pointsForBalancing[ifauton0ifteleop1];
+            } else if (scenario.time - trueBalancingTime >= 135) {//balance if auton-balance is allowed
+                scenario.points += pointsForBalancing[0];
                 scenario.time -= scenario["Balance (s)"];
-                addPlotData(i,"balance");
+                addPlotData(i, "balance");
             }
             //teleop
-            scenario.text="amp";
+            scenario.text = "amp";
             scenario.time = 135;
-            scenarioAction[i] = (scenarioAction[i] ?? "") + "start of teleop;";
-            scenarioTimes[i] = (scenarioTimes[i] ?? "") + "135;";
+            //scenarioAction[i] = (scenarioAction[i] ?? "") + "start of teleop;";
+            //scenarioTimes[i] = (scenarioTimes[i] ?? "") + "135;";
             // if holding pieces at beginning of teleop
-            if(holdingPiece[0] > 0){
-                scorePiece(i, 1);
+            if (holdingPiece[0] > 0) {
+                piecesScored[0] += holdingPiece[0];
+                holdingPiece[0] = 0;
+                scenario.time -= scenario["Output (s)"];
+                scenario.points += pointsForBestScorer[1]
+
+                addPlotData(i, "scored speaker")
                 ++scenario.piecesScoredInAmps;
             }//this doesn't count the time it takes to go from the charge station into the grid, which is bad for games when the place where mobility points are awarded is far away from a goal
             //subtract time to go to centerfield
-            scenario.time-=scenario["Teleop Movement (s)"]*(1-scenario["Stockpile Movement Fraction"])/2;
+            scenario.time -= scenario["Teleop Movement (s)"] * (1 - scenario["Stockpile Movement Fraction"]) / 2;
             //subtract pickup & shoot and move/2 when gather a piece
             //when score a piece, subtract pickup & shoot besides the first piece which is already held and
             //when scoring pieces, time it will take is move/4 + pickup*(z-1)+place*z
             //time it will take to score z+1 pieces is move/2 + pickup*(z)+place*(z+1)+gather time
             //that equals move/2 + pickup*(z+1)+place*(z+1) + & shoot and move/2
             //either neglected move or place
-            while (scenario.time - scenario["Teleop Movement (s)"]*(1-scenario["Stockpile Movement Fraction"])/2-scenario["Teleop Movement (s)"]*scenario["Stockpile Movement Fraction"] - (scenario.z+1)*(scenario["Output (s)"]+scenario["Intake (s)"]) - scenario["Balance (s)"]>=scenario["Teleop Movement (s)"]*(scenario["Stockpile Movement Fraction"])/2) {//if we want the program to see how much slower we can be w/out worsening score changing the 0 in ">=0" to some other number is a start.
+            while (scenario.time - scenario["Teleop Movement (s)"] * (1 - scenario["Stockpile Movement Fraction"]) / 2 - scenario["Teleop Movement (s)"] * scenario["Stockpile Movement Fraction"] - (scenario.z + 1) * (scenario["Output (s)"] + scenario["Intake (s)"]) - scenario["Balance (s)"] >= scenario["Teleop Movement (s)"] * (scenario["Stockpile Movement Fraction"]) / 2) {//if we want the program to see how much slower we can be w/out worsening score changing the 0 in ">=0" to some other number is a start.
                 ++scenario.piecesScoredInAmps;
                 holdingPiece[0] += scenario["Grab Amount (on average)"];
-                scorePiece(i);
+                collectPiece(i);
             }
             //endgame
-            scenario.z-=1;
-            
+            scenario.z -= 1;
+
             //already holding one and need to move back
-            scenario.time+=scenario["Intake (s)"]-scenario["Teleop Movement (s)"]*(1-scenario["Stockpile Movement Fraction"])/2;
+            scenario.time += scenario["Intake (s)"] - scenario["Teleop Movement (s)"] * (1 - scenario["Stockpile Movement Fraction"]) / 2;
             while (scenario.z >= 3) {
-                for(let d=0;d<2;d++){
-                    scenario.points+=1;
-                    scenario.time-=scenario["Intake (s)"]+scenario["Output (s)"];
-                    scenario.z-=1;
-                    allPointsVsTime.push({ x: 150 - scenario.time, y: scenario.points });
-                    allPieceCountVsTime.push({ x: 150 - scenario.time, y: piecesScored[0] });
-                    scenarioAction[i] = (scenarioAction[i] ?? "") + "scored amp;";
-                    scenarioTimes[i] = (scenarioTimes[i] ?? "") + scenario.time+";";
+                for (let d = 0; d < 2; d++) {
+                    scenario.points += 1;
+                    scenario.time -= scenario["Intake (s)"] + scenario["Output (s)"];
+                    scenario.z -= 1;
+                    addPlotData(i, "scored amp")
                 }
-                for(let d=0;d<Math.floor(10/(scenario["Intake (s)"]+scenario["Output (s)"]));d++){
-                    if(scenario.z){
-                        scenario.points+=5;
-                        scenario.time-=scenario["Intake (s)"]+scenario["Output (s)"];
+                for (let d = 0; d < Math.floor(10 / (scenario["Intake (s)"] + scenario["Output (s)"])); d++) {
+                    if (scenario.z) {
+                        scenario.points += 5;
+                        scenario.time -= scenario["Intake (s)"] + scenario["Output (s)"];
                         --scenario.z;
-                        allPointsVsTime.push({ x: 150 - scenario.time, y: scenario.points });
-                        allPieceCountVsTime.push({ x: 150 - scenario.time, y: piecesScored[0] });
-                        scenarioAction[i] = (scenarioAction[i] ?? "") + "scored speaker;";
-                        scenarioTimes[i] = (scenarioTimes[i] ?? "") + scenario.time+";";         
+                        addPlotData(i, "scored speaker")
                     }
                 }
             }
-            while(scenario.z>0){
+            while (scenario.z > 0) {
                 --scenario.z;
-                scenario.points+=pointsForBestScorer[1];
-                scenario.time-=scenario["Intake (s)"]+scenario["Output (s)"];
+                scenario.points += pointsForBestScorer[1];
+                scenario.time -= scenario["Intake (s)"] + scenario["Output (s)"];
                 allPointsVsTime.push({ x: 150 - scenario.time, y: scenario.points });
                 allPieceCountVsTime.push({ x: 150 - scenario.time, y: piecesScored[0] });
                 scenarioAction[i] = (scenarioAction[i] ?? "") + "scored speaker;";
-                scenarioTimes[i] = (scenarioTimes[i] ?? "") + scenario.time+";";
+                scenarioTimes[i] = (scenarioTimes[i] ?? "") + scenario.time + ";";
             }
             scenario.points += pointsForBalancing[1];
             scenario.time -= scenario["Balance (s)"];
-            addPlotData(i,"balance");
-            scenario.time-=scenario["Output (s)"]+scenario["Intake (s)"];
-            scenario.points+=pointsForTrap[1];
+            addPlotData(i, "balance");
+            scenario.time -= scenario["Output (s)"] + scenario["Intake (s)"];
+            scenario.points += pointsForTrap[1];
             allPointsVsTime.push({ x: 150 - scenario.time, y: scenario.points });
             scenarioAction[i] = (scenarioAction[i] ?? "") + "scoredtrap;";
-            scenarioTimes[i] = (scenarioTimes[i] ?? "") + scenario.time+";";
+            scenarioTimes[i] = (scenarioTimes[i] ?? "") + scenario.time + ";";
 
             //push chart-values that have scenarios as a dimension
             if (piecesScored[0] >= piecesScoredForRnkPnt[0] && piecesScoredForRnkPnt[0] && piecesScored[1] >= piecesScoredForRnkPnt[1] && piecesScoredForRnkPnt[1]) {
                 rnkValueVsScenario.push({ x: i, y: 2 });
                 color.push("rgb(0,255,0)");
-            }else if ((piecesScored[0] >= piecesScoredForRnkPnt[0] && piecesScoredForRnkPnt[0]) || (piecesScored[1] >= piecesScoredForRnkPnt[1] && piecesScoredForRnkPnt[1])) {
+            } else if ((piecesScored[0] >= piecesScoredForRnkPnt[0] && piecesScoredForRnkPnt[0]) || (piecesScored[1] >= piecesScoredForRnkPnt[1] && piecesScoredForRnkPnt[1])) {
                 rnkValueVsScenario.push({ x: i, y: 1 });
                 color.push("rgb(255,255,0)");
-            }else {
+            } else {
                 rnkValueVsScenario.push({ x: i, y: 0 });
                 color.push("rgb(255,0,0)");
             }
@@ -414,21 +442,21 @@
             pieceCountVsScenario.push({ x: i, y: piecesScored[0] });
             pieceCountVsTotalScore.push({ x: scenario.points, y: piecesScored[0], scenario: i })
         }
-        
+
         //Figure out which scenario each set of scatter points belongs to by defining the endpoints of each scenaraio i.e. where one scenario stops and a new one starts.
         //To define where the endpoints will appear, loop through each value in the allPointsVsTime, which holds coordinate points for everytime the bot scores points for each scenario.
         //When the points-value (aka y-property) of one coordinate pair is less than the points of another coordinate pair, there must be a new scenario.
         const endpoints = [-1];//its -1 b/c it's the ending-point in a scenario where nothing happens: it was done like this so the next scenario starts w/ zero (-1+1=0). I added one b/c the endpoint of one scenario is 1 plus the startpoint of another scenario.
-        for (let i = 0; i < allPointsVsTime.length - 1; i++) {
+        for (let i = 0; i < allPointsVsTime.length - 1; ++i) {
             if (allPointsVsTime[i].x > allPointsVsTime[i + 1].x) { endpoints.push(i); }
         }
-        endpoints.push(allPointsVsTime.length);
+        endpoints.push(allPointsVsTime.length - 1);
         //do the same for the pieces scored-time chart
         const endpointsofspecificPieceCountVsTime = [-1];
-        for (let i = 0; i < allPieceCountVsTime.length - 1; i++) {
+        for (let i = 0; i < allPieceCountVsTime.length - 1; ++i) {
             if (allPieceCountVsTime[i].x > allPieceCountVsTime[i + 1].x) { endpointsofspecificPieceCountVsTime.push(i); }
         }
-        endpointsofspecificPieceCountVsTime.push(allPieceCountVsTime.length);
+        endpointsofspecificPieceCountVsTime.push(allPieceCountVsTime.length - 1);
 
         //create data arrays that will be used for the all inclusive chart's tooltip
         const groupsofpoints = [], coordinatesofgroups = [];
@@ -446,7 +474,7 @@
             zeroindices.push(i[0]);
             const min = [Infinity, Infinity, Infinity, Infinity, Infinity, Infinity, Infinity];
             const max = [-Infinity, -Infinity, -Infinity, -Infinity, -Infinity, -Infinity, -Infinity];
-            
+
             for (let j of i) {
                 for (let scenarioattribute = 0; scenarioattribute < 6; ++scenarioattribute) {
                     if (j[scenarioattribute] < min[scenarioattribute]) {
@@ -476,7 +504,7 @@
                 options: {
                     title: {
                         display: true,
-                        text: 'Pieces Scored - Total Score'
+                        text: 'Pieces Scored/collected if stockpile - Total Score'
                     },
                     tooltips: {
                         bodyFontStyle: "bold",
@@ -490,9 +518,9 @@
                                     for (let i of groupsofpoints[zeroindices.indexOf(scenario)]) {
                                         const detail = document.createElement("details");
                                         document.getElementById("tooltip").appendChild(detail);
-                                        let details="<summary>" + i + "</summary>"
-                                        for(let j in iteratingArrays){
-                                            details+=iteratingArrays[j][0]+": "+iteratingArrays[j][Number(i.charAt(j))+1]+"<br>"
+                                        let details = "<summary>" + i + "</summary>"
+                                        for (let j in iteratingArrays) {
+                                            details += iteratingArrays[j][0] + ": " + iteratingArrays[j][Number(i.charAt(j)) + 1] + "<br>"
                                         }
                                         detail.innerHTML = details
                                     }
@@ -503,7 +531,7 @@
                                 return [
                                     "Total Score: " + pieceCountVsTotalScore[tooltipItems[0].index].x,
                                     "Pieces Scored: " + pieceCountVsTotalScore[tooltipItems[0].index].y,
-                                    "Scenarios that exist: " + groupsofpoints[zeroindices.indexOf(decodeScenario(tooltipItems[0].index))].length 
+                                    "Scenarios that exist: " + groupsofpoints[zeroindices.indexOf(decodeScenario(tooltipItems[0].index))].length
                                 ];
                             }
                         }
@@ -531,20 +559,21 @@
                             }*/
                         }
                         else {
-                            zeroIndicesPointsClicked.splice(0,this.length);
-                            pointsClicked.splice(0,this.length);
-                            document.getElementById("shiftkey").innerHTML="";
+                            zeroIndicesPointsClicked.splice(0, this.length);
+                            pointsClicked.splice(0, this.length);
+                            document.getElementById("shiftkey").innerHTML = "";
                             const element = scenariochart.getElementAtEvent(evt);
                             if (element.length > 0) {
                                 const ind = element[0]._index;
                                 if (confirm('Do you want to see this scenario?')) {
+                                    console.log(ind)
                                     updatedata(ind);
                                     psotchart.update();
                                     scoretimechart.update();
                                 }
                             }
                         }
-                        
+
                     },
                     legend: { display: false },
                     scales: {
@@ -561,7 +590,7 @@
                         yAxes: [{
                             scaleLabel: {
                                 display: true,
-                                labelString: "Pieces Scored",
+                                labelString: "Pieces Scored/Collected if stockpile",
                             },
                             ticks: {
                                 min: pieceCountVsTotalScore[pieceCountVsTotalScore.length - 1].y,
@@ -596,8 +625,8 @@
                             //color does not appear before the footer
                             footer: function (tooltipItems, data) {
                                 return iteratingArrays.map(
-                                    ([key, ...values],indexOfMap) =>
-                                        key+": "+values[ decodeScenario(tooltipItems[0].index).charAt(indexOfMap) ]
+                                    ([key, ...values], indexOfMap) =>
+                                        key + ": " + values[decodeScenario(tooltipItems[0].index).charAt(indexOfMap)]
                                 );
                             }
                         }
@@ -608,8 +637,14 @@
                             var ind = element[0]._index;
                             if (confirm('Do you want to see this scenario?')) {
                                 updatedata(ind);
-                                psotchart.update();
-                                scoretimechart.update();
+                                try {
+                                    psotchart.update();
+                                    scoretimechart.update();
+                                    console.log("a")
+                                } catch (error) {
+                                    console.log(error);
+                                }
+
                             }
                         }
                     },
@@ -656,8 +691,8 @@
                             //color does not appear before the footer
                             footer: function (tooltipItems, data) {
                                 return iteratingArrays.map(
-                                    ([key, ...values],indexOfMap) =>
-                                        key+": "+values[ decodeScenario(tooltipItems[0].index).charAt(indexOfMap) ]
+                                    ([key, ...values], indexOfMap) =>
+                                        key + ": " + values[decodeScenario(tooltipItems[0].index).charAt(indexOfMap)]
 
                                 );
                             }
@@ -717,8 +752,8 @@
                             //color does not appear before the footer
                             footer: function (tooltipItems, data) {
                                 return iteratingArrays.map(
-                                    ([key, ...values],indexOfMap) =>
-                                        key+": "+values[ decodeScenario(tooltipItems[0].index).charAt(indexOfMap) ]
+                                    ([key, ...values], indexOfMap) =>
+                                        key + ": " + values[decodeScenario(tooltipItems[0].index).charAt(indexOfMap)]
                                 );
                             }
 
@@ -742,7 +777,7 @@
                                 display: true,
                                 labelString: "Scenarios Encoded",
                             },
-                            ticks: { min: 0, max: numberOfScenarios-1 }
+                            ticks: { min: 0, max: numberOfScenarios - 1 }
                         }],
                         yAxes: [{
                             scaleLabel: {
@@ -767,7 +802,7 @@
                 options: {
                     title: {
                         display: true,
-                        text: 'PIECES SCORED - TIME'
+                        text: 'PIECES SCORED/collected if stockpile - TIME'
                     },
                     legend: { display: false },
                     scales: {
@@ -781,7 +816,7 @@
                         yAxes: [{
                             scaleLabel: {
                                 display: true,
-                                labelString: "Pieces Scored",
+                                labelString: "Pieces Scored/collected if stockpile",
                             },
                             ticks: { min: 0, max: pieceCountVsScenario[0].y },
                         }],
@@ -824,4 +859,5 @@
         });
     </script>
 </body>
+
 </html>

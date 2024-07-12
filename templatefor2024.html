@@ -873,13 +873,13 @@
                 scenario.time -= placetime[j];
                 scenario.points += pointsforbestscorer[0] * holdingpiece[0]; 
                 holdingpiece[0] = 0;
-                scenarioaction[encodescenario("" + i + j + k + l + o + m + n)] = (scenarioaction[encodescenario("" + i + j + k + l + o + m + n)] ?? "scored speaker;") + `scored speaker;`;
+                scenarioaction[encodescenario("" + i + j + k + l + o + m + n)] = (scenarioaction[encodescenario("" + i + j + k + l + o + m + n)] ?? "scored speaker;") + "scored speaker;";
             }
             else{
                 if (holdingpiecesatbeginningofteleop === 1) { scenario.time -= placetime[j]; }
                 else { scenario.time -= placetime[j] + movepartofcycle[m]*fractionofmovementtorestock[o] + pickuptime[k]; ++scenario.z;}
                 holdingpiece[0] = 0;
-                scenarioaction[encodescenario("" + i + j + k + l + o + m + n)] = (scenarioaction[encodescenario("" + i + j + k + l + o + m + n)] ?? "") + `collected piece;`;
+                scenarioaction[encodescenario("" + i + j + k + l + o + m + n)] = (scenarioaction[encodescenario("" + i + j + k + l + o + m + n)] ?? "") + "collected piece;";
             }
             scenariospoints.push({ x: 150 - scenario.time, y: scenario.points });
             piecesscoredovertime.push({ x: 150 - scenario.time, y: piecesscored[0] });

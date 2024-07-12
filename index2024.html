@@ -145,6 +145,7 @@
         */
         //intitialize variable
         //There are two common types of arrays: points and time. Whenever there is a points array, it will look like this: [pointsAwardedForScoringThisWayInAuton,pointsAwardedForScoringThisWayInTeleop]. Whenever there is a time array, it will look like this [guess#1forHowLongThisTaskWillTake,...other guesses]. The guesses must be arranged in order from least to greatest time and can contain no more than 10 guesses. The grabamount array is like the time arrays in that it must be arranged the same way and can't be longer than 10 values. It will look like this: [1stguessForAveragePiecesGrabbedWhileTryingToPickup,other guesses]
+        const dolinkshappeninthisgame=false
         const amplify = [0, 1];
         const linkthresholdprogression = [];//leave this empty unless the links[1] is changing (links[1] is in the for-loop and represents how many pieces makes a link) like in the game steamworks
         //for the steamship game, const linkthresholdprogression=[1,2,3,4,5];
