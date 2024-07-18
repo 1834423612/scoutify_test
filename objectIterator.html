@@ -142,7 +142,8 @@
     <script>
         //working on:
 
-        //isn't accurate?
+        //fix table
+        //add scenario data on specific scenario side
         //fix chart-only shows charts w/ at least one rnkpnt
         //why charts not display?
         //check loop logic
@@ -171,21 +172,14 @@
         const holdPieceLimit = 1;
         //structure of piecesScoredForRnkPnt: [# of piecesScored[0] for RnkPnt,# of piecesScored[1] for RnkPnt]
         const piecesScoredForRnkPnt = [15, 0];//assuming coop; can set to 0 in games this doesn't exist
-        const iteratingArrays = [//order possible times from smallest to largest
-            /*["Balance (s)",5,6,7,8],
+        const iteratingArrays = [
+            ["Balance (s)",5,6,7,8],
             ["Output (s)",1.5,2,2.5,3],
             ["Intake (s)",.75,1,1.25,1.5],
-            ["Auton Movement (s)",2,3,3.5,4],
+            ["Auton Movement (s)",2,3,3.5,4],//all the movement times include aligning
             ["Teleop Movement (s)",7.5, 10, 11, 12],
             ["Stockpile Movement Fraction",1/2],
-            ["Grab Amount (on average)",1],*/
-            ["Balance (s)", 3, 5, 8, 12, 15],
-            ["Output (s)", 2, 4],
-            ["Intake (s)", .75, 1, 1.25, 1.5],
-            ["Auton Movement (s)", 4, 6],
-            ["Teleop Movement (s)", 7, 9, 11],
-            ["Stockpile Movement Fraction", 1 / 2],
-            ["Grab Amount (on average)", 1],
+            ["Grab Amount (on average)",1],
         ];
         //charts are structured as [{x:x1,y:y1},{x:x2,y:y2}...] 
         const allPointsVsTime = [], allPieceCountVsTime = [], rnkValueVsScenario = [], pieceCountVsScenario = [], totalScoreVsScenario = [], pieceCountVsTotalScore = [], specificPointsVsTime = [], specificPieceCountVsTime = [];
@@ -224,6 +218,7 @@
             for (let i in scenarioTimes) {
                 if (scenarioTimes[i].includes("-")) {
                     document.write("problem: a scenario takes longer than 2:30");
+                    scenarioAction[i]-=0
                 }
             }
             let scenarioDecoded = scenario;
@@ -248,21 +243,21 @@
                 }
             }
 
-            for (let i in scenarioAction[scenarioDecoded]) { string_copy += scenarioAction[scenarioDecoded][i]; }
+            for (let i in scenarioAction[scenarioDecoded]) {
+                string_copy += scenarioAction[scenarioDecoded][i];
+            }
             let loopcount = 0;
             while (string_copy.length > 0) {
-                if (loopcount === 0) {
-                    ++loopcount;
-                    let i = string_copy.indexOf(";");
-                    string_copy = string_copy.substring(i + 1);
-                } else {
-                    const td = document.createElement("td");
-                    let i = string_copy.indexOf(";");
-                    td.innerText = string_copy.substring(0, i);
-                    string_copy = string_copy.substring(i + 1);
-                    document.getElementById("tr2").appendChild(td);
-                }
+                let i = string_copy.indexOf(";");
+                
+                const td = document.createElement("td");
+                td.innerText = string_copy.substring(0, i);
+                string_copy = string_copy.substring(i + 1);
+                document.getElementById("tr2").appendChild(td);
+                
+                ++loopcount;
             }
+
             string_copy = "";
             for (let i in scenarioTimes[scenarioDecoded]) {
                 string_copy += scenarioTimes[scenarioDecoded][i];
@@ -310,14 +305,10 @@
 
         //create a scenario tree, but start by defining variables to use during the iterations
         for (let i = 0; i < numberOfScenarios; ++i) {
-
             const scenarioDecoded = decodeScenario(i)
             for (let j in iteratingArrays) {
                 scenario[iteratingArrays[j][0]] = iteratingArrays[j][Number(scenarioDecoded.charAt(j))+1]
             }
-            // for (let j of iteratingArrays) {
-            //     scenario[j[0]] = j[Number(scenarioDecoded.charAt(j)) + 1]
-            // }
             //initialize the variables
             links = [doLinksExist, 4, ...linkPoints, 0];//1st index is # of piecesScored needed for link and is subject to change as game progresses based on linkProgression
             //last value set to 0 to keep track of what threshold the bot is up to
@@ -365,6 +356,7 @@
             scenario.time = 135;
             //scenarioAction[i] = (scenarioAction[i] ?? "") + "start of teleop;";
             //scenarioTimes[i] = (scenarioTimes[i] ?? "") + "135;";
+            
             // if holding pieces at beginning of teleop
             if (holdingPiece[0] > 0) {
                 piecesScored[0] += holdingPiece[0];
@@ -383,7 +375,9 @@
             //time it will take to score z+1 pieces is move/2 + pickup*(z)+place*(z+1)+gather time
             //that equals move/2 + pickup*(z+1)+place*(z+1) + & shoot and move/2
             //either neglected move or place
-            while (scenario.time - scenario["Teleop Movement (s)"] * (1 - scenario["Stockpile Movement Fraction"]) / 2 - scenario["Teleop Movement (s)"] * scenario["Stockpile Movement Fraction"] - (scenario.z + 1) * (scenario["Output (s)"] + scenario["Intake (s)"]) - scenario["Balance (s)"] >= scenario["Teleop Movement (s)"] * (scenario["Stockpile Movement Fraction"]) / 2) {//if we want the program to see how much slower we can be w/out worsening score changing the 0 in ">=0" to some other number is a start.
+            const traptime=scenario["Output (s)"] + scenario["Intake (s)"];
+            const endBalanceTime = scenario["Teleop Movement (s)"] * (scenario["Stockpile Movement Fraction"])/2
+            while (scenario.time - scenario["Teleop Movement (s)"] * (1 - scenario["Stockpile Movement Fraction"]) / 2 - scenario["Teleop Movement (s)"] * scenario["Stockpile Movement Fraction"] - (scenario.z + 1) * (scenario["Output (s)"] + scenario["Intake (s)"]) - scenario["Balance (s)"] >= endBalanceTime + traptime) {//if we want the program to see how much slower we can be w/out worsening score changing the 0 in ">=0" to some other number is a start.
                 ++scenario.piecesScoredInAmps;
                 holdingPiece[0] += scenario["Grab Amount (on average)"];
                 collectPiece(i);
@@ -413,19 +407,16 @@
                 --scenario.z;
                 scenario.points += pointsForBestScorer[1];
                 scenario.time -= scenario["Intake (s)"] + scenario["Output (s)"];
-                allPointsVsTime.push({ x: 150 - scenario.time, y: scenario.points });
-                allPieceCountVsTime.push({ x: 150 - scenario.time, y: piecesScored[0] });
-                scenarioAction[i] = (scenarioAction[i] ?? "") + "scored speaker;";
-                scenarioTimes[i] = (scenarioTimes[i] ?? "") + scenario.time + ";";
+
+                addPlotData(i,"scored speaker")
             }
             scenario.points += pointsForBalancing[1];
             scenario.time -= scenario["Balance (s)"];
             addPlotData(i, "balance");
             scenario.time -= scenario["Output (s)"] + scenario["Intake (s)"];
             scenario.points += pointsForTrap[1];
-            allPointsVsTime.push({ x: 150 - scenario.time, y: scenario.points });
-            scenarioAction[i] = (scenarioAction[i] ?? "") + "scoredtrap;";
-            scenarioTimes[i] = (scenarioTimes[i] ?? "") + scenario.time + ";";
+            //since don't want to add to points scored, don't write "score"
+            addPlotData(i,"scor_d trap")
 
             //push chart-values that have scenarios as a dimension
             if (piecesScored[0] >= piecesScoredForRnkPnt[0] && piecesScoredForRnkPnt[0] && piecesScored[1] >= piecesScoredForRnkPnt[1] && piecesScoredForRnkPnt[1]) {
