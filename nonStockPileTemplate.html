@@ -116,7 +116,7 @@
         </div>
         <div id="split-view-divider"></div>
         <div class="split-view">
-            <h3>Selected Scenario</h3>
+            <h3 id="selectedScenario">Selected Scenario</h3>
             <div class="scroller">
                 <p id="tooltip"></p>
                 <div style="display:block">
@@ -142,14 +142,9 @@
     <script>
         //working on:
 
-        //fix table
         //add scenario data on specific scenario side
-        //fix chart-only shows charts w/ at least one rnkpnt
-        //why charts not display?
-        //check loop logic
         //add back in links like 2023 file
 
-        //add scoring multiple piece type logic
         //for more than 10 scenarios, need to convert to two digit identification
         //program lacks the fact that there will be game pieces in the center of the field that are closer at the begginging of teleop
         //automated intervals can be a function
@@ -186,7 +181,7 @@
         //structured as ["rgb(1st scenario's color)","rgb(2nd scenario's color)"...]
         const color = [];
         const scenarioAction = [], scenarioTimes = [], pointsClicked = [], zeroIndicesPointsClicked = [];
-        var scenario = { text: "speaker", points: 0, time: 150, piecesScoredInAmps: -1, mode: "enough", z: 0 };
+        var scenario = { points: 0, time: 150, z: 0 };
         let piecesScored = [], holdingPiece = [], links = [];
         let numberOfScenarios = 1
         for (let i of iteratingArrays) { numberOfScenarios *= i.length - 1 }
@@ -215,6 +210,7 @@
         }
 
         function updatedata(scenario) {
+            document.getElementById("selectedScenario").innerHTML="Selected Scenario: " + scenario+" "+decodeScenario(scenario)
             for (let i in scenarioTimes) {
                 if (scenarioTimes[i].includes("-")) {
                     document.write("problem: a scenario takes longer than 2:30");
@@ -282,16 +278,14 @@
             addPlotData(scenarioEncoded, "scored speaker")
         }
         //do: addPlotData(scenarioEncoded,`scored ${ring} into ${target}")
-        function collectPiece(scenarioEncoded, alreadyHoldingAndPositioned) {
+        function scorePiece(scenarioEncoded, alreadyHoldingAndPositioned) {
             piecesScored[0] += holdingPiece[0];
             holdingPiece[0] = 0;
-            scenario.time -= scenario["Output (s)"];
-            if (!alreadyHoldingAndPositioned) {
-                scenario.time -= scenario["Teleop Movement (s)"] * scenario["Stockpile Movement Fraction"] + scenario["Intake (s)"];
-                ++scenario.z;
-                addPlotData(scenarioEncoded, "collected piece")
-                return
+            scenario.time -= scenario["Teleop Movement (s)"] + scenario["Output (s)"] + scenario["Intake (s)"];
+            if (alreadyHoldingAndPositioned) {
+                scenario.time += scenario["Teleop Movement (s)"] + scenario["Intake (s)"];
             }
+            scenario.points+=pointsForBestScorer[1]
             addPlotData(scenarioEncoded, "scored piece")
         }
         //text for action must include "score" or "collect" if action increases piecesScored
@@ -303,7 +297,7 @@
             if (action.includes("score") || action.includes("collect")) allPieceCountVsTime.push({ x: 150 - scenario.time, y: piecesScored[0] });
         }
 
-        //create a scenario tree, but start by defining variables to use during the iterations
+        //create a scenario tree
         for (let i = 0; i < numberOfScenarios; ++i) {
             const scenarioDecoded = decodeScenario(i)
             for (let j in iteratingArrays) {
@@ -317,9 +311,6 @@
             //holdingPiece[1]=1; //for a 2nd game piece
             scenario.time = 150; //seconds left in the game
             scenario.points = pointsForMobility;//will always get
-            scenario.mode = "enough";
-            scenario.text = "speaker";
-            scenario.z = 3;
             piecesScored[0] = 3;
             const trueBalancingTime = scenario["Balance (s)"] * (pointsForBalancing[0] > 0)
 
@@ -352,7 +343,6 @@
                 addPlotData(i, "balance");
             }
             //teleop
-            scenario.text = "amp";
             scenario.time = 135;
             //scenarioAction[i] = (scenarioAction[i] ?? "") + "start of teleop;";
             //scenarioTimes[i] = (scenarioTimes[i] ?? "") + "135;";
@@ -365,7 +355,6 @@
                 scenario.points += pointsForBestScorer[1]
 
                 addPlotData(i, "scored speaker")
-                ++scenario.piecesScoredInAmps;
             }//this doesn't count the time it takes to go from the charge station into the grid, which is bad for games when the place where mobility points are awarded is far away from a goal
             //subtract time to go to centerfield
             scenario.time -= scenario["Teleop Movement (s)"] * (1 - scenario["Stockpile Movement Fraction"]) / 2;
@@ -374,42 +363,12 @@
             //when scoring pieces, time it will take is move/4 + pickup*(z-1)+place*z
             //time it will take to score z+1 pieces is move/2 + pickup*(z)+place*(z+1)+gather time
             //that equals move/2 + pickup*(z+1)+place*(z+1) + & shoot and move/2
-            //either neglected move or place
             const traptime=scenario["Output (s)"] + scenario["Intake (s)"];
-            const endBalanceTime = scenario["Teleop Movement (s)"] * (scenario["Stockpile Movement Fraction"])/2
-            while (scenario.time - scenario["Teleop Movement (s)"] * (1 - scenario["Stockpile Movement Fraction"]) / 2 - scenario["Teleop Movement (s)"] * scenario["Stockpile Movement Fraction"] - (scenario.z + 1) * (scenario["Output (s)"] + scenario["Intake (s)"]) - scenario["Balance (s)"] >= endBalanceTime + traptime) {//if we want the program to see how much slower we can be w/out worsening score changing the 0 in ">=0" to some other number is a start.
-                ++scenario.piecesScoredInAmps;
+            while (scenario.time - scenario["Teleop Movement (s)"] - scenario["Output (s)"] - scenario["Balance (s)"]*pointsForBalancing[1]-traptime>=0){ //if we want the program to see how much slower we can be w/out worsening score changing the 0 in ">=0" to some other number is a start.
                 holdingPiece[0] += scenario["Grab Amount (on average)"];
-                collectPiece(i);
+                scorePiece(i);
             }
             //endgame
-            scenario.z -= 1;
-
-            //already holding one and need to move back
-            scenario.time += scenario["Intake (s)"] - scenario["Teleop Movement (s)"] * (1 - scenario["Stockpile Movement Fraction"]) / 2;
-            while (scenario.z >= 3) {
-                for (let d = 0; d < 2; d++) {
-                    scenario.points += 1;
-                    scenario.time -= scenario["Intake (s)"] + scenario["Output (s)"];
-                    scenario.z -= 1;
-                    addPlotData(i, "scored amp")
-                }
-                for (let d = 0; d < Math.floor(10 / (scenario["Intake (s)"] + scenario["Output (s)"])); d++) {
-                    if (scenario.z) {
-                        scenario.points += 5;
-                        scenario.time -= scenario["Intake (s)"] + scenario["Output (s)"];
-                        --scenario.z;
-                        addPlotData(i, "scored speaker")
-                    }
-                }
-            }
-            while (scenario.z > 0) {
-                --scenario.z;
-                scenario.points += pointsForBestScorer[1];
-                scenario.time -= scenario["Intake (s)"] + scenario["Output (s)"];
-
-                addPlotData(i,"scored speaker")
-            }
             scenario.points += pointsForBalancing[1];
             scenario.time -= scenario["Balance (s)"];
             addPlotData(i, "balance");
