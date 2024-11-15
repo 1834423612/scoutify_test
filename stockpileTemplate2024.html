@@ -89,7 +89,11 @@
 
 <body>
     <h1>Charts</h1>
-
+    <details>
+        <summary>ougyp;ouig</summary>
+        piholi
+        <input number>
+    </details>
     <div id="split-view-container">
         <div class="split-view">
             <h3>Strategy Comparison</h1>
@@ -153,11 +157,12 @@
         //whenever everything is zero rnkpoints, for some reason, the rnkpoint chart doesn't display
         //program lacks the fact that there will be game pieces in the center of the field that are closer at the begginging of teleop
 
+        //auton links not implemented
         const doLinksExist = false;
-        const linkProgression = [];//leave this empty unless the links[1] is changing (links[1] is in the for-loop and represents how many pieces makes a link) like in the game steamworks
+        const linkProgression = [3,3,3,3,3,3,3,3,3,3,3,3];//represents how many pieces makes a link, next number in a array is how many pieces constitutes the 2nd link, and so on and so forth: like in the game steamworks
         //for the steamship game, linkProgression=[1,2,3,4,5];
         //points arrays are structured as [points for auton, points for teleop]
-        const linkPoints = [0, 0]
+        const linkPoints = [5, 5]
         const pointsForBalancing = [0, 3];
         const pointsForBestScorer = [5, 2];//speaker
         const pointsForOkScorer = [2, 1];//amp
@@ -176,6 +181,9 @@
             ["Stockpile Movement Fraction",1/2],
             ["Grab Amount (on average)",1],
         ];
+        for(let i in iteratingArrays){
+            
+        }
         //charts are structured as [{x:x1,y:y1},{x:x2,y:y2}...] 
         const allPointsVsTime = [], allPieceCountVsTime = [], rnkValueVsScenario = [], pieceCountVsScenario = [], totalScoreVsScenario = [], pieceCountVsTotalScore = [], specificPointsVsTime = [], specificPieceCountVsTime = [];
         //structured as ["rgb(1st scenario's color)","rgb(2nd scenario's color)"...]
@@ -223,8 +231,8 @@
             const startpointofspecificPieceCountVsTime = endpointsofspecificPieceCountVsTime[scenarioDecoded] + 1;//an accessor
             const endpointofspecificPieceCountVsTime = endpointsofspecificPieceCountVsTime[scenarioDecoded + 1];
             //empty out the data arrays
-            specificPointsVsTime.splice(0, this.length);
-            specificPieceCountVsTime.splice(0, this.length);
+            specificPointsVsTime.splice(0, specificPointsVsTime.length);
+            specificPieceCountVsTime.splice(0, specificPieceCountVsTime.length);
             //for each point in the given range, push a point to the specificPointsVsTime array
             for (let i = startpoint; i < endpoint + 1; i++) { specificPointsVsTime.push(allPointsVsTime[i]); }
             for (let i = startpointofspecificPieceCountVsTime; i < endpointofspecificPieceCountVsTime + 1; i++) { specificPieceCountVsTime.push(allPieceCountVsTime[i]); }
@@ -305,7 +313,6 @@
                 scenario[iteratingArrays[j][0]] = iteratingArrays[j][Number(scenarioDecoded.charAt(j))+1]
             }
             //initialize the variables
-            links = [doLinksExist, 4, ...linkPoints, 0];//1st index is # of piecesScored needed for link and is subject to change as game progresses based on linkProgression
             //last value set to 0 to keep track of what threshold the bot is up to
             piecesScored[0] = 0;
             holdingPiece[0] = 1;//start w/ holding one piece
@@ -355,8 +362,21 @@
                 holdingPiece[0] = 0;
                 scenario.time -= scenario["Output (s)"];
                 scenario.points += pointsForBestScorer[1]
+                
+                let linkscored = false
+                if(doLinksExist){
+                    let sum=0
 
-                addPlotData(i, "scored speaker")
+                    for(let j of linkProgression){
+                        sum+=j
+                        if(piecesScored[0]-sum==0){
+                            scenario.points+=linkPoints[1]
+                            linkscored=true
+                        }
+                    }
+                }
+                if(linkscored) addPlotData(i, "scored speaker & link")
+                else addPlotData(i, "scored speaker")
             }//this doesn't count the time it takes to go from the charge station into the grid, which is bad for games when the place where mobility points are awarded is far away from a goal
             //subtract time to go to centerfield
             scenario.time -= scenario["Teleop Movement (s)"] * (1 - scenario["Stockpile Movement Fraction"]) / 2;
@@ -389,6 +409,22 @@
                         scenario.points += 5;
                         scenario.time -= scenario["Intake (s)"] + scenario["Output (s)"];
                         --scenario.piecesStockpiled;
+                        
+                        let linkscored = false
+                        if(doLinksExist){
+                            let sum=0
+
+                            for(let j of linkProgression){
+                                sum+=j
+                                if(piecesScored[0]-sum==0){
+                                    scenario.points+=linkPoints[1]
+                                    linkscored=true
+                                }
+                            }
+                        }
+                        if(linkscored) addPlotData(i, "scored piece & link")
+                        else addPlotData(i, "scored piece")
+                        
                         addPlotData(i, "scored speaker")
                     }
                 }
