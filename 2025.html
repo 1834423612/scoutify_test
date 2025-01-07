@@ -177,11 +177,11 @@
         const autonPieceLimit = 1;
         const holdPieceLimit = 1;
         //structure of piecesScoredForRnkPnt: [# of piecesScored[0] for RnkPnt,# of piecesScored[1] for RnkPnt]
-        const piecesScoredForRnkPnt = [12, 0];
+        const piecesScoredForRnkPnt = [200, 0];
         let iteratingArrays = [
-            ["Balance (s)",4,5,6],
-            ["Output (s)",1.5,2,2.5,3],
-            ["Intake (s)",.75,1,1.25,1.5],
+            ["Balance (s)",5,6],
+            ["Output (s)",1.5,2,2.5],
+            ["Intake (s)",.75,1,1.25],
             ["Auton Movement (s)",5],//all the movement times include aligning
             ["Teleop Movement (s)", 5, 6, 7],
             ["Stockpile Movement Fraction",1/2],
@@ -566,7 +566,7 @@
                                             if(iIsLessEfficientThanJ&&!iIsMoreEfficientThanJ) lessEfficientIndices.push(i)
                                             else if(!iIsLessEfficientThanJ&&iIsMoreEfficientThanJ) lessEfficientIndices.push(j)
                                         }
-                                    }  time 
+                                    } 
                                     for(let i = 0; i<scenarios.length-1;++i){
                                         if(lessEfficientIndices.includes(i)) continue
                                         const detail = document.createElement("details");
