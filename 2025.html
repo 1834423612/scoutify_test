@@ -172,9 +172,13 @@
 //teleop: ignore lvl 3 and assume teamates can score 2 algae for co-op, our bot instead scoring levels 1.2.4 
 // //shallow cage climb
 
+       //maybe add calculus with min and max to find optimum number? or is too complex
+//add table for different levels at end summary
+//if temates
+//if shallow climb
+// one teamate parks
+// both teamates leave the starting zone, or not both teamates leave the starting zone
 
-
-//scores
         const doLinksExist = false;
         const linkProgression = [2,2,2,2,2,2,2,2];//represents how many pieces makes a link, next number in a array is how many pieces constitutes the 2nd link, and so on and so forth: like in the game steamworks
         //for the steamship game, linkProgression=[1,2,3,4,5];
@@ -186,10 +190,9 @@
         const pointsForOkScorer = [4, 3];//lvl 2
         const pointsForWorstScorer = [3, 2];//lvl 1
 
-
         const pointsForTrap = [0, 0];
         const pointsForMobility = 3;
-        const autonPieceLimit = 1;
+        const autonPieceLimit = 5;
         const holdPieceLimit = 1;
         //structure of piecesScoredForRnkPnt: [# of piecesScored[0] for RnkPnt,# of piecesScored[1] for RnkPnt]
         const piecesScoredForRnkPnt = [20, 0];
@@ -200,24 +203,31 @@
             ["Auton Movement (s)",5],//all the movement times include aligning
             ["Teleop Movement (s)", 5, 6, 7],
             ["Algae dislodge (s)",1],
-            ["Stockpile Movement Fraction",1/2],
+           // ["Stockpile Movement Fraction",1/2],
             ["Grab Amount (on average)", 1],
-
         ];
-       // const visibileIteratingArraysNegativeOffset=-2;
-       //maybe add calculus with min and max to find optimum number? or is too complex
+        const iteratingArraysVisibleInputOffset=1;
 
         if(!sessionStorage.getItem('iteratingArrays')){
             sessionStorage.setItem('iteratingArrays', JSON.stringify(iteratingArrays))
         }
+
+
         else iteratingArrays = JSON.parse(sessionStorage.getItem('iteratingArrays'))
 
         const ui=document.getElementById("ui")
-        for(let i in iteratingArrays){
-          //  if(i=iteratingArrays.length-visibileIteratingArraysNegativeOffset)
-            ui.innerHTML += iteratingArrays[i][0] + ": " +
-             `<input id="ui${i}" value="${iteratingArrays[i].slice(1)}"><br>`
+        for(let i =0; i<iteratingArrays.length;++i){
+            if(i>=iteratingArrays.length-iteratingArraysVisibleInputOffset){
+                ui.innerHTML +="<div style='display:none'>"+
+                    iteratingArrays[i][0] + ": " +
+                    `<input id="ui${i}" value="${iteratingArrays[i].slice(1)}" ><br>
+                    </div>`
+            }
+            else ui.innerHTML +=
+                iteratingArrays[i][0] + ": " +
+                `<input id="ui${i}" value="${iteratingArrays[i].slice(1)}"><br>`
         }
+
         //reloads page with new data
         function calculate(){
             for(let i in iteratingArrays){
