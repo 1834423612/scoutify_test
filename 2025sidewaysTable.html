@@ -186,12 +186,13 @@
 
 //assumptions:
 
-//color-coded levels-fixed
 //new teleop/movement error - line 240 on calculate-fixed
 //hide extra digits of end of scenario for hidden inputs like grabamount - done
 //add table for different levels at end summary -fixed
+//vertical instead of horizontal table -done
 
-//vertical instead of horizontal table (kevin's work) -
+//color coded levels - broken
+
 //algae
 
 
@@ -340,7 +341,7 @@
            // for (let i = 0; i < table.rows.length; i++) {
            while(table.rows.length>1)
                // for (let j = table.coloums[i].cells.length - 1; j > 0; j--) {
-                    table.rows[i].deleteRow(1)
+                    table.deleteRow(1)
                // }
             //}
 
@@ -391,7 +392,6 @@
             allColorOverTime.push('rgb(0,0,0)')
             addPlotData(scenarioEncoded, "score coral in Lvl4")
         }
-        //do: addPlotData(scenarioEncoded,`scored ${ring} into ${target}")
         function scorePiece(scenarioEncoded, alreadyHoldingAndPositioned) {
             if(piecesScored[0]==5||piecesScored[0]==7||piecesScored[0]==9){//(piecesScored[0]-1<=10&&piecesScored[0]-1>5&& !(piecesScored[0]-1)%2 /*for every first of the two L3*/){
                 scenario.time-=scenario['Algae dislodge (s)'];
@@ -826,7 +826,6 @@
                                 try {
                                     psotchart.update();
                                     scoretimechart.update();
-                                    console.log("a")
                                 } catch (error) {
                                     console.log(error);
                                 }
