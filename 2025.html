@@ -133,6 +133,25 @@
                 <div style="display:block">
                     <canvas id="psotchart"></canvas>
                     <canvas id="myChart"></canvas>
+                    <table>
+                        <tr> <th>Scoring Level -</th> <th>- # Scored</th> </tr>
+                        <tr>
+                            <td>L4</td>
+                            <td id="L4_Scored"></td>
+                        </tr>
+                        <tr>
+                            <td>L3</td>
+                            <td id="L3_Scored"></td>
+                        </tr>
+                        <tr>
+                            <td>L2</td>
+                            <td id="L2_Scored"></td>
+                        </tr>
+                        <tr id="L1">
+                            <td>L1</td>
+                            <td id="L1_Scored"></td>
+                        </tr>
+                    </table>
                     <table id="table_id">
                         <tr id="tr0">
                             <td>Time Left</td>
@@ -167,27 +186,28 @@
 
 //assumptions:
 
-//color
-//vertical table
-//hide stuff
-//
+//color-coded levels-fixed
+//new teleop/movement error - line 240 on calculate-fixed
+//add table for different levels at end summary - done
+
+//vertical instead of horizontal table (kevin's work) -
+//algae 
+//hide extra digits of end of scenario for hidden inputs like grabamount
+
 
 //auton: mobility points and one high coral, if time permits remove algae and score 
 // I understand that given the delicate nature of needing accuray for auton scoring, maybe low scoring is preferred.
-//teleop: ignore lvl 3 and assume teamates can score 2 algae for co-op, our bot instead scoring levels 1.2.4 
-//shallow cage climb
+//teleop: ignore lvl 3 and assume teamates can score 2 algae for co-op, our bot instead scoring levels 2,3,4 
 //maybe add calculus with min and max to find optimum number? or is too complex
-//add table for different levels at end summary
-//if temates
-//if shallow climb
-// one teamate parks
+
+
 // both teamates leave the starting zone, or not both teamates leave the starting zone
         const doLinksExist = false;
         const linkProgression = [2,2,2,2,2,2,2,2];//represents how many pieces makes a link, next number in a array is how many pieces constitutes the 2nd link, and so on and so forth: like in the game steamworks
         //for the steamship game, linkProgression=[1,2,3,4,5];
         //points arrays are structured as [points for auton, points for teleop]
         const linkPoints = [0, 0]
-        const pointsForBalancing = [0, 6];
+        const pointsForBalancing = [0, 12];
         const pointsForBestScorer = [7, 5];//lvl 4
         const pointsForMidScorer = [6, 4];//lvl 3
         const pointsForOkScorer = [4, 3];//lvl 2
@@ -203,8 +223,10 @@
             ["Balance/Climb/Hang (s)",5,6],
             ["Output (s)",1.5,2,2.5],
             ["Intake (s)",.75,1,1.25],
-            ["Auton Movement (s)",5],//all the movement times include aligning
+            ["Auton Movement (s)","=Teleop Movement (s)"],//all the movement times include aligning
             ["Teleop Movement (s)", 5, 6, 7],
+            ["Alliance robots leave auton (Boolean)",0,1],
+            ["At least one alliance robot parks (Boolean)",0,1],
             ["Algae dislodge (s)",1],
            // ["Stockpile Movement Fraction",1/2],
             ["Grab Amount (on average)", 1],
@@ -234,9 +256,16 @@
         //reloads page with new data
         function calculate(){
             for(let i in iteratingArrays){
-                const arr=[iteratingArrays[i][0]]
-                arr.push(...document.getElementById("ui"+i).value.split(',').map(Number)) // Split the string by commas and convert each part to a number
-                iteratingArrays[i]=arr
+                let arr;
+
+                if(iteratingArrays[i][0]==["Auton Movement (s)"]&&document.getElementById("ui"+i).value=="=Teleop Movement (s)"){
+                    iteratingArrays[i]=["Auton Movement (s)","=Teleop Movement (s)"]
+                }
+                else{
+                    arr=[iteratingArrays[i][0]]
+                    arr.push(...document.getElementById("ui"+i).value.split(',').map(Number)) // Split the string by commas and convert each part to a number
+                    iteratingArrays[i]=arr
+                }
             }
             sessionStorage.setItem('iteratingArrays', JSON.stringify(iteratingArrays));
             location.reload();
@@ -244,6 +273,7 @@
 
         //charts are structured as [{x:x1,y:y1},{x:x2,y:y2}...] 
         const allPointsVsTime = [], allPieceCountVsTime = [], rnkValueVsScenario = [], pieceCountVsScenario = [], totalScoreVsScenario = [], pieceCountVsTotalScore = [], specificPointsVsTime = [], specificPieceCountVsTime = [];
+        const allColorOverTime=[], specificColorOverTime=[];
         //structured as ["rgb(1st scenario's color)","rgb(2nd scenario's color)"...]
         const color = [];
         const scenarioAction = [], scenarioTimes = [], pointsClicked = [], zeroIndicesPointsClicked = [];
@@ -276,6 +306,7 @@
         }
 
         function updatedata(scenario) {
+            console.log(1)
             document.getElementById("selectedScenario").innerHTML="Selected Scenario: " + scenario+" "+decodeScenario(scenario)
             for (let i in scenarioTimes) {
                 if (scenarioTimes[i].includes("-")) {
@@ -292,10 +323,16 @@
             //empty out the data arrays
             specificPointsVsTime.splice(0, specificPointsVsTime.length);
             specificPieceCountVsTime.splice(0, specificPieceCountVsTime.length);
+
+            specificColorOverTime.splice(0, specificPointsVsTime.length);
+
             //for each point in the given range, push a point to the specificPointsVsTime array
             for (let i = startpoint; i < endpoint + 1; i++) { specificPointsVsTime.push(allPointsVsTime[i]); }
             //check
-            for (let i = startpointofspecificPieceCountVsTime; i < endpointofspecificPieceCountVsTime + 1; i++) { specificPieceCountVsTime.push(allPieceCountVsTime[i]); }
+            for (let i = startpointofspecificPieceCountVsTime; i < endpointofspecificPieceCountVsTime + 1; i++) {
+                specificPieceCountVsTime.push(allPieceCountVsTime[i]);
+                specificColorOverTime.push(allColorOverTime[i]);
+            }
             let string_copy = "";
 
             //delete the td's besides the first td
@@ -336,12 +373,23 @@
                 td1.innerText = 150 - td0.innerText;
                 document.getElementById("tr1").appendChild(td1);
             }
+
+            let totalL4=specificColorOverTime.filter((a)=>a=='rgb(0,0,0)').length
+            let totalL3=specificColorOverTime.filter((a)=>a=='rgb(150,150,150)').length
+            let totalL2=specificColorOverTime.filter((a)=>a=='rgb(200,200,200)').length
+            let totalL1=specificColorOverTime.filter((a)=>a=='rgb(255,255,255)').length
+            document.getElementById('L1_Scored').innerHTML=totalL1
+            document.getElementById('L2_Scored').innerHTML=totalL2
+            document.getElementById('L3_Scored').innerHTML=totalL3
+            document.getElementById('L4_Scored').innerHTML=totalL4
+
         }
         function autonScorePiece(scenarioEncoded) {
             piecesScored[0] += holdingPiece[0];
             scenario.time -= scenario["Output (s)"];
             scenario.points += pointsForBestScorer[0] * holdingPiece[0];
             holdingPiece[0] = 0;
+            allColorOverTime.push('rgb(0,0,0)')
             addPlotData(scenarioEncoded, "score coral in Lvl4")
         }
         //do: addPlotData(scenarioEncoded,`scored ${ring} into ${target}")
@@ -389,14 +437,27 @@
             }
     
             
-            if(targetName=="Lvl1"){scenario.points+=pointsForWorstScorer[1]}
-            else if(targetName=="Lvl2"){scenario.points+=pointsForOkScorer[1]}
-            else if(targetName=="Lvl3"){scenario.points+=pointsForMidScorer[1]}
-            else if(targetName=="Lvl4"){scenario.points+=pointsForBestScorer[1]}
+            if(targetName=="Lvl1"){
+                scenario.points+=pointsForWorstScorer[1]
+                allColorOverTime.push('rgb(255,255,255)')
+            }
+            else if(targetName=="Lvl2"){
+                scenario.points+=pointsForOkScorer[1]
+                allColorOverTime.push('rgb(200,200,200)')
+            }
+            else if(targetName=="Lvl3"){
+                scenario.points+=pointsForMidScorer[1]
+                allColorOverTime.push('rgb(150,150,150)')
+            }
+            else if(targetName=="Lvl4"){
+                scenario.points+=pointsForBestScorer[1]
+                allColorOverTime.push('rgb(0,0,0)')
+            }
 
 
             if(linkscored) addPlotData(scenarioEncoded, "scored piece & link")
             else addPlotData(scenarioEncoded, "scored "+pieceName+" into "+targetName)
+
         }
         //text for action must include "score" or "collect" if action increases piecesScored
         //"collect increases piecesScored b/c that would be too hard to track otherwise"
@@ -404,7 +465,9 @@
             allPointsVsTime.push({ x: 150 - scenario.time, y: scenario.points });
             scenarioAction[scenarioEncoded] = (scenarioAction[scenarioEncoded] ?? "") + action + ";"
             scenarioTimes[scenarioEncoded] = (scenarioTimes[scenarioEncoded] ?? "") + scenario.time + ";";
-            if (action.includes("score") || action.includes("collect")) allPieceCountVsTime.push({ x: 150 - scenario.time, y: piecesScored[0] });
+            if (action.includes("score") || action.includes("collect")){
+                allPieceCountVsTime.push({ x: 150 - scenario.time, y: piecesScored[0] });
+            }
         }
 
         //create a scenario tree
@@ -413,7 +476,15 @@
             for (let j in iteratingArrays) {
                 scenario[iteratingArrays[j][0]] = iteratingArrays[j][Number(scenarioDecoded.charAt(j))+1]
             }
-            scenario["Auton Movement (s)"] = scenario["Teleop Movement (s)"]
+
+            //this can be optimized if put outside of scenario tree loop in calculate
+            for(let i of iteratingArrays){
+                if(i[0]=="Auton Movement (s)"&&i[1]== "=Teleop Movement (s)"){
+                    scenario["Auton Movement (s)"] = scenario["Teleop Movement (s)"]
+                    break;
+                }
+            }
+
             //initialize the variables
             //last value set to 0 to keep track of what threshold the bot is up to
             piecesScored[0] = 0;
@@ -479,7 +550,7 @@
                 }
                 if(linkscored) addPlotData(i, "scored speaker & link")
                 
-                else addPlotData(i, "scored coral into L4")
+                else addPlotData(i, "scored coral into Lvl4")
             }//this doesn't count the time it takes to go from the charge station into the grid, which is bad for games when the place where mobility points are awarded is far away from a goal
 
             //scenario.time -= scenario["Teleop Movement (s)"];
@@ -500,14 +571,23 @@
             addPlotData(i, "Balance/Climb/Hang");
           //  scenario.time -= scenario["Output (s)"] + scenario["Intake (s)"];
           //  scenario.points += pointsForTrap[1];
-            //since don't want to add to points scored, don't write "score"
+            // since don't want to add to points scored, don't write "score"
         //    addPlotData(i , "scor_d trap" )
 
             //push chart-values that have scenarios as a dimension
-            if (piecesScored[0] >= piecesScoredForRnkPnt[0] && piecesScoredForRnkPnt[0] && piecesScored[1] >= piecesScoredForRnkPnt[1] && piecesScoredForRnkPnt[1]) {
-                rnkValueVsScenario.push({ x: i, y: 2 });
+            let rankpoint=   piecesScored[0] >= piecesScoredForRnkPnt[0]
+            if(scenario["Alliance robots leave auton (Boolean)"]) ++rankpoint
+            if(scenario["At least one alliance robot parks (Boolean)"]) ++rankpoint
+
+            if ( rankpoint==3) {
+                rnkValueVsScenario.push({ x: i, y: 3 });
                 color.push("rgb(0,255,0)");
-            } else if ((piecesScored[0] >= piecesScoredForRnkPnt[0] && piecesScoredForRnkPnt[0]) || (piecesScored[1] >= piecesScoredForRnkPnt[1] && piecesScoredForRnkPnt[1])) {
+            }
+            else if (rankpoint==2) {
+                rnkValueVsScenario.push({ x: i, y: 2 });
+                color.push("rgb(255,255,0)");
+            }
+            else if (rankpoint==1) {
                 rnkValueVsScenario.push({ x: i, y: 1 });
                 color.push("rgb(255,155,0)");
             } else {
@@ -567,7 +647,7 @@
 
         //load charts
         updatedata(0);
-        window.addEventListener("load", function (e) { //only initialize chart once window loads completely to avoid context issues
+        window.addEventListener("load", function (e) { //only initialize chart once window loads completely to avoid context issues            
             const scenariochart = new Chart("scenarioChart", {
                 type: "scatter",
                 data: {
@@ -710,7 +790,7 @@
                 options: {
                     title: {
                         display: true,
-                        text: 'RANK POINTS FROM PIECESSCORED - SCENARIO'
+                        text: 'RANK POINTS - SCENARIO'
                     },
                     tooltips: {
                         bodyFontStyle: "bold",
@@ -760,7 +840,7 @@
                                 display: true,
                                 labelString: "Coral Rank Point",
                             },
-                            ticks: { min: 0, max: (rnkValueVsScenario[0].y)||1, stepSize: 1 }
+                            ticks: { min: 0, max: 3, stepSize: 1 }
                         }],
                     }
                 }
@@ -893,7 +973,9 @@
                 data: {
                     datasets: [{
                         pointRadius: 4,
-                        pointBackgroundColor: "rgb(0,0,255)",
+                       // pointBorderColor: 'rgb(150,150,150)',
+                      //  pointBorderWidth: ,  
+                        pointBackgroundColor: specificColorOverTime, //"rgb(0,0,255)",
                         data: specificPieceCountVsTime
                     }]
                 },
