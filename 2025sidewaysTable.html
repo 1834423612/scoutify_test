@@ -84,10 +84,6 @@
     td {
         border: 1px solid black;
     }
-
-    td:first-child {
-        background-color: yellow;
-    }
 </style>
 <body>
     <h1>Charts</h1>
@@ -97,7 +93,6 @@
         <div id="ui"></div>
         <button id="recalculate" onclick="calculate()">Calculate</button>
     </details>
-    
 
     <div id="split-view-container">
         
@@ -131,6 +126,17 @@
             <div class="scroller scrollerOpen">
                 <p id="tooltip"></p>
                 <div style="display:block">
+                    <details>
+                        <summary>Key:</summary>
+                        <ul>
+                            <pre>
+                            <li><mark style="background-color:rgb(0,0,0);">  </mark> : L4</li>
+                            <li><mark style="background-color:rgb(150, 150, 150);">  </mark> : L3</li>
+                            <li><mark style="background-color:rgb(200, 200, 200);">  </mark> : L2</li>
+                            <li><mark style="background-color:rgb(255,255,255); border: 1px solid black">  </mark> : L1</li>
+                        </pre>
+                        </ul>
+                    </details>
                     <canvas id="psotchart"></canvas>
                     <canvas id="myChart"></canvas>
                     <table>
@@ -153,14 +159,8 @@
                         </tr>
                     </table>
                     <table id="table_id">
-                        <tr id="tr0">
-                            <td>Time Left</td>
-                        </tr>
-                        <tr id="tr1">
-                            <td>Elapsed Time</td>
-                        </tr>
-                        <tr id="tr2">
-                            <td>Event</td>
+                        <tr>
+                            <th>Event</th><th>Time Left</th><th>Elapsed Time</th>
                         </tr>
                     </table>
                 </div>
@@ -337,41 +337,41 @@
 
             //delete the td's besides the first td
             let table = document.getElementById("table_id");
-            for (let i = 0; i < table.rows.length; i++) {
-                for (let j = table.rows[i].cells.length - 1; j > 0; j--) {
-                    table.rows[i].deleteCell(j);
-                }
-            }
+           // for (let i = 0; i < table.rows.length; i++) {
+           while(table.rows.length>1)
+               // for (let j = table.coloums[i].cells.length - 1; j > 0; j--) {
+                    table.rows[i].deleteRow(1)
+               // }
+            //}
 
             for (let i in scenarioAction[scenarioDecoded]) {
                 string_copy += scenarioAction[scenarioDecoded][i];
             }
-            let loopcount = 0;
-            while (string_copy.length > 0) {
-                let i = string_copy.indexOf(";");
-                
-                const td = document.createElement("td");
-                td.innerText = string_copy.substring(0, i);
-                string_copy = string_copy.substring(i + 1);
-                document.getElementById("tr2").appendChild(td);
-                
-                ++loopcount;
-            }
-
-            string_copy = "";
+            string_copy2 = "";
             for (let i in scenarioTimes[scenarioDecoded]) {
-                string_copy += scenarioTimes[scenarioDecoded][i];
+                string_copy2 += scenarioTimes[scenarioDecoded][i];
             }
             while (string_copy.length > 0) {
-                const td0 = document.createElement("td");
                 let i = string_copy.indexOf(";");
-                td0.innerText = string_copy.substring(0, i);
-                string_copy = string_copy.substring(i + 1);
-                document.getElementById("tr0").appendChild(td0);
+                let j = string_copy2.indexOf(";");
 
+                const tr = document.createElement("tr")
+                const td0 = document.createElement("td");
                 const td1 = document.createElement("td");
-                td1.innerText = 150 - td0.innerText;
-                document.getElementById("tr1").appendChild(td1);
+                const td2 = document.createElement("td");
+
+                td0.innerText = string_copy.substring(0, i);
+                td1.innerText = string_copy2.substring(0, j);
+                td2.innerText = 150-string_copy2.substring(0, j);
+
+
+                string_copy = string_copy.substring(i + 1);
+                string_copy2 = string_copy2.substring(j + 1);
+
+                tr.appendChild(td0);
+                tr.appendChild(td1);
+                tr.appendChild(td2);
+                document.getElementById("table_id").appendChild(tr);
             }
 
             let totalL4= specificColorOverTime.filter((a)=>a=='rgb(0,0,0)').length
@@ -382,7 +382,6 @@
             document.getElementById('L2_Scored').innerHTML=totalL2
             document.getElementById('L3_Scored').innerHTML=totalL3
             document.getElementById('L4_Scored').innerHTML=totalL4
-
         }
         function autonScorePiece(scenarioEncoded) {
             piecesScored[0] += holdingPiece[0];
