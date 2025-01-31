@@ -192,7 +192,6 @@
 //vertical instead of horizontal table -done
 
 //color coded levels - broken
-
 //algae
 
 
@@ -220,6 +219,8 @@
         const holdPieceLimit = 1;
         //structure of piecesScoredForRnkPnt: [# of piecesScored[0] for RnkPnt,# of piecesScored[1] for RnkPnt]
         const piecesScoredForRnkPnt = [20, 0];
+        
+        //put iterating arrays in an array for ease of change
         let iteratingArrays = [
             ["Balance/Climb/Hang (s)",5,6],
             ["Output (s)",1.5,2,2.5],
@@ -231,14 +232,23 @@
             ["Algae dislodge (s)",1],
            // ["Stockpile Movement Fraction",1/2],
             ["Grab Amount (on average)", 1],
+    //test data for limited number of cases 
+        //     ["Balance/Climb/Hang (s)",5,6,7],
+        //     ["Output (s)",1.5],
+        //     ["Intake (s)",.75],
+        //     ["Auton Movement (s)","=Teleop Movement (s)"],//all the movement times include aligning
+        //     ["Teleop Movement (s)", 5],
+        //     ["Alliance robots leave auton (Boolean)",0],
+        //     ["At least one alliance robot parks (Boolean)",0],
+        //     ["Algae dislodge (s)",1],
+        //    // ["Stockpile Movement Fraction",1/2],
+        //     ["Grab Amount (on average)", 1],
         ];
         const iteratingArraysVisibleInputOffset=1;
 
         if(!sessionStorage.getItem('iteratingArrays')){
             sessionStorage.setItem('iteratingArrays', JSON.stringify(iteratingArrays))
         }
-
-
         else iteratingArrays = JSON.parse(sessionStorage.getItem('iteratingArrays'))
 
         const ui=document.getElementById("ui")
@@ -336,6 +346,7 @@
             }
             let string_copy = "";
 
+
             //delete the td's besides the first td
             let table = document.getElementById("table_id");
            // for (let i = 0; i < table.rows.length; i++) {
@@ -376,9 +387,9 @@
             }
 
             let totalL4= specificColorOverTime.filter((a)=>a=='rgb(0,0,0)').length
-            let totalL3=specificColorOverTime.filter((a)=>a=='rgb(150,150,150)').length
-            let totalL2=specificColorOverTime.filter((a)=>a=='rgb(200,200,200)').length
-            let totalL1=specificColorOverTime.filter((a)=>a=='rgb(255,255,255)').length
+            let totalL3= specificColorOverTime.filter((a)=>a=='rgb(150,150,150)').length
+            let totalL2= specificColorOverTime.filter((a)=>a=='rgb(200,200,200)').length
+            let totalL1= specificColorOverTime.filter((a)=>a=='rgb(255,255,255)').length
             document.getElementById('L1_Scored').innerHTML=totalL1
             document.getElementById('L2_Scored').innerHTML=totalL2
             document.getElementById('L3_Scored').innerHTML=totalL3
@@ -390,6 +401,7 @@
             scenario.points += pointsForBestScorer[0] * holdingPiece[0];
             holdingPiece[0] = 0;
             allColorOverTime.push('rgb(0,0,0)')
+            
             addPlotData(scenarioEncoded, "score coral in Lvl4")
         }
         function scorePiece(scenarioEncoded, alreadyHoldingAndPositioned) {
@@ -459,7 +471,7 @@
 
         }
         //text for action must include "score" or "collect" if action increases piecesScored
-        //"collect increases piecesScored b/c that would be too hard to track otherwise"
+        //"collect (for stockpiling) increases piecesScored during stockpiling b/c the robot only picks up what it can score and would be too hard to track otherwise"
         function addPlotData(scenarioEncoded, action) {
             allPointsVsTime.push({ x: 150 - scenario.time, y: scenario.points });
             scenarioAction[scenarioEncoded] = (scenarioAction[scenarioEncoded] ?? "") + action + ";"
@@ -501,6 +513,7 @@
                 //place pieces during auton
                 while (scenario.time - scenario["Output (s)"] - trueBalancingTime >= 135 && piecesScored[0] < autonPieceLimit) {
                     autonScorePiece(i);
+                    //console.log(piecesScored,allColorOverTime)
                     if (scenario.time - scenario["Auton Movement (s)"] / 2 - scenario["Intake (s)"] >= 135) {//autonMovement is cut in half b/c the bot only travels to pick up game pices, not also back 
                         scenario.time -= scenario["Auton Movement (s)"] / 2 + scenario["Intake (s)"];
                         holdingPiece[0] += scenario["Grab Amount (on average)"];
@@ -534,6 +547,8 @@
                 holdingPiece[0] = 0;
                 scenario.time -= scenario["Output (s)"];
                 scenario.points += pointsForBestScorer[1]
+
+                allColorOverTime.push('rgb(0,0,0)')
 
                 let linkscored = false
                 if(doLinksExist){
@@ -598,6 +613,9 @@
             pieceCountVsTotalScore.push({ x: scenario.points, y: piecesScored[0], scenario: i })
         }
 
+        console.log(allPieceCountVsTime)
+        console.log(allColorOverTime)
+
         //Figure out which scenario each set of scatter points belongs to by defining the endpoints of each scenaraio i.e. where one scenario stops and a new one starts.
         //To define where the endpoints will appear, loop through each value in the allPointsVsTime, which holds coordinate points for everytime the bot scores points for each scenario.
         //When the points-value (aka y-property) of one coordinate pair is less than the points of another coordinate pair, there must be a new scenario.
@@ -646,6 +664,7 @@
 
         //load charts
         updatedata(0);
+        
         window.addEventListener("load", function (e) { //only initialize chart once window loads completely to avoid context issues            
             const scenariochart = new Chart("scenarioChart", {
                 type: "scatter",
@@ -653,7 +672,7 @@
                     datasets: [{
                         pointRadius: 4,
                         pointBackgroundColor: color,
-                        data: pieceCountVsTotalScore
+                        data: pieceCountVsTotalScore,
                     }]
                 },
                 options: {
@@ -983,8 +1002,9 @@
                 data: {
                     datasets: [{
                         pointRadius: 4,
-                       // pointBorderColor: 'rgb(150,150,150)',
-                      //  pointBorderWidth: ,  
+                        borderColor: specificColorOverTime.map(
+                            color=> {return color=="rgb(255,255,255)"? "rgb(0,0,0)":color}
+                        ),
                         pointBackgroundColor: specificColorOverTime, //"rgb(0,0,255)",
                         data: specificPieceCountVsTime
                     }]

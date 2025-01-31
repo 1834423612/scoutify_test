@@ -176,12 +176,12 @@
             if(scroller1.classList.contains('scrollerOpen')){
                 scroller1.classList.remove('scrollerOpen')
                 scroller2.classList.remove('scrollerOpen')
-            } else{
+            }else{
                 scroller1.classList.add('scrollerOpen')
                 scroller2.classList.add('scrollerOpen')
             }
         }
-
+       
 //reefscape
 
 //assumptions:
@@ -192,6 +192,15 @@
 //add table for different levels at end summary -fixed
 
 //vertical instead of horizontal table (kevin's work) -
+//key for gray shade
+//key for -teleop movement
+//change color from diffedrent shades of gray and label them
+//also, fix key for "selected scenario"
+
+
+//fix inconsistencies
+
+
 //algae
 
 
@@ -382,7 +391,6 @@
             document.getElementById('L2_Scored').innerHTML=totalL2
             document.getElementById('L3_Scored').innerHTML=totalL3
             document.getElementById('L4_Scored').innerHTML=totalL4
-
         }
         function autonScorePiece(scenarioEncoded) {
             piecesScored[0] += holdingPiece[0];
@@ -612,8 +620,8 @@
         for (let i = 0; i < allPieceCountVsTime.length - 1; ++i) {
             if (allPieceCountVsTime[i].x > allPieceCountVsTime[i + 1].x) { endpointsofspecificPieceCountVsTime.push(i); }
         }
-        endpointsofspecificPieceCountVsTime.push(allPieceCountVsTime.length - 1);
-
+        endpointsofspecificPieceCountVsTime.push( allPieceCountVsTime.length -1 );
+console.log(endpointsofspecificPieceCountVsTime);
         //create data arrays that will be used for the all inclusive chart's tooltip
         const groupsofpoints = [], coordinatesofgroups = [];
         for (let i in pieceCountVsTotalScore) {
