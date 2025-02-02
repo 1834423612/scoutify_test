@@ -91,6 +91,7 @@
     <details open ontoggle="inputToggled()">
         <summary>UI: (click to open and close)</summary>
         <div id="ui"></div>
+        <br>
         <button id="recalculate" onclick="calculate()">Calculate</button>
     </details>
 
@@ -181,7 +182,6 @@
                 scroller2.classList.add('scrollerOpen')
             }
         }
-
 //reefscape
 
 //assumptions:
@@ -190,18 +190,19 @@
 //hide extra digits of end of scenario for hidden inputs like grabamount - done
 //add table for different levels at end summary -fixed
 //vertical instead of horizontal table -done
+//color coded levels - fixed
+//explain  "=teleop movement"-done
+//explain scenatio in selected scenario- done
 
-//color coded levels - broken
+//check compatibility on presenting device before presenting to judges
+
 //algae
 
 
 //auton: mobility points and one high coral, if time permits remove algae and score 
-// I understand that given the delicate nature of needing accuray for auton scoring, maybe low scoring is preferred.
 //teleop: ignore lvl 3 and assume teamates can score 2 algae for co-op, our bot instead scoring levels 2,3,4 
 //maybe add calculus with min and max to find optimum number? or is too complex
 
-
-// both teamates leave the starting zone, or not both teamates leave the starting zone
         const doLinksExist = false;
         const linkProgression = [2,2,2,2,2,2,2,2];//represents how many pieces makes a link, next number in a array is how many pieces constitutes the 2nd link, and so on and so forth: like in the game steamworks
         //for the steamship game, linkProgression=[1,2,3,4,5];
@@ -221,28 +222,18 @@
         const piecesScoredForRnkPnt = [20, 0];
         
         //put iterating arrays in an array for ease of change
-        let iteratingArrays = [
+        const autonMovementName='Auton Movement (s) ["=Teleop" sets this to equal teleop movement]';
+        let iteratingArrays = [//order the values from least to greatest
             ["Balance/Climb/Hang (s)",5,6],
             ["Output (s)",1.5,2,2.5],
             ["Intake (s)",.75,1,1.25],
-            ["Auton Movement (s)","=Teleop Movement (s)"],//all the movement times include aligning
+            [autonMovementName,"=Teleop"],//all the movement times include aligning
             ["Teleop Movement (s)", 5, 6, 7],
             ["Alliance robots leave auton (Boolean)",0,1],
             ["At least one alliance robot parks (Boolean)",0,1],
             ["Algae dislodge (s)",1],
            // ["Stockpile Movement Fraction",1/2],
             ["Grab Amount (on average)", 1],
-    //test data for limited number of cases 
-        //     ["Balance/Climb/Hang (s)",5,6,7],
-        //     ["Output (s)",1.5],
-        //     ["Intake (s)",.75],
-        //     ["Auton Movement (s)","=Teleop Movement (s)"],//all the movement times include aligning
-        //     ["Teleop Movement (s)", 5],
-        //     ["Alliance robots leave auton (Boolean)",0],
-        //     ["At least one alliance robot parks (Boolean)",0],
-        //     ["Algae dislodge (s)",1],
-        //    // ["Stockpile Movement Fraction",1/2],
-        //     ["Grab Amount (on average)", 1],
         ];
         const iteratingArraysVisibleInputOffset=1;
 
@@ -269,8 +260,8 @@
             for(let i in iteratingArrays){
                 let arr;
 
-                if(iteratingArrays[i][0]==["Auton Movement (s)"]&&document.getElementById("ui"+i).value=="=Teleop Movement (s)"){
-                    iteratingArrays[i]=["Auton Movement (s)","=Teleop Movement (s)"]
+                if(iteratingArrays[i][0]==[autonMovementName]&&document.getElementById("ui"+i).value=="=Teleop"){
+                    iteratingArrays[i]=[autonMovementName,"=Teleop"]
                 }
                 else{
                     arr=[iteratingArrays[i][0]]
@@ -318,7 +309,15 @@
 
         function updatedata(scenario) {
             const visibleDecodeScenario=decodeScenario(scenario).substring(0,iteratingArrays.length-iteratingArraysVisibleInputOffset)
-            document.getElementById("selectedScenario").innerHTML="Selected Scenario: " + scenario+" "+visibleDecodeScenario
+            
+            const scenarioStringified=iteratingArrays.slice(0,iteratingArrays.length-iteratingArraysVisibleInputOffset)
+                .map( ([key, ...values]) =>key + ": " + values[scenario] ).join('<br>')
+
+            document.getElementById("selectedScenario").innerHTML=
+                "<details open>"+
+                    "<summary> Selected Scenario: "+scenario+" - "+visibleDecodeScenario+"</summary>"+
+                    "<p style='font-size: 16px; font-weight:normal'>"+ scenarioStringified+"</p>"
+                "</details>";
             for (let i in scenarioTimes) {
                 if (scenarioTimes[i].includes("-")) {
                     document.write("problem: a scenario takes longer than 2:30");
@@ -490,8 +489,8 @@
 
             //this can be optimized if put outside of scenario tree loop in calculate
             for(let i of iteratingArrays){
-                if(i[0]=="Auton Movement (s)"&&i[1]== "=Teleop Movement (s)"){
-                    scenario["Auton Movement (s)"] = scenario["Teleop Movement (s)"]
+                if(i[0]==autonMovementName&&i[1]== "=Teleop"){
+                    scenario[autonMovementName] = scenario["Teleop Movement (s)"]
                     break;
                 }
             }
@@ -508,21 +507,20 @@
 
             //auton
             //if there's time to balance and score
-            if (scenario.time - scenario["Auton Movement (s)"] / 2 - trueBalancingTime >= 135) {
-                scenario.time -= scenario["Auton Movement (s)"] / 2
+            if (scenario.time - scenario[autonMovementName] / 2 - trueBalancingTime >= 135) {
+                scenario.time -= scenario[autonMovementName] / 2
                 //place pieces during auton
                 while (scenario.time - scenario["Output (s)"] - trueBalancingTime >= 135 && piecesScored[0] < autonPieceLimit) {
                     autonScorePiece(i);
-                    //console.log(piecesScored,allColorOverTime)
-                    if (scenario.time - scenario["Auton Movement (s)"] / 2 - scenario["Intake (s)"] >= 135) {//autonMovement is cut in half b/c the bot only travels to pick up game pices, not also back 
-                        scenario.time -= scenario["Auton Movement (s)"] / 2 + scenario["Intake (s)"];
+                    if (scenario.time - scenario[autonMovementName] / 2 - scenario["Intake (s)"] >= 135) {//autonMovement is cut in half b/c the bot only travels to pick up game pices, not also back 
+                        scenario.time -= scenario[autonMovementName] / 2 + scenario["Intake (s)"];
                         holdingPiece[0] += scenario["Grab Amount (on average)"];
                         if (piecesScored[0] + holdingPiece[0] > autonPieceLimit) {
                             //need to reduce the time to grab since grabbing less than the grabAmount
                             holdingPiece[0] = autonPieceLimit - piecesScored[0]
                         }//prevents holding more pieces than allowed given the autonPieceLimit and the pieces already scored: this is needed in a game where you can pick up more than one piece at a time
-                        if (scenario.time - scenario["Auton Movement (s)"] / 2 - scenario["Output (s)"] - trueBalancingTime >= 135) {
-                            scenario.time -= scenario["Auton Movement (s)"] / 2;
+                        if (scenario.time - scenario[autonMovementName] / 2 - scenario["Output (s)"] - trueBalancingTime >= 135) {
+                            scenario.time -= scenario[autonMovementName] / 2;
                         } else if (pointsForBalancing[0] > 0) {//balance if auton-balance is allowed
                             scenario.time = 135 + trueBalancingTime;
                             scenario.points += pointsForBalancing[0];
@@ -613,8 +611,7 @@
             pieceCountVsTotalScore.push({ x: scenario.points, y: piecesScored[0], scenario: i })
         }
 
-        console.log(allPieceCountVsTime)
-        console.log(allColorOverTime)
+   
 
         //Figure out which scenario each set of scatter points belongs to by defining the endpoints of each scenaraio i.e. where one scenario stops and a new one starts.
         //To define where the endpoints will appear, loop through each value in the allPointsVsTime, which holds coordinate points for everytime the bot scores points for each scenario.
