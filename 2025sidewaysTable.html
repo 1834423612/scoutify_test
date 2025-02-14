@@ -81,9 +81,18 @@
     .scrollerOpen {
         padding-bottom: 200px !important;
     }
+    
     td {
         border: 1px solid black;
     }
+    th {
+        border: 1px solid black;
+        background: yellow;
+        text-align: center;
+    }
+    table{text-align: right;}
+    
+    .ta-c {text-align: center}
 </style>
 <body>
     <h1>Charts</h1>
@@ -140,25 +149,27 @@
                     </details>
                     <canvas id="psotchart"></canvas>
                     <canvas id="myChart"></canvas>
+                    <h3>Coral Scored by Level</h3>
                     <table>
-                        <tr> <th>Scoring Level -</th> <th>- # Scored</th> </tr>
+                        <tr> <th>Scoring Level</th> <th># Scored</th> </tr>
                         <tr>
-                            <td>L4</td>
+                            <td class="ta-c">L4</td>
                             <td id="L4_Scored"></td>
                         </tr>
                         <tr>
-                            <td>L3</td>
+                            <td class="ta-c">L3</td>
                             <td id="L3_Scored"></td>
                         </tr>
                         <tr>
-                            <td>L2</td>
+                            <td class="ta-c">L2</td>
                             <td id="L2_Scored"></td>
                         </tr>
                         <tr id="L1">
-                            <td>L1</td>
+                            <td class="ta-c">L1</td>
                             <td id="L1_Scored"></td>
                         </tr>
                     </table>
+                    <h3>Play by Play</h3>
                     <table id="table_id">
                         <tr>
                             <th>Event</th><th>Time Left</th><th>Elapsed Time</th>
@@ -169,8 +180,10 @@
         </div>
     </div>
     <script type="module" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
-    <!--<script type="text/javascript" src="http://code.jquery.com/jquery.min.js"></script>-->
     <script>
+        function l(..._){
+            console.log(..._)
+        }
         function inputToggled(){
             const scroller1=document.getElementsByClassName('scroller')[0]
             const scroller2=document.getElementsByClassName('scroller')[1]
@@ -182,9 +195,8 @@
                 scroller2.classList.add('scrollerOpen')
             }
         }
-//reefscape
 
-//assumptions:
+//reefscape
 
 //new teleop/movement error - line 240 on calculate-fixed
 //hide extra digits of end of scenario for hidden inputs like grabamount - done
@@ -196,8 +208,14 @@
 
 //check compatibility on presenting device before presenting to judges
 
+//right align numbers, have number to 2 digits
+//head table fix, add score to table
+
 //algae
 
+
+
+//assumptions:
 
 //auton: mobility points and one high coral, if time permits remove algae and score 
 //teleop: ignore lvl 3 and assume teamates can score 2 algae for co-op, our bot instead scoring levels 2,3,4 
@@ -234,8 +252,19 @@
             ["Algae dislodge (s)",1],
            // ["Stockpile Movement Fraction",1/2],
             ["Grab Amount (on average)", 1],
+
         ];
+        
+        //don't want to show grabAmount if it can only equal one, but it's still important, so it's hidden:
         const iteratingArraysVisibleInputOffset=1;
+
+        //maxDecimals is helpful to pad numbers with extra zeros after decimal point
+        const numbersToCheck=iteratingArrays.flat(1).filter(i => typeof i !== 'string');
+        const maxDecimals = numbersToCheck.reduce((max, num) => {
+            const decimalPart = num.toString().split('.')[1];
+            return Math.max(max, decimalPart ? decimalPart.length : 0);
+        }, 0);
+
 
         if(!sessionStorage.getItem('iteratingArrays')){
             sessionStorage.setItem('iteratingArrays', JSON.stringify(iteratingArrays))
@@ -310,14 +339,22 @@
         function updatedata(scenario) {
             const visibleDecodeScenario=decodeScenario(scenario).substring(0,iteratingArrays.length-iteratingArraysVisibleInputOffset)
             
-            const scenarioStringified=iteratingArrays.slice(0,iteratingArrays.length-iteratingArraysVisibleInputOffset)
-                .map( ([key, ...values]) =>key + ": " + values[scenario] ).join('<br>')
-
+            // const scenarioStringified=iteratingArrays.slice(0,iteratingArrays.length-iteratingArraysVisibleInputOffset)
+            //     .map( ([key, ...values]) => key + ": " + 
+            //         //get time for action if defined. it being undefined is an unfixed autonmovement bug or algae dislodge error
+            //         values[visibleDecodeScenario.at(key)]?? values[0]==="=Teleop" ? '=Teleop':10 ).join('<br>')
+            
+            const scenarioStringified = iteratingArrays.slice(0, iteratingArrays.length - iteratingArraysVisibleInputOffset)
+                .map(([key, ...values]) => key + ": " +
+                    (values[visibleDecodeScenario.at(key)] ?? (values[0] === "=Teleop" ? "=Teleop" : values[0]))
+                ).join('<br>');
             document.getElementById("selectedScenario").innerHTML=
                 "<details open>"+
                     "<summary> Selected Scenario: "+scenario+" - "+visibleDecodeScenario+"</summary>"+
                     "<p style='font-size: 16px; font-weight:normal'>"+ scenarioStringified+"</p>"
                 "</details>";
+
+                
             for (let i in scenarioTimes) {
                 if (scenarioTimes[i].includes("-")) {
                     document.write("problem: a scenario takes longer than 2:30");
@@ -333,12 +370,11 @@
             //empty out the data arrays
             specificPointsVsTime.splice(0, specificPointsVsTime.length);
             specificPieceCountVsTime.splice(0, specificPieceCountVsTime.length);
-
             specificColorOverTime.splice(0, specificColorOverTime.length);
 
             //for each point in the given range, push a point to the specificPointsVsTime array
-            for (let i = startpoint; i < endpoint + 1; i++) { specificPointsVsTime.push(allPointsVsTime[i]); }
-            //check
+            for (let i = startpoint; i < endpoint + 1; i++) specificPointsVsTime.push(allPointsVsTime[i])
+
             for (let i = startpointofspecificPieceCountVsTime; i < endpointofspecificPieceCountVsTime + 1; i++) {
                 specificPieceCountVsTime.push(allPieceCountVsTime[i]);
                 specificColorOverTime.push(allColorOverTime[i]);
@@ -346,14 +382,9 @@
             let string_copy = "";
 
 
-            //delete the td's besides the first td
             let table = document.getElementById("table_id");
-           // for (let i = 0; i < table.rows.length; i++) {
-           while(table.rows.length>1)
-               // for (let j = table.coloums[i].cells.length - 1; j > 0; j--) {
-                    table.deleteRow(1)
-               // }
-            //}
+            while(table.rows.length>1)
+                table.deleteRow(1)
 
             for (let i in scenarioAction[scenarioDecoded]) {
                 string_copy += scenarioAction[scenarioDecoded][i];
@@ -371,11 +402,11 @@
                 const td1 = document.createElement("td");
                 const td2 = document.createElement("td");
 
-                td0.innerText = string_copy.substring(0, i);
-                td1.innerText = string_copy2.substring(0, j);
-                td2.innerText = 150-string_copy2.substring(0, j);
-
-
+                td0.innerText = string_copy.substring(0, i)
+                td1.innerText = Number(string_copy2.substring(0, j)).toFixed(maxDecimals)
+                td2.innerText = (150-string_copy2.substring(0, j)).toFixed(maxDecimals)
+                
+                
                 string_copy = string_copy.substring(i + 1);
                 string_copy2 = string_copy2.substring(j + 1);
 
