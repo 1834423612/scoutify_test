@@ -416,7 +416,7 @@
             allColorOverTime.push('rgb(0,0,0)')
             addPlotData(scenarioEncoded, "score fuel in hub")
         }
-        function collectPiece(scenarioEncoded, alreadyHoldingAndPositioned) {//!
+        function collectPiece(scenarioEncoded, alreadyHoldingAndPositioned) {
             piecesScored[0] += holdingPiece[0];
             holdingPiece[0] = 0;
             scenario.time -= scenario["Output (s)"];
@@ -634,6 +634,9 @@
             scenario.time -= scenario["Balance/Climb/Hang (s)"];
             addPlotData(i, "Balance/Climb/Hang");
             
+            if(scenario.piecesAmassed>0){
+                l("problem in scenario "+i+": piecesAmassed>0 at end of match")
+            }
 
             //      scenario.time -= scenario["Output (s)"] + scenario["Intake (s)"];
             // scenario.points += pointsForBestScorer[1];
