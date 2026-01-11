@@ -198,22 +198,16 @@
             }
         }
 
-//!assumptions: human player scores 12 fuel, robot starts w/ 8 fuel
+//!assumptions: human player scores 12 fuel, robot starts w/ 8 fuel, assume it takes 1.5 seconds for fuel to score, that we score more in auton (for the alliance shift) but this shouldn't change anything except psychologically, that we can collect from the depot, that we hang l1 auto and l3 teleop and score in hub when active and amass fuel when inactive, if we want the assumption that we can collect from the outpost: just change the number of piecesAmassed at start of auton to add 12
 
 
 
 //check compatibility on presenting device before presenting to judges
 
-//right align numbers, have number to 2 digits
 //head table fix, add score to table
 
 
-
-
-//auton: mobility points and one high coral, if time permits remove algae and score 
-//teleop: ignore lvl 3 and assume teamates can score 2 algae for co-op, our bot instead scoring levels 2,3,4 
-//maybe calculate min and max to find optimum number? or is too complex
-
+        let scoringdelay=1.5;//seconds it takes to score a piece
         const doLinksExist = false;
         const linkProgression = [2,2,2,2,2,2,2,2];//represents how many pieces makes a link, next number in a array is how many pieces constitutes the 2nd link, and so on and so forth: like in the game steamworks
         //for the steamship game, linkProgression=[1,2,3,4,5];
@@ -227,7 +221,7 @@
         const maxPiecesScored = 9000;
         const pointsForMobility = 12;//really the 12 pieces human player scores here
         const autonPieceLimit = 9000;
-        const holdPieceLimit = 9000;
+       // const holdPieceLimit = 9000;
         //structure of piecesScoredForRnkPnt: [# of piecesScored[0] for RnkPnt,# of piecesScored[1] for RnkPnt]
         const piecesScoredForRnkPnt = [100, 360];
         
@@ -242,12 +236,13 @@
             ["Teleop Movement (s)", 5, 6, 7],
            // ["Alliance robots leave auton (Boolean)",0,1],
             ["Other robots score at least 5 climb points (Boolean)",0,1],
-            ["Stockpile Movement Fraction", 0],//!ensure the order is listed properly ever is 
             ["Grab Amount (on average)", 8,6],
+            ["Stockpile Movement Fraction", 0],//ensure the order is listed properly
+
         ];
         
         //don't want to show grabAmount if it can only equal one, but it's still important, so it's hidden:
-        const iteratingArraysVisibleInputOffset=0;
+        const iteratingArraysVisibleInputOffset=1;
 
         //maxDecimals is helpful to pad numbers with extra zeros after decimal point
         const numbersToCheck=iteratingArrays.flat(1).filter(i => typeof i !== 'string');
@@ -410,8 +405,8 @@
             // document.getElementById('L1_Scored').innerHTML=totalL1
             // document.getElementById('L2_Scored').innerHTML=totalL2
             // document.getElementById('L3_Scored').innerHTML=totalL3
-            let grab=iteratingArrays[iteratingArrays.length-1][1+1*decodeScenario(scenarioDecoded).slice(-1)]
-            document.getElementById('L4_Scored').innerHTML=12+(totalL4-1)*grab+8-grab//!fix
+            let grab=iteratingArrays[iteratingArrays.length-2][1+1*decodeScenario(scenarioDecoded).slice(-1)]
+            document.getElementById('L4_Scored').innerHTML=12+(totalL4-1)*grab+8-grab
         }
         function autonScorePiece(scenarioEncoded) {
             piecesScored[0] += holdingPiece[0];
@@ -435,71 +430,36 @@
             addPlotData(scenarioEncoded, "scored piece")
             allColorOverTime.push('rgb(0,0,0)')
         }
-        function scorePiece(scenarioEncoded, alreadyHoldingAndPositioned) {            
+        function scorePiece(scenarioEncoded) {            
+            if(scenario.piecesAmassed>0){
+                scenario.piecesAmassed-=scenario["Grab Amount (on average)"];
+                holdingPiece[0]+=scenario["Grab Amount (on average)"];
+            }
+            else{
+                holdingPiece[0] += scenario["Grab Amount (on average)"];
+                scenario.time -= scenario["Teleop Movement (s)"] 
+            }
+
             piecesScored[0] += holdingPiece[0];
 
-            scenario.time -= scenario["Teleop Movement (s)"] + scenario["Output (s)"] + scenario["Intake (s)"];
-            if (alreadyHoldingAndPositioned) {
-                scenario.time += scenario["Teleop Movement (s)"] + scenario["Intake (s)"];
-            }
-            
-            let linkscored = false
-            if(doLinksExist){
-                let sum=0
 
-                for(let i of linkProgression){
-                    sum+=i
-                    if(piecesScored[0]-sum==0){
-                        scenario.points+=linkPoints[1]
-                        linkscored=true
-                    }
-                }
-            }
+            scenario.time -= scenario["Output (s)"] + scenario["Intake (s)"];
+            
             let pieceName='fuel';
             let targetName="hub";
-            // if(piecesScored[0]<=5){
-            //     targetName = "Lvl4"
-            // }else if(piecesScored[0]<=10){
-            //     targetName = "Lvl3"
-            // }else if (piecesScored[0]<=15) {
-            //     targetName="Lvl2"
-            // }
-            // else if (piecesScored[0]<=20){
-            //     targetName="Lvl1"
-            // }
-            // else if (piecesScored[0]<=27){
-            //     targetName="Lvl4"
-            // }
-            // else{
-            //     targetName='Lvl1'
-            // }
-    
-            
-            // if(targetName=="Lvl1"){
-            //     scenario.points+=pointsForWorstScorer[1]
-            //     allColorOverTime.push('rgb(255,255,255)')
-            // }
-            // else if(targetName=="Lvl2"){
-            //     scenario.points+=pointsForOkScorer[1]
-            //     allColorOverTime.push('rgb(200,200,200)')
-            // }
-            // else if(targetName=="Lvl3"){
-            //     scenario.points+=pointsForMidScorer[1]
-            //     allColorOverTime.push('rgb(150,150,150)')
-            // }
-            //else if(targetName=="Lvl4"){
-                scenario.points+=pointsForBestScorer[1] * holdingPiece[0]
+            scenario.points+=pointsForBestScorer[1] * holdingPiece[0]
                 
-                holdingPiece[0] = 0;
+            holdingPiece[0] = 0;
 
-                allColorOverTime.push('rgb(0,0,0)')
-           // }
-
-
-            if(linkscored) addPlotData(scenarioEncoded, "scored piece & link")
-            else addPlotData(scenarioEncoded, "scored "+pieceName+" into "+targetName)
-
+            allColorOverTime.push('rgb(0,0,0)')      
+            addPlotData(scenarioEncoded, "scored "+pieceName+" into "+targetName)
         }
+        function amassPieces(scenarioEncoded){//!
+            scenario.time -= scenario["Teleop Movement (s)"] + scenario["Output (s)"] + scenario["Intake (s)"];
+            scenario.piecesAmassed += scenario["Grab Amount (on average)"];
+        }
+
+        
         //text for action must include "score" or "collect" if action increases piecesScored
         //"collect (for stockpiling) increases piecesScored during stockpiling b/c the robot only picks up what it can score and would be too hard to track otherwise"
         function addPlotData(scenarioEncoded, action) {
@@ -531,11 +491,12 @@
             holdingPiece[0] = 8;//start w/ holding one piece
             scenario.time = 160; //seconds left in the game
             scenario.points = pointsForMobility;// here is actually the human player's 12 fuel
+            scenario.piecesAmassed = 24;//on the depot
 
             addPlotData(i, "human player scores fuel")
 
             if(scenario["Stockpile Movement Fraction"]!==0){
-                scenario.piecesStockpiled = 3; //! change number based on game's presetup
+                scenario.piecesStockpiled = 3; // change number based on game's presetup
                 for(let j = 0; j < scenario.piecesStockpiled; ++j){
                     ++piecesScored[0]//start w/ however many pieces are stockpiled (if a piece is stockpiled, it has already been 'scored')
 
@@ -656,9 +617,16 @@
                 while (
                     scenario.time - scenario["Teleop Movement (s)"] - scenario["Output (s)"] - scenario["Intake (s)"] - scenario["Balance/Climb/Hang (s)"]*( pointsForBalancing[1]>0 )>=0
                 ){ //if we want the program to see how much slower we can be w/out worsening score changing the 0 in ">=0" to some other number is a start.
-                    holdingPiece[0] += scenario["Grab Amount (on average)"];
-                    scorePiece(i);
-                    if(piecesScored[0]==maxPiecesScored) break;
+                    if(
+                        scenario.time<=130+scoringdelay&&scenario.time>=130+scoringdelay-25 ||
+                        scenario.time<=130+scoringdelay-25-25&&scenario.time>=130+scoringdelay-25-25-25
+                    ){//!
+                        amassPieces(i)
+                    }
+                    else{
+                        scorePiece(i);
+                        if(piecesScored[0]==maxPiecesScored) break;
+                    }
                 }
             }
             //endgame
