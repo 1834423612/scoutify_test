@@ -151,7 +151,7 @@
                     </details>
                     <canvas id="psotchart"></canvas>
                     <canvas id="myChart"></canvas>
-                    <h3>Coral Scored by Level</h3>
+                    <h3>Pieces Scored by Location (this is sometimes inaccurate) as of 1/11 8:54</h3>
                     <table>
                         <tr> <th>Scoring Location</th> <th># Scored</th> </tr>
                         <tr>
@@ -405,6 +405,7 @@
             // document.getElementById('L1_Scored').innerHTML=totalL1
             // document.getElementById('L2_Scored').innerHTML=totalL2
             // document.getElementById('L3_Scored').innerHTML=totalL3
+           
             let grab=iteratingArrays[iteratingArrays.length-2][1+1*decodeScenario(scenarioDecoded).slice(-1)]
             document.getElementById('L4_Scored').innerHTML=12+(totalL4-1)*grab+8-grab
         }
